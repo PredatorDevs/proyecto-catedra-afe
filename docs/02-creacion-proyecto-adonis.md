@@ -4,4 +4,4 @@
 Ejecutar en terminal:
 
 ```bash
-npm init adonisjs@latest adonis-enterprise-template -- --kit=web --db=mysql --auth-guard=session
+npm init adonisjs@latest proyect-catedra-afe -- --kit=web --db=mysql --auth-guard=session

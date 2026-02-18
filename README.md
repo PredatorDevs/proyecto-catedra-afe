@@ -1,4 +1,4 @@
-# AdonisJS Enterprise Project Template (Web + MySQL) + Tailwind + DaisyUI
+# AdonisJS Proyecto Cátedra AFE (Web + MySQL) + Tailwind + DaisyUI
 
 Starter template para proyectos empresariales en JavaScript usando **AdonisJS (full-stack)**.
 Incluye (en construcción por etapas): layout base, modo claro/oscuro, registro/login, RBAC y bitácora parcial.
