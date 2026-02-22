@@ -13,6 +13,8 @@ export default class extends BaseSeeder {
       { slug: 'roles.manage', name: 'Gestionar roles' },
       { slug: 'permissions.read', name: 'Ver permisos' },
       { slug: 'permissions.manage', name: 'Gestionar permisos' },
+      { slug: 'audit_logs.read', name: 'Ver bitácora' },
+      { slug: 'audit_logs.manage', name: 'Gestionar bitácora' },
     ]
 
     for (const permission of permissions) {

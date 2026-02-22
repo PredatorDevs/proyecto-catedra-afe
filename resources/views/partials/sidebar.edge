@@ -5,5 +5,8 @@
     @if(authPermissions?.includes('admin.access'))
       <li><a href="/admin">Administración</a></li>
     @endif
+    @if(authPermissions?.includes('audit_logs.read'))
+      <li><a href="/admin/audit-logs">Audit Logs</a></li>
+    @endif
   </ul>
 </aside>
