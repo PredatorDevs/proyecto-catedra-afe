@@ -10,7 +10,9 @@
       @endif
 
       <form class="mt-4 space-y-3" method="POST" action="/login">
-        {{ csrfField() }}
+        @if(typeof csrfField === 'function')
+          {{ csrfField() }}
+        @endif
 
         <label class="form-control">
             <div class="label"><span class="label-text">Email</span></div>

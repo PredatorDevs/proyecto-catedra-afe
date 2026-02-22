@@ -20,7 +20,9 @@
     @endif
     @if(authUser)
       <form method="POST" action="/logout">
-        {{ csrfField() }}
+        @if(typeof csrfField === 'function')
+          {{ csrfField() }}
+        @endif
         <button class="btn btn-ghost btn-sm" type="submit">Logout</button>
       </form>
     @endif
