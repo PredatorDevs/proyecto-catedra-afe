@@ -9,4 +9,10 @@
 
 import router from '@adonisjs/core/services/router'
 
-router.on('/').render('pages/home')
+router.get('/', async ({ view }) => {
+  return view.render('pages/home')
+})
+
+router.get('/dashboard', async ({ view }) => {
+  return view.render('pages/dashboard')
+})
