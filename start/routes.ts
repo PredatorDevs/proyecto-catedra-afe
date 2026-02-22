@@ -23,6 +23,12 @@ router
       .use(middleware.auth())
       .use(middleware.shareAuth())
 
+    router
+      .get('/admin', async ({ view }) => view.render('pages/admin/index'))
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
     router.get('/login', [AuthController, 'showLogin']).use(middleware.guest())
     router.get('/register', [AuthController, 'showRegister']).use(middleware.guest())
 

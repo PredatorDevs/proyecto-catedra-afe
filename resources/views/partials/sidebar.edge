@@ -2,5 +2,8 @@
   <ul class="menu">
     <li><a href="/">Home</a></li>
     <li><a href="/dashboard">Dashboard</a></li>
+    @if(authPermissions?.includes('admin.access'))
+      <li><a href="/admin">Administración</a></li>
+    @endif
   </ul>
 </aside>
