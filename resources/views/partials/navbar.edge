@@ -11,4 +11,22 @@
       Cambiar tema
     </button>
   </div>
+
+  <div class="flex-none gap-2">
+    @if(authUser)
+    <span class="badge badge-success badge-sm">
+        Bienvenido {{ authUser?.fullName || authUser?.email || 'Usuario' }}
+    </span>
+    @else
+    <span class="badge badge-warning badge-sm">
+        authUser: null
+    </span>
+    @endif
+    @if(authUser)
+      <form method="POST" action="/logout">
+        {{ csrfField() }}
+        <button class="btn btn-ghost btn-sm" type="submit">Logout</button>
+      </form>
+    @endif
+  </div>
 </nav>
