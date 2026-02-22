@@ -31,8 +31,10 @@ Implementar control de acceso por roles y permisos para proteger rutas y accione
 - Vista admin base: `resources/views/pages/admin/index.edge`
 
 ## Seeder base (roles, permisos, usuarios)
-Seeder incluido:
-- `database/seeders/rbac_base_seeder.ts`
+Seeders incluidos:
+- `database/seeders/01_roles_permissions_seeder.ts`
+- `database/seeders/02_initial_users_seeder.ts`
+- `database/seeders/03_role_assignments_seeder.ts`
 
 Datos iniciales:
 - Roles: `admin`, `user`

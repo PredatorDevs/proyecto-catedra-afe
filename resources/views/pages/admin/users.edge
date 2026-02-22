@@ -1,0 +1,52 @@
+@component('../views/components/layouts/app', { title: 'Admin Users - proyecto-catedra-afe' })
+  <div class="space-y-4">
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h1 class="text-2xl font-bold">Usuarios</h1>
+        <p>Listado básico de usuarios del sistema.</p>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow">
+      <div class="card-body overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Roles</th>
+              <th>Creado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if(users.length === 0)
+              <tr>
+                <td colspan="5" class="text-center text-base-content/70">Sin usuarios registrados.</td>
+              </tr>
+            @endif
+
+            @each(user in users)
+              <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.fullName || '-' }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                  <div class="flex flex-wrap gap-1">
+                    @if(user.roles.length === 0)
+                      <span class="badge badge-ghost">sin rol</span>
+                    @endif
+                    @each(role in user.roles)
+                      <span class="badge badge-outline">{{ role.slug }}</span>
+                    @end
+                  </div>
+                </td>
+                <td>{{ user.createdAt.toFormat('yyyy-LL-dd HH:mm:ss') }}</td>
+              </tr>
+            @end
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+@end

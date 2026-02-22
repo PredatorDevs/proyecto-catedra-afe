@@ -5,6 +5,12 @@
     @if(authPermissions?.includes('admin.access'))
       <li><a href="/admin">Administración</a></li>
     @endif
+    @if(authPermissions?.includes('users.read'))
+      <li><a href="/admin/users">Usuarios</a></li>
+    @endif
+    @if(authPermissions?.includes('roles.read'))
+      <li><a href="/admin/roles">Roles</a></li>
+    @endif
     @if(authPermissions?.includes('audit_logs.read'))
       <li><a href="/admin/audit-logs">Audit Logs</a></li>
     @endif

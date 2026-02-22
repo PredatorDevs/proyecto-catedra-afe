@@ -51,6 +51,11 @@ node ace migration:run
 node ace db:seed
 ```
 
+Seeders usados por RBAC:
+- `database/seeders/01_roles_permissions_seeder.ts`
+- `database/seeders/02_initial_users_seeder.ts`
+- `database/seeders/03_role_assignments_seeder.ts`
+
 3. Validar flujo:
 - Login y logout generan entradas en bitácora
 - `/admin/audit-logs` muestra los registros más recientes
