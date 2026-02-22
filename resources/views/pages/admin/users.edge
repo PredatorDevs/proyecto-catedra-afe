@@ -1,14 +1,14 @@
 @component('../views/components/layouts/app', { title: 'Admin Users - proyecto-catedra-afe' })
-  <div class="space-y-4">
-    <div class="card bg-base-100 shadow">
-      <div class="card-body">
-        <h1 class="text-2xl font-bold">Usuarios</h1>
-        <p>Listado básico de usuarios del sistema.</p>
+  <div class="page-stack">
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <h1 class="page-title">Usuarios</h1>
+        <p class="page-subtitle">Listado básico de usuarios del sistema.</p>
       </div>
     </div>
 
-    <div class="card bg-base-100 shadow">
-      <div class="card-body overflow-x-auto">
+    <div class="surface-card">
+      <div class="surface-card-body overflow-x-auto">
         <table class="table table-zebra">
           <thead>
             <tr>
@@ -22,7 +22,7 @@
           <tbody>
             @if(users.length === 0)
               <tr>
-                <td colspan="5" class="text-center text-base-content/70">Sin usuarios registrados.</td>
+                <td colspan="5" class="text-center text-base-content opacity-70">Sin usuarios registrados.</td>
               </tr>
             @endif
 

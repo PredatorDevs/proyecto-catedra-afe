@@ -1,8 +1,16 @@
 @component('../views/components/layouts/app', {  })
-  <div class="card bg-base-100 shadow">
-    <div class="card-body">
-    <h1 class="text-2xl font-bold">Dashboard</h1>
-    <p>Vista interna del sistema.</p>
+  <div class="page-stack">
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Vista interna del sistema.</p>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <a class="btn btn-primary btn-sm" href="/admin/users">Usuarios</a>
+          <a class="btn btn-outline btn-sm" href="/admin/roles">Roles</a>
+          <a class="btn btn-outline btn-sm" href="/admin/audit-logs">Audit Logs</a>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 @end

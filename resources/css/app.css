@@ -2,13 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  margin: 0;
-  padding: 0;
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
 }
 
-html,
-body {
-  height: 100%;
-  width: 100%;
+@layer components {
+  .page-stack {
+    @apply space-y-6;
+  }
+
+  .surface-card {
+    @apply card border border-base-300 bg-base-100 shadow-sm;
+  }
+
+  .surface-card-body {
+    @apply card-body;
+  }
+
+  .page-title {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  .page-subtitle {
+    @apply text-sm text-base-content opacity-70;
+  }
 }

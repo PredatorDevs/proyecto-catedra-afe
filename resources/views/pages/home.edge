@@ -1,11 +1,14 @@
 @component('../views/components/layouts/app', {  })
-  <div class="card bg-base-100 shadow">
-    <div class="card-body">
-      <h1 class="text-2xl font-bold">Home</h1>
-      <p>Layout base + Tailwind/DaisyUI + toggle de tema persistente.</p>
+  <div class="page-stack">
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <h1 class="page-title">Home</h1>
+        <p class="page-subtitle">Layout base + Tailwind/DaisyUI + toggle de tema persistente.</p>
 
-      <div class="mt-4">
-        <a class="btn btn-primary" href="/dashboard">Ir a Dashboard</a>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <a class="btn btn-primary" href="/dashboard">Ir a Dashboard</a>
+          <a class="btn btn-outline" href="/admin">Ir a Administración</a>
+        </div>
       </div>
     </div>
   </div>

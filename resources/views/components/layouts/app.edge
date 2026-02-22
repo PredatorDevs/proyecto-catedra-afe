@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es" data-theme="corporate">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,11 +16,13 @@
   <body class="min-h-screen bg-base-200">
     @include('partials/navbar')
 
-    <div class="flex">
+    <div class="flex min-h-[calc(100vh-4rem)]">
       @include('partials/sidebar')
 
-      <main class="flex-1 p-6">
-        {{{ await $slots.main() }}}
+      <main class="flex-1 p-4 md:p-6 lg:p-8">
+        <div class="mx-auto w-full max-w-7xl">
+          {{{ await $slots.main() }}}
+        </div>
       </main>
     </div>
   </body>

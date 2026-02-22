@@ -1,5 +1,5 @@
 (() => {
-  const THEMES = ['light', 'dark']
+  const THEMES = ['corporate', 'dark']
 
   function getSavedTheme() {
     const saved = localStorage.getItem('theme')
@@ -12,8 +12,9 @@
   }
 
   function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || 'light'
-    const next = current === 'light' ? 'dark' : 'light'
+    const currentTheme = document.documentElement.getAttribute('data-theme')
+    const current = THEMES.includes(currentTheme) ? currentTheme : 'corporate'
+    const next = current === 'corporate' ? 'dark' : 'corporate'
     applyTheme(next)
   }
 
