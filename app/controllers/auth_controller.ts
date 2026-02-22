@@ -4,19 +4,13 @@ import { loginValidator } from '#validators/auth/login_validator'
 import { registerValidator } from '#validators/auth/register_validator'
 
 export default class AuthController {
-  async showLogin({ view, auth, response }: HttpContext) {
-    if (await auth.use('web').check()) {
-        return response.redirect('/dashboard')
-    }
+  async showLogin({ view }: HttpContext) {
     return view.render('pages/auth/login')
-    }
+  }
 
-    async showRegister({ view, auth, response }: HttpContext) {
-    if (await auth.use('web').check()) {
-        return response.redirect('/dashboard')
-    }
+  async showRegister({ view }: HttpContext) {
     return view.render('pages/auth/register')
-    }
+  }
 
   async login({ request, response, auth, session }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)

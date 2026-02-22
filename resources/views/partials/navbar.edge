@@ -17,10 +17,6 @@
     <span class="badge badge-success badge-sm">
         Bienvenido {{ authUser?.fullName || authUser?.email || 'Usuario' }}
     </span>
-    @else
-    <span class="badge badge-warning badge-sm">
-        authUser: null
-    </span>
     @endif
     @if(authUser)
       <form method="POST" action="/logout">
