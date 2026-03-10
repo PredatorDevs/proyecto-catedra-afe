@@ -1,56 +1,66 @@
 @component('../views/components/layouts/auth', { title: 'Login - proyecto-catedra-afe' })
-  <div class="surface-card">
-    <div class="surface-card-body">
-      <h1 class="page-title">Iniciar sesión</h1>
-      <p class="page-subtitle">Accede con tus credenciales para continuar.</p>
+  <div class="space-y-5">
+    <div>
+      <p class="auth-kicker">Acceso seguro</p>
+      <h1 class="auth-login-title">Bienvenido de nuevo</h1>
+      <p class="page-subtitle mt-2">Ingresa tus credenciales institucionales para continuar.</p>
+    </div>
 
-      @if(flashMessages.get('error'))
-        <div class="alert alert-error mt-3">
-          <span>{{ flashMessages.get('error') }}</span>
-        </div>
+    @if(flashMessages.get('error'))
+      <div class="alert alert-error mt-1">
+        <span>{{ flashMessages.get('error') }}</span>
+      </div>
+    @endif
+
+    <form class="space-y-4" method="POST" action="/login">
+      @if(typeof csrfField === 'function')
+        {{ csrfField() }}
       @endif
 
-      <form class="mt-4 space-y-4" method="POST" action="/login">
-        @if(typeof csrfField === 'function')
-          {{ csrfField() }}
+      <label class="form-control">
+        <div class="label"><span class="label-text font-medium">Correo electrónico</span></div>
+        <input
+          name="email"
+          type="email"
+          class="input input-bordered h-12 w-full bg-base-100 @if(errors?.has('email')) input-error @endif"
+          required
+          autofocus
+          autocomplete="email"
+          value="{{ old('email') || '' }}"
+          placeholder="nombre@afe.local"
+        />
+        @if(errors?.has('email'))
+          <div class="label"><span class="label-text-alt text-error">{{ errors.first('email') }}</span></div>
         @endif
+      </label>
 
-        <label class="form-control">
-            <div class="label"><span class="label-text">Email</span></div>
-            <input
-            name="email"
-            type="email"
-            class="input input-bordered w-full @if(errors?.has('email')) input-error @endif"
-            required
-            autofocus
-            autocomplete="email"
-            value="{{ old('email') || '' }}"
-            />
-            @if(errors?.has('email'))
-            <div class="label"><span class="label-text-alt text-error">{{ errors.first('email') }}</span></div>
-            @endif
-        </label>
+      <label class="form-control">
+        <div class="label"><span class="label-text font-medium">Contraseña</span></div>
+        <input
+          name="password"
+          type="password"
+          class="input input-bordered h-12 w-full bg-base-100 @if(errors?.has('password')) input-error @endif"
+          required
+          autocomplete="current-password"
+          placeholder="Tu contraseña"
+        />
+        @if(errors?.has('password'))
+          <div class="label"><span class="label-text-alt text-error">{{ errors.first('password') }}</span></div>
+        @endif
+      </label>
 
-        <label class="form-control">
-            <div class="label"><span class="label-text">Password</span></div>
-            <input
-            name="password"
-            type="password"
-            class="input input-bordered w-full @if(errors?.has('password')) input-error @endif"
-            required
-            autocomplete="current-password"
-            />
-            @if(errors?.has('password'))
-            <div class="label"><span class="label-text-alt text-error">{{ errors.first('password') }}</span></div>
-            @endif
-        </label>
+      <button class="btn btn-primary h-12 w-full text-sm font-semibold tracking-wide" type="submit">
+        Entrar al sistema
+      </button>
 
-        <button class="btn btn-primary w-full" type="submit">Entrar</button>
+      <div class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70">
+        La creación de usuarios se gestiona internamente por administración.
+      </div>
+    </form>
 
-        {{-- <div class="text-sm mt-1 text-base-content/80">
-          La creación de usuarios se gestiona internamente por administración.
-        </div> --}}
-        </form>
+    <div class="flex items-center justify-between text-xs text-white/60">
+      <span>Entorno protegido</span>
+      <span>RBAC activo</span>
     </div>
   </div>
 @end
