@@ -27,7 +27,10 @@
   }
 
   .surface-card {
-    @apply card border border-base-300 bg-base-100 shadow-sm;
+    @apply card;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(180deg, rgba(13, 28, 82, 0.82), rgba(11, 25, 76, 0.78));
+    box-shadow: 0 20px 45px rgba(6, 11, 36, 0.35);
   }
 
   .surface-card-body {
@@ -40,6 +43,109 @@
 
   .page-subtitle {
     @apply text-sm text-base-content opacity-70;
+  }
+
+  .app-body {
+    background:
+      radial-gradient(circle at 16% 14%, rgba(116, 102, 255, 0.18) 0%, rgba(116, 102, 255, 0) 38%),
+      radial-gradient(circle at 86% 88%, rgba(89, 117, 255, 0.16) 0%, rgba(89, 117, 255, 0) 42%),
+      linear-gradient(150deg, #0d1746 0%, #0b1a55 56%, #0b1848 100%);
+    color: #e7ecff;
+  }
+
+  .app-shell {
+    @apply relative;
+  }
+
+  .app-navbar {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(7, 17, 55, 0.52);
+    backdrop-filter: blur(10px);
+  }
+
+  .app-brand {
+    color: rgba(239, 242, 255, 0.92);
+  }
+
+  .app-sidebar {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(8, 19, 61, 0.45);
+    backdrop-filter: blur(8px);
+  }
+
+  .app-menu {
+    background: transparent;
+    color: rgba(225, 232, 255, 0.82);
+    gap: 0.15rem;
+  }
+
+  .app-menu :where(li > a) {
+    border: 1px solid transparent;
+    border-radius: 0.7rem;
+    transition: all 180ms ease;
+  }
+
+  .app-menu :where(li > a:hover) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .app-main {
+    @apply relative;
+  }
+
+  .app-main-frame {
+    animation: app-enter 420ms ease-out;
+  }
+
+  .app-main .page-title,
+  .app-main .card-title {
+    color: #f2f5ff;
+  }
+
+  .app-main .page-subtitle {
+    color: rgba(223, 230, 255, 0.72);
+    opacity: 1;
+  }
+
+  .app-main .table {
+    color: rgba(232, 237, 255, 0.9);
+  }
+
+  .app-main .table th {
+    color: rgba(216, 225, 255, 0.8);
+  }
+
+  .app-main .btn-outline {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(241, 245, 255, 0.9);
+  }
+
+  .app-main .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .app-main .input,
+  .app-main .select,
+  .app-main .textarea {
+    border-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+  }
+
+  .app-main .input::placeholder,
+  .app-main .textarea::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .app-main .input:focus,
+  .app-main .select:focus,
+  .app-main .textarea:focus {
+    outline: none;
+    border-color: rgba(146, 140, 255, 0.65);
+    box-shadow: 0 0 0 3px rgba(139, 132, 255, 0.18);
   }
 
   .auth-body {
@@ -139,6 +245,18 @@
   .auth-glow-b {
     @apply bottom-[-6rem] right-[-4rem] h-60 w-60;
     background-color: rgba(94, 77, 221, 0.22);
+  }
+}
+
+@keyframes app-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

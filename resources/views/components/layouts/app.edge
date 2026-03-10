@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <title>{{ title || 'proyecto-catedra-afe' }}</title>
 
@@ -13,14 +19,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
   </head>
 
-  <body class="min-h-screen bg-base-200">
+  <body class="app-body min-h-screen">
     @include('partials/navbar')
 
-    <div class="flex min-h-[calc(100vh-4rem)]">
+    <div class="app-shell flex min-h-[calc(100vh-4rem)]">
       @include('partials/sidebar')
 
-      <main class="flex-1 p-4 md:p-6 lg:p-8">
-        <div class="mx-auto w-full max-w-7xl">
+      <main class="app-main flex-1 p-4 md:p-6 lg:p-8">
+        <div class="app-main-frame mx-auto w-full max-w-7xl">
           {{{ await $slots.main() }}}
         </div>
       </main>
