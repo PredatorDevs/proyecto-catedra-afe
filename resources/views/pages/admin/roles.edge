@@ -131,6 +131,8 @@
                 @if(authPermissions?.includes('roles.manage'))
                   <td>
                     <div class="flex gap-2">
+                      <a class="btn btn-outline btn-sm" href="/admin/roles/{{ role.id }}/permissions">Permisos</a>
+
                       <form id="update-role-{{ role.id }}" method="POST" action="/admin/roles/{{ role.id }}/update">
                         @if(typeof csrfField === 'function')
                           {{ csrfField() }}

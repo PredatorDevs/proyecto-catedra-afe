@@ -76,6 +76,18 @@ router
       .use(middleware.shareAuth())
 
     router
+      .get('/admin/roles/:id/permissions', [RolesController, 'editPermissions'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['roles.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/roles/:id/permissions', [RolesController, 'updatePermissions'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['roles.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
       .get('/admin/permissions', [PermissionsController, 'index'])
       .use(middleware.auth())
       .use(middleware.permission({ permissions: ['permissions.read'] }))

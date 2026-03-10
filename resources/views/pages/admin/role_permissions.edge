@@ -1,0 +1,57 @@
+@component('../views/components/layouts/app', { title: `Permisos de Rol - ${role.slug}` })
+  <div class="page-stack">
+    @if(flashMessages.get('success'))
+      <div class="alert alert-success">
+        <span>{{ flashMessages.get('success') }}</span>
+      </div>
+    @endif
+
+    @if(flashMessages.get('error'))
+      <div class="alert alert-error">
+        <span>{{ flashMessages.get('error') }}</span>
+      </div>
+    @endif
+
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <h1 class="page-title">Asignación de permisos</h1>
+        <p class="page-subtitle">
+          Rol: <strong>{{ role.name }}</strong> ({{ role.slug }})
+        </p>
+      </div>
+    </div>
+
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <form class="space-y-4" method="POST" action="/admin/roles/{{ role.id }}/permissions">
+          @if(typeof csrfField === 'function')
+            {{ csrfField() }}
+          @endif
+
+          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            @each(permission in permissions)
+              <label class="label cursor-pointer justify-start gap-3 rounded-box border border-base-300 px-4 py-3">
+                <input
+                  type="checkbox"
+                  name="permissionIds"
+                  value="{{ permission.id }}"
+                  class="checkbox checkbox-sm"
+                  {{ assignedPermissionIds.includes(permission.id) ? 'checked' : '' }}
+                />
+                <span class="label-text">
+                  <span class="font-medium">{{ permission.slug }}</span>
+                  <span class="block text-xs text-base-content opacity-70">{{ permission.name }}</span>
+                </span>
+              </label>
+            @end
+          </div>
+
+          <div class="flex flex-wrap justify-end gap-2">
+            <a class="btn btn-outline" href="/admin/roles">Volver a roles</a>
+            <button class="btn btn-primary" type="submit">Guardar permisos</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+@end
