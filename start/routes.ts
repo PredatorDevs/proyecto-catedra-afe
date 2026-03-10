@@ -56,6 +56,24 @@ router
       .use(middleware.permission({ permissions: ['roles.read'] }))
       .use(middleware.shareAuth())
 
+    router
+      .post('/admin/roles', [RolesController, 'store'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['roles.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/roles/:id/update', [RolesController, 'update'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['roles.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/roles/:id/delete', [RolesController, 'destroy'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['roles.manage'] }))
+      .use(middleware.shareAuth())
+
     router.get('/login', [AuthController, 'showLogin']).use(middleware.guest())
 
     router.post('/login', [AuthController, 'login']).use(middleware.guest())

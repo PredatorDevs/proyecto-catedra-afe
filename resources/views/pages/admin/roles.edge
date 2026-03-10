@@ -1,5 +1,64 @@
 @component('../views/components/layouts/app', { title: 'Admin Roles - proyecto-catedra-afe' })
   <div class="page-stack">
+    @if(flashMessages.get('success'))
+      <div class="alert alert-success">
+        <span>{{ flashMessages.get('success') }}</span>
+      </div>
+    @endif
+
+    @if(flashMessages.get('error'))
+      <div class="alert alert-error">
+        <span>{{ flashMessages.get('error') }}</span>
+      </div>
+    @endif
+
+    @if(authPermissions?.includes('roles.manage'))
+      <div class="surface-card">
+        <div class="surface-card-body">
+          <h2 class="card-title">Crear rol</h2>
+          <p class="page-subtitle">Los roles controlan grupos de permisos para el acceso interno.</p>
+
+          <form class="grid gap-4 md:grid-cols-2" method="POST" action="/admin/roles">
+            @if(typeof csrfField === 'function')
+              {{ csrfField() }}
+            @endif
+
+            <label class="form-control">
+              <div class="label"><span class="label-text">Slug</span></div>
+              <input
+                name="slug"
+                type="text"
+                class="input input-bordered w-full @if(errors?.has('slug')) input-error @endif"
+                required
+                value="{{ errors?.has('slug') ? (old('slug') || '') : '' }}"
+              />
+              @if(errors?.has('slug'))
+                <div class="label"><span class="label-text-alt text-error">{{ errors.first('slug') }}</span></div>
+              @endif
+            </label>
+
+            <label class="form-control">
+              <div class="label"><span class="label-text">Nombre</span></div>
+              <input
+                name="name"
+                type="text"
+                class="input input-bordered w-full @if(errors?.has('name')) input-error @endif"
+                required
+                value="{{ errors?.has('name') ? (old('name') || '') : '' }}"
+              />
+              @if(errors?.has('name'))
+                <div class="label"><span class="label-text-alt text-error">{{ errors.first('name') }}</span></div>
+              @endif
+            </label>
+
+            <div class="md:col-span-2 flex justify-end">
+              <button class="btn btn-primary" type="submit">Crear rol</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    @endif
+
     <div class="surface-card">
       <div class="surface-card-body">
         <h1 class="page-title">Roles</h1>
@@ -16,20 +75,49 @@
               <th>Slug</th>
               <th>Nombre</th>
               <th>Permisos</th>
+              @if(authPermissions?.includes('roles.manage'))
+                <th>Acciones</th>
+              @endif
             </tr>
           </thead>
           <tbody>
             @if(roles.length === 0)
               <tr>
-                <td colspan="4" class="text-center text-base-content opacity-70">Sin roles registrados.</td>
+                <td colspan="{{ authPermissions?.includes('roles.manage') ? '5' : '4' }}" class="text-center text-base-content opacity-70">
+                  Sin roles registrados.
+                </td>
               </tr>
             @endif
 
             @each(role in roles)
               <tr>
                 <td>{{ role.id }}</td>
-                <td>{{ role.slug }}</td>
-                <td>{{ role.name }}</td>
+                <td>
+                  @if(authPermissions?.includes('roles.manage'))
+                    <input
+                      form="update-role-{{ role.id }}"
+                      name="slug"
+                      type="text"
+                      class="input input-bordered input-sm w-full"
+                      value="{{ role.slug }}"
+                    />
+                  @else
+                    {{ role.slug }}
+                  @endif
+                </td>
+                <td>
+                  @if(authPermissions?.includes('roles.manage'))
+                    <input
+                      form="update-role-{{ role.id }}"
+                      name="name"
+                      type="text"
+                      class="input input-bordered input-sm w-full"
+                      value="{{ role.name }}"
+                    />
+                  @else
+                    {{ role.name }}
+                  @endif
+                </td>
                 <td>
                   <div class="flex flex-wrap gap-1">
                     @if(role.permissions.length === 0)
@@ -40,6 +128,27 @@
                     @end
                   </div>
                 </td>
+                @if(authPermissions?.includes('roles.manage'))
+                  <td>
+                    <div class="flex gap-2">
+                      <form id="update-role-{{ role.id }}" method="POST" action="/admin/roles/{{ role.id }}/update">
+                        @if(typeof csrfField === 'function')
+                          {{ csrfField() }}
+                        @endif
+                        <button class="btn btn-info btn-sm" type="submit">Guardar</button>
+                      </form>
+
+                      @if(role.slug !== 'admin')
+                        <form method="POST" action="/admin/roles/{{ role.id }}/delete">
+                          @if(typeof csrfField === 'function')
+                            {{ csrfField() }}
+                          @endif
+                          <button class="btn btn-error btn-sm" type="submit">Eliminar</button>
+                        </form>
+                      @endif
+                    </div>
+                  </td>
+                @endif
               </tr>
             @end
           </tbody>
