@@ -45,16 +45,20 @@ router
       .use(middleware.shareAuth())
 
     router
+      .post('/admin/users', [UsersController, 'store'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['users.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
       .get('/admin/roles', [RolesController, 'index'])
       .use(middleware.auth())
       .use(middleware.permission({ permissions: ['roles.read'] }))
       .use(middleware.shareAuth())
 
     router.get('/login', [AuthController, 'showLogin']).use(middleware.guest())
-    router.get('/register', [AuthController, 'showRegister']).use(middleware.guest())
 
     router.post('/login', [AuthController, 'login']).use(middleware.guest())
-    router.post('/register', [AuthController, 'register']).use(middleware.guest())
 
     router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
   })

@@ -5,20 +5,9 @@ import testUtils from '@adonisjs/core/services/test_utils'
 test.group('Auth flows', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('registers a new user and redirects to dashboard', async ({ client, assert }) => {
-    const email = `new.user.${Date.now()}@afe.local`
-
-    const response = await client
-      .post('/register')
-      .form({
-        email,
-        password: 'Secret12345',
-      })
-
-    response.assertRedirectsTo('/dashboard')
-
-    const user = await User.findBy('email', email)
-    assert.exists(user)
+  test('does not expose public register route', async ({ client }) => {
+    const response = await client.get('/register')
+    response.assertStatus(404)
   })
 
   test('logs in with valid credentials', async ({ client }) => {

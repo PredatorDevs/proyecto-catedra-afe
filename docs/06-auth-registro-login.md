@@ -1,5 +1,7 @@
 # 06 - Auth: Registro, Login y Logout (Session Guard + Edge)
 
+> Actualización de política empresarial: el registro público fue deshabilitado. La creación de usuarios se realiza internamente desde administración (`/admin/users`) con permisos RBAC.
+
 ## Objetivo
 Implementar autenticación base en `proyecto-catedra-afe` utilizando **AdonisJS Auth con Session Guard**:
 
@@ -20,8 +22,6 @@ Implementar autenticación base en `proyecto-catedra-afe` utilizando **AdonisJS 
 Archivo: `app/controllers/auth_controller.ts`
 
 Responsabilidades:
-- Renderizar páginas de login y registro
-- Evitar que un usuario ya autenticado vea `/login` o `/register` (redirige a `/dashboard`)
+- Renderizar página de login
 - Procesar POST `/login` con verificación de credenciales
-- Procesar POST `/register` creando usuario + login automático
 - Procesar POST `/logout` cerrando sesión

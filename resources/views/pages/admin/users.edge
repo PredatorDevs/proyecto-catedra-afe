@@ -1,5 +1,87 @@
 @component('../views/components/layouts/app', { title: 'Admin Users - proyecto-catedra-afe' })
   <div class="page-stack">
+    @if(flashMessages.get('success'))
+      <div class="alert alert-success">
+        <span>{{ flashMessages.get('success') }}</span>
+      </div>
+    @endif
+
+    @if(authPermissions?.includes('users.manage'))
+      <div class="surface-card">
+        <div class="surface-card-body">
+          <h2 class="card-title">Crear usuario interno</h2>
+          <p class="page-subtitle">Alta de usuarios controlada por administración y permisos.</p>
+
+          <form class="grid gap-4 md:grid-cols-2" method="POST" action="/admin/users">
+            @if(typeof csrfField === 'function')
+              {{ csrfField() }}
+            @endif
+
+            <label class="form-control">
+              <div class="label"><span class="label-text">Nombre completo</span></div>
+              <input
+                name="fullName"
+                type="text"
+                class="input input-bordered w-full @if(errors?.has('fullName')) input-error @endif"
+                required
+                value="{{ errors?.has('fullName') ? (old('fullName') || '') : '' }}"
+              />
+              @if(errors?.has('fullName'))
+                <div class="label"><span class="label-text-alt text-error">{{ errors.first('fullName') }}</span></div>
+              @endif
+            </label>
+
+            <label class="form-control">
+              <div class="label"><span class="label-text">Email</span></div>
+              <input
+                name="email"
+                type="email"
+                class="input input-bordered w-full @if(errors?.has('email')) input-error @endif"
+                required
+                value="{{ errors?.has('email') ? (old('email') || '') : '' }}"
+              />
+              @if(errors?.has('email'))
+                <div class="label"><span class="label-text-alt text-error">{{ errors.first('email') }}</span></div>
+              @endif
+            </label>
+
+            <label class="form-control">
+              <div class="label"><span class="label-text">Password</span></div>
+              <input
+                name="password"
+                type="password"
+                class="input input-bordered w-full @if(errors?.has('password')) input-error @endif"
+                required
+                minlength="8"
+              />
+              @if(errors?.has('password'))
+                <div class="label"><span class="label-text-alt text-error">{{ errors.first('password') }}</span></div>
+              @endif
+            </label>
+
+            <label class="form-control">
+              <div class="label"><span class="label-text">Roles</span></div>
+              <select name="roleIds" multiple class="select select-bordered h-28 w-full">
+                @each(role in roles)
+                  <option
+                    value="{{ role.id }}"
+                    {{ old('roleIds')?.includes(String(role.id)) ? 'selected' : '' }}
+                  >
+                    {{ role.name }} ({{ role.slug }})
+                  </option>
+                @end
+              </select>
+              <div class="label"><span class="label-text-alt">Puedes seleccionar uno o más roles.</span></div>
+            </label>
+
+            <div class="md:col-span-2 flex justify-end">
+              <button class="btn btn-primary" type="submit">Crear usuario</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    @endif
+
     <div class="surface-card">
       <div class="surface-card-body">
         <h1 class="page-title">Usuarios</h1>
