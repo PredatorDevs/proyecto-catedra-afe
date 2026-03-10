@@ -8,21 +8,21 @@
 
     @if(authPermissions?.includes('users.manage'))
       <div class="surface-card">
-        <div class="surface-card-body">
-          <h2 class="card-title">Crear usuario interno</h2>
+        <div class="surface-card-body app-form-panel">
+          <h2 class="card-title app-section-title">Crear usuario interno</h2>
           <p class="page-subtitle">Alta de usuarios controlada por administración y permisos.</p>
 
-          <form class="grid gap-4 md:grid-cols-2" method="POST" action="/admin/users">
+          <form class="app-form-grid grid gap-4 md:grid-cols-2" method="POST" action="/admin/users">
             @if(typeof csrfField === 'function')
               {{ csrfField() }}
             @endif
 
-            <label class="form-control">
+            <label class="app-form-field form-control">
               <div class="label"><span class="label-text">Nombre completo</span></div>
               <input
                 name="fullName"
                 type="text"
-                class="input input-bordered w-full @if(errors?.has('fullName')) input-error @endif"
+                class="input input-bordered app-strong-input w-full @if(errors?.has('fullName')) input-error @endif"
                 required
                 value="{{ errors?.has('fullName') ? (old('fullName') || '') : '' }}"
               />
@@ -31,12 +31,12 @@
               @endif
             </label>
 
-            <label class="form-control">
+            <label class="app-form-field form-control">
               <div class="label"><span class="label-text">Email</span></div>
               <input
                 name="email"
                 type="email"
-                class="input input-bordered w-full @if(errors?.has('email')) input-error @endif"
+                class="input input-bordered app-strong-input w-full @if(errors?.has('email')) input-error @endif"
                 required
                 value="{{ errors?.has('email') ? (old('email') || '') : '' }}"
               />
@@ -45,12 +45,12 @@
               @endif
             </label>
 
-            <label class="form-control">
+            <label class="app-form-field form-control">
               <div class="label"><span class="label-text">Password</span></div>
               <input
                 name="password"
                 type="password"
-                class="input input-bordered w-full @if(errors?.has('password')) input-error @endif"
+                class="input input-bordered app-strong-input w-full @if(errors?.has('password')) input-error @endif"
                 required
                 minlength="8"
               />
@@ -59,9 +59,9 @@
               @endif
             </label>
 
-            <label class="form-control">
+            <label class="app-form-field form-control">
               <div class="label"><span class="label-text">Roles</span></div>
-              <select name="roleIds" multiple class="select select-bordered h-28 w-full">
+              <select name="roleIds" multiple class="select select-bordered app-strong-input h-28 w-full">
                 @each(role in roles)
                   <option
                     value="{{ role.id }}"
@@ -75,7 +75,7 @@
             </label>
 
             <div class="md:col-span-2 flex justify-end">
-              <button class="btn btn-primary" type="submit">Crear usuario</button>
+              <button class="btn app-cta-btn min-w-40 px-8" type="submit">Crear usuario</button>
             </div>
           </form>
         </div>
@@ -90,8 +90,8 @@
     </div>
 
     <div class="surface-card">
-      <div class="surface-card-body overflow-x-auto">
-        <table class="table table-zebra">
+      <div class="surface-card-body app-table-panel overflow-x-auto">
+        <table class="app-data-table table table-zebra">
           <thead>
             <tr>
               <th>ID</th>

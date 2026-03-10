@@ -2,40 +2,37 @@
   <div class="app-navbar-inner flex w-full items-center justify-between gap-3">
     <div class="flex items-center gap-2">
       <a class="app-brand btn btn-ghost text-lg font-bold" href="/">
-        <span class="badge border-white/20 bg-white/10 text-white">AFE</span>
+        <span class="app-brand-badge badge">AFE</span>
         <span class="ml-2 hidden sm:inline">proyecto-catedra-afe</span>
       </a>
-
-      <div class="app-nav-actions hidden items-center gap-2 md:flex">
-        <a class="btn btn-sm app-ghost-btn" href="/dashboard">Dashboard</a>
-        @if(authPermissions?.includes('admin.access'))
-          <a class="btn btn-sm app-ghost-btn" href="/admin">Admin</a>
-        @endif
-      </div>
     </div>
 
     <div class="flex items-center gap-2 md:gap-3">
-      <button id="themeToggle" class="btn btn-sm app-ghost-btn">
-        Tema
+      <button id="themeToggle" type="button" class="btn btn-sm app-ghost-btn app-theme-toggle">
+        <span class="theme-toggle-icon" aria-hidden="true"></span>
+        <span class="theme-toggle-label">Theme</span>
       </button>
 
       @if(authUser)
         <div class="dropdown dropdown-end">
           <label tabindex="0" class="btn app-avatar-btn gap-2 px-2.5 normal-case">
             <div class="avatar placeholder">
-              <div class="w-8 rounded-full bg-white/10 text-sm text-white ring-1 ring-white/20">
+              <div class="app-avatar-initial h-8 w-8 rounded-full text-sm">
                 <span>{{ (authUser?.fullName || authUser?.email || 'U').charAt(0).toUpperCase() }}</span>
               </div>
             </div>
-            <span class="hidden max-w-[9rem] truncate text-left text-xs text-white/90 md:block">
+            <span class="app-avatar-name hidden max-w-[9rem] truncate text-left text-xs md:block">
               {{ authUser?.fullName || authUser?.email || 'Usuario' }}
             </span>
+            <svg class="app-avatar-chevron h-3 w-3 opacity-80" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </label>
 
           <ul tabindex="0" class="menu dropdown-content app-user-menu z-[80] mt-2 w-64 rounded-xl p-2 shadow-xl">
-            <li class="menu-title text-[11px] uppercase tracking-[0.12em] text-white/55">Cuenta</li>
+            <li class="menu-title app-user-title text-[11px] uppercase tracking-[0.12em]">Cuenta</li>
             <li>
-              <span class="pointer-events-none text-sm text-white/85">{{ authUser?.email }}</span>
+              <span class="app-user-email pointer-events-none text-sm">{{ authUser?.email }}</span>
             </li>
             <li class="mt-1 md:hidden"><a href="/dashboard">Dashboard</a></li>
             @if(authPermissions?.includes('admin.access'))
@@ -46,7 +43,14 @@
                 @if(typeof csrfField === 'function')
                   {{ csrfField() }}
                 @endif
-                <button class="btn btn-sm w-full app-danger-btn" type="submit">Cerrar sesion</button>
+                <button class="btn btn-sm w-full app-danger-btn justify-start gap-2 px-4" type="submit">
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M12.5 4.5H15a1 1 0 011 1v9a1 1 0 01-1 1h-2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M8 6L4 10L8 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.5 10H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  <span>Cerrar sesion</span>
+                </button>
               </form>
             </li>
           </ul>

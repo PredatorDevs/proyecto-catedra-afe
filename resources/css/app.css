@@ -28,9 +28,9 @@
 
   .surface-card {
     @apply card;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: linear-gradient(180deg, rgba(13, 28, 82, 0.82), rgba(11, 25, 76, 0.78));
-    box-shadow: 0 20px 45px rgba(6, 11, 36, 0.35);
+    border: 1px solid hsl(var(--bc) / 0.14);
+    background: linear-gradient(180deg, hsl(var(--b1) / 0.82), hsl(var(--b2) / 0.78));
+    box-shadow: 0 20px 45px hsl(var(--n) / 0.28);
   }
 
   .surface-card-body {
@@ -47,10 +47,10 @@
 
   .app-body {
     background:
-      radial-gradient(circle at 16% 14%, rgba(116, 102, 255, 0.18) 0%, rgba(116, 102, 255, 0) 38%),
-      radial-gradient(circle at 86% 88%, rgba(89, 117, 255, 0.16) 0%, rgba(89, 117, 255, 0) 42%),
-      linear-gradient(150deg, #0d1746 0%, #0b1a55 56%, #0b1848 100%);
-    color: #e7ecff;
+      radial-gradient(circle at 16% 14%, hsl(var(--p) / 0.2) 0%, hsl(var(--p) / 0) 38%),
+      radial-gradient(circle at 86% 88%, hsl(var(--s) / 0.18) 0%, hsl(var(--s) / 0) 42%),
+      linear-gradient(150deg, hsl(var(--b3)) 0%, hsl(var(--b2)) 56%, hsl(var(--b1)) 100%);
+    color: hsl(var(--bc) / 0.95);
   }
 
   .app-shell {
@@ -61,8 +61,8 @@
     position: relative;
     z-index: 60;
     isolation: isolate;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(7, 17, 55, 0.52);
+    border-bottom: 1px solid #0d2f52;
+    background: #124170;
     backdrop-filter: blur(10px);
   }
 
@@ -71,67 +71,126 @@
   }
 
   .app-brand {
-    color: rgba(239, 242, 255, 0.92);
+    color: #f2f7ff;
+  }
+
+  .app-brand-badge {
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
   }
 
   .app-ghost-btn {
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(242, 246, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    color: #edf4ff;
   }
 
   .app-ghost-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.16);
     color: #ffffff;
   }
 
   .app-avatar-btn {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(244, 247, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    color: #edf4ff;
   }
 
   .app-avatar-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .app-avatar-initial {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  }
+
+  .app-avatar-name {
+    color: #edf4ff;
+  }
+
+  .app-theme-toggle {
+    gap: 0.4rem;
+    min-width: 5.8rem;
+    justify-content: center;
+  }
+
+  .theme-toggle-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.95;
+  }
+
+  .theme-toggle-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .app-avatar-chevron {
+    transition: transform 180ms ease;
+  }
+
+  .dropdown:focus-within .app-avatar-chevron {
+    transform: rotate(180deg);
   }
 
   .app-user-menu {
     z-index: 80;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: linear-gradient(180deg, rgba(12, 26, 79, 0.95), rgba(10, 22, 67, 0.93));
-    color: rgba(236, 241, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: linear-gradient(180deg, rgba(18, 65, 112, 0.96), rgba(13, 47, 82, 0.94));
+    color: #eaf3ff;
     backdrop-filter: blur(8px);
+  }
+
+  .app-user-title {
+    color: rgba(234, 243, 255, 0.65);
+  }
+
+  .app-user-email {
+    color: rgba(234, 243, 255, 0.9);
   }
 
   .app-user-menu :where(li > a) {
     border-radius: 0.6rem;
-    color: rgba(237, 241, 255, 0.88);
+    color: #edf4ff;
+    padding: 0.6rem 0.8rem;
   }
 
   .app-user-menu :where(li > a:hover) {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.14);
     color: #ffffff;
   }
 
   .app-danger-btn {
-    border: 1px solid rgba(248, 113, 113, 0.35);
-    background: rgba(248, 113, 113, 0.18);
-    color: #fee2e2;
+    border: 1px solid rgba(248, 113, 113, 0.52);
+    background: rgba(190, 30, 45, 0.45);
+    color: #ffe7e7;
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
   }
 
   .app-danger-btn:hover {
-    background: rgba(248, 113, 113, 0.28);
+    background: rgba(190, 30, 45, 0.62);
   }
 
   .app-sidebar {
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(8, 19, 61, 0.45);
+    border-right: 1px solid hsl(var(--bc) / 0.1);
+    background: hsl(var(--b1) / 0.46);
     backdrop-filter: blur(8px);
   }
 
   .app-menu {
     background: transparent;
-    color: rgba(225, 232, 255, 0.82);
+    color: hsl(var(--bc) / 0.82);
     gap: 0.15rem;
   }
 
@@ -142,9 +201,9 @@
   }
 
   .app-menu :where(li > a:hover) {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    background: hsl(var(--b2) / 0.62);
+    border-color: hsl(var(--bc) / 0.14);
+    color: hsl(var(--bc) / 0.98);
   }
 
   .app-main {
@@ -157,59 +216,208 @@
 
   .app-main .page-title,
   .app-main .card-title {
-    color: #f2f5ff;
+    color: hsl(var(--bc) / 0.98);
   }
 
   .app-main .page-subtitle {
-    color: rgba(223, 230, 255, 0.72);
+    color: hsl(var(--bc) / 0.72);
     opacity: 1;
   }
 
   .app-main .table {
-    color: rgba(232, 237, 255, 0.9);
+    color: hsl(var(--bc) / 0.9);
+    border: 1px solid hsl(var(--bc) / 0.16);
+    border-radius: 0.85rem;
+    overflow: hidden;
   }
 
   .app-main .table th {
-    color: rgba(216, 225, 255, 0.8);
+    color: hsl(var(--bc) / 0.78);
+  }
+
+  .app-main .table :where(th, td) {
+    border-bottom: 1px solid hsl(var(--bc) / 0.14);
+  }
+
+  .app-main .table thead tr {
+    background: hsl(var(--b3) / 0.58);
+  }
+
+  .app-main .table-zebra tbody tr:nth-child(even) {
+    background: hsl(var(--b2) / 0.34);
+  }
+
+  .app-main .table-zebra tbody tr:hover {
+    background: hsl(var(--b3) / 0.5);
+  }
+
+  .app-main .btn {
+    box-shadow: 0 8px 18px hsl(var(--n) / 0.16);
+  }
+
+  .app-main .btn-primary {
+    border-color: hsl(var(--p) / 0.88);
+    background: hsl(var(--p) / 0.84);
+    color: hsl(var(--pc) / 0.98);
+  }
+
+  .app-main .btn-primary:hover {
+    filter: brightness(1.06);
+  }
+
+  .app-main .btn-info {
+    border-color: hsl(var(--in) / 0.8);
+    background: hsl(var(--in) / 0.72);
+    color: hsl(var(--inc) / 0.98);
+  }
+
+  .app-main .btn-error {
+    border-color: hsl(var(--er) / 0.72);
+    background: hsl(var(--er) / 0.66);
+    color: hsl(var(--erc) / 0.98);
   }
 
   .app-main .btn-outline {
-    border-color: rgba(255, 255, 255, 0.2);
-    color: rgba(241, 245, 255, 0.9);
+    border-color: hsl(var(--bc) / 0.2);
+    color: hsl(var(--bc) / 0.9);
+    background: hsl(var(--b1) / 0.44);
   }
 
   .app-main .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    background: hsl(var(--b2) / 0.65);
+    color: hsl(var(--bc) / 1);
+  }
+
+  .app-main .badge,
+  .app-main .badge-outline {
+    border-color: hsl(var(--bc) / 0.22);
+    color: hsl(var(--bc) / 0.9);
+    background: hsl(var(--b1) / 0.55);
   }
 
   .app-main .input,
   .app-main .select,
   .app-main .textarea {
-    border-color: rgba(255, 255, 255, 0.12);
-    background-color: rgba(255, 255, 255, 0.06);
-    color: #ffffff;
+    border-color: hsl(var(--bc) / 0.14);
+    background-color: hsl(var(--b1) / 0.45);
+    color: hsl(var(--bc) / 0.96);
   }
 
   .app-main .input::placeholder,
   .app-main .textarea::placeholder {
-    color: rgba(255, 255, 255, 0.45);
+    color: hsl(var(--bc) / 0.45);
   }
 
   .app-main .input:focus,
   .app-main .select:focus,
   .app-main .textarea:focus {
     outline: none;
-    border-color: rgba(146, 140, 255, 0.65);
-    box-shadow: 0 0 0 3px rgba(139, 132, 255, 0.18);
+    border-color: hsl(var(--p) / 0.65);
+    box-shadow: 0 0 0 3px hsl(var(--p) / 0.18);
+  }
+
+  .app-section-title {
+    letter-spacing: 0.01em;
+  }
+
+  .app-form-grid {
+    margin-top: 0.35rem;
+  }
+
+  .app-form-field {
+    padding: 0.35rem;
+    border: 1px solid hsl(var(--bc) / 0.12);
+    border-radius: 0.8rem;
+    background: hsl(var(--b1) / 0.36);
+  }
+
+  .app-form-panel {
+    border: 1px solid hsl(var(--bc) / 0.2);
+    border-radius: 1rem;
+    background: hsl(var(--b1) / 0.56);
+    box-shadow: inset 0 0 0 1px hsl(var(--bc) / 0.08);
+  }
+
+  .app-table-panel {
+    border: 1px solid hsl(var(--bc) / 0.2);
+    border-radius: 1rem;
+    background: hsl(var(--b1) / 0.52);
+  }
+
+  .app-form-field .label-text {
+    font-weight: 600;
+    color: hsl(var(--bc) / 0.86);
+  }
+
+  .app-form-field .label-text-alt {
+    color: hsl(var(--bc) / 0.68);
+  }
+
+  .app-cta-btn {
+    border: 1px solid hsl(var(--p) / 0.9);
+    background: linear-gradient(90deg, hsl(var(--p) / 0.88), hsl(var(--s) / 0.8));
+    color: hsl(var(--pc) / 0.98);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    box-shadow: 0 12px 26px hsl(var(--p) / 0.24);
+  }
+
+  .app-cta-btn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+
+  .app-strong-input {
+    border-color: hsl(var(--bc) / 0.28) !important;
+    background: hsl(var(--b1) / 0.82) !important;
+    color: hsl(var(--bc) / 0.98) !important;
+  }
+
+  .app-strong-input:focus {
+    border-color: hsl(var(--p) / 0.75) !important;
+    box-shadow: 0 0 0 4px hsl(var(--p) / 0.22) !important;
+  }
+
+  .app-data-table thead th {
+    font-size: 0.77rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   .auth-body {
     background:
-      radial-gradient(circle at 18% 16%, rgba(126, 92, 255, 0.2) 0%, rgba(126, 92, 255, 0) 38%),
-      radial-gradient(circle at 82% 85%, rgba(90, 74, 200, 0.18) 0%, rgba(90, 74, 200, 0) 44%),
-      linear-gradient(150deg, #0d1746 0%, #0b1a55 55%, #0b1848 100%);
-    color: #e6ebff;
+      radial-gradient(circle at 18% 16%, hsl(var(--p) / 0.2) 0%, hsl(var(--p) / 0) 38%),
+      radial-gradient(circle at 82% 85%, hsl(var(--s) / 0.18) 0%, hsl(var(--s) / 0) 44%),
+      linear-gradient(150deg, hsl(var(--b3)) 0%, hsl(var(--b2)) 55%, hsl(var(--b1)) 100%);
+    color: hsl(var(--bc) / 0.94);
+  }
+
+  .auth-navbar {
+    border-bottom: 1px solid #0d2f52;
+    background: #124170;
+  }
+
+  .auth-brand {
+    color: #f2f7ff;
+  }
+
+  .auth-brand-badge,
+  .auth-kicker-badge {
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+  }
+
+  .auth-ghost-btn {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    color: #edf4ff;
+  }
+
+  .auth-ghost-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
   }
 
   .auth-main {
@@ -221,8 +429,8 @@
   }
 
   .auth-showcase {
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02) 70%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(160deg, hsl(var(--b1) / 0.42), hsl(var(--b2) / 0.28) 70%);
+    border: 1px solid hsl(var(--bc) / 0.1);
   }
 
   .auth-showcase-title {
@@ -230,49 +438,66 @@
   }
 
   .auth-form-wrap {
-    background: linear-gradient(180deg, rgba(10, 24, 76, 0.9), rgba(10, 24, 76, 0.86));
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 30px 70px rgba(6, 10, 35, 0.45);
+    background: linear-gradient(180deg, hsl(var(--b1) / 0.9), hsl(var(--b2) / 0.86));
+    border: 1px solid hsl(var(--bc) / 0.12);
+    box-shadow: 0 30px 70px hsl(var(--n) / 0.34);
   }
 
   .auth-kicker {
     @apply text-xs font-semibold uppercase tracking-[0.16em];
-    color: rgba(196, 207, 255, 0.85);
+    color: hsl(var(--p) / 0.75);
   }
 
   .auth-login-title {
     @apply mt-2 text-3xl font-semibold tracking-tight;
-    color: #f2f5ff;
+    color: hsl(var(--bc) / 0.97);
+  }
+
+  .auth-showcase-title {
+    color: hsl(var(--bc) / 0.97);
+  }
+
+  .auth-showcase-copy {
+    color: hsl(var(--bc) / 0.75);
+  }
+
+  .auth-showcase-list {
+    color: hsl(var(--bc) / 0.8);
+  }
+
+  .auth-feature-pill {
+    border: 1px solid hsl(var(--bc) / 0.1);
+    background: hsl(var(--b1) / 0.4);
   }
 
   .auth-form-wrap .page-subtitle,
   .auth-form-wrap .label-text,
   .auth-form-wrap .label-text-alt {
-    color: rgba(224, 231, 255, 0.78);
+    color: hsl(var(--bc) / 0.78);
   }
 
   .auth-form-wrap .input {
-    border-color: rgba(255, 255, 255, 0.1);
-    background-color: rgba(255, 255, 255, 0.08);
-    color: #ffffff;
+    border-color: hsl(var(--bc) / 0.12);
+    background-color: hsl(var(--b1) / 0.5);
+    color: hsl(var(--bc) / 0.96);
     padding-left: 1rem;
     padding-right: 1rem;
   }
 
   .auth-form-wrap .input::placeholder {
-    color: rgba(255, 255, 255, 0.45);
+    color: hsl(var(--bc) / 0.45);
   }
 
   .auth-form-wrap .input:focus {
     outline: none;
-    border-color: rgba(146, 140, 255, 0.65);
-    box-shadow: 0 0 0 3px rgba(139, 132, 255, 0.18);
+    border-color: hsl(var(--p) / 0.65);
+    box-shadow: 0 0 0 3px hsl(var(--p) / 0.18);
   }
 
   .auth-form-wrap .btn-primary {
-    border-color: rgba(119, 96, 255, 0.9);
-    background: linear-gradient(90deg, #5e3bdf 0%, #7656f6 100%);
-    color: #ffffff;
+    border-color: hsl(var(--p) / 0.8);
+    background: linear-gradient(90deg, hsl(var(--p) / 0.72) 0%, hsl(var(--s) / 0.72) 100%);
+    color: hsl(var(--pc) / 0.98);
   }
 
   .auth-form-wrap .btn-primary:hover {
@@ -280,13 +505,19 @@
   }
 
   .auth-form-wrap .alert-error {
-    border-color: rgba(248, 113, 113, 0.45);
-    background-color: rgba(127, 29, 29, 0.45);
-    color: #fee2e2;
+    border-color: hsl(var(--er) / 0.45);
+    background-color: hsl(var(--er) / 0.2);
+    color: hsl(var(--erc) / 0.98);
   }
 
-  .auth-brand {
-    color: rgba(239, 242, 255, 0.9);
+  .auth-note {
+    border: 1px solid hsl(var(--bc) / 0.12);
+    background: hsl(var(--b1) / 0.42);
+    color: hsl(var(--bc) / 0.72);
+  }
+
+  .auth-meta {
+    color: hsl(var(--bc) / 0.62);
   }
 
   .auth-glow {
@@ -295,13 +526,39 @@
 
   .auth-glow-a {
     @apply left-[-6rem] top-[-4rem] h-52 w-52;
-    background-color: rgba(123, 102, 255, 0.26);
+    background-color: hsl(var(--p) / 0.24);
   }
 
   .auth-glow-b {
     @apply bottom-[-6rem] right-[-4rem] h-60 w-60;
-    background-color: rgba(94, 77, 221, 0.22);
+    background-color: hsl(var(--s) / 0.22);
   }
+}
+
+html[data-theme='corporate'] .app-main .table thead tr {
+  background: hsl(var(--b3) / 0.82);
+}
+
+html[data-theme='corporate'] .app-form-panel,
+html[data-theme='corporate'] .app-table-panel {
+  border-color: hsl(var(--bc) / 0.25);
+}
+
+html[data-theme='corporate'] .app-main .btn-outline {
+  border-color: hsl(var(--bc) / 0.3);
+}
+
+html[data-theme='dark'] .app-main .table :where(th, td) {
+  border-bottom-color: hsl(var(--bc) / 0.2);
+}
+
+html[data-theme='dark'] .app-main .btn {
+  box-shadow: 0 10px 24px hsl(var(--n) / 0.32);
+}
+
+html[data-theme='dark'] .app-form-panel,
+html[data-theme='dark'] .app-table-panel {
+  border-color: hsl(var(--bc) / 0.24);
 }
 
 @keyframes app-enter {
