@@ -13,6 +13,7 @@ import AuthController from '#controllers/auth_controller'
 import AuditLogsController from '#controllers/admin/audit_logs_controller'
 import UsersController from '#controllers/admin/users_controller'
 import RolesController from '#controllers/admin/roles_controller'
+import PermissionsController from '#controllers/admin/permissions_controller'
 
 router
   .group(() => {
@@ -72,6 +73,30 @@ router
       .post('/admin/roles/:id/delete', [RolesController, 'destroy'])
       .use(middleware.auth())
       .use(middleware.permission({ permissions: ['roles.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/permissions', [PermissionsController, 'index'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['permissions.read'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/permissions', [PermissionsController, 'store'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['permissions.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/permissions/:id/update', [PermissionsController, 'update'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['permissions.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/permissions/:id/delete', [PermissionsController, 'destroy'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['permissions.manage'] }))
       .use(middleware.shareAuth())
 
     router.get('/login', [AuthController, 'showLogin']).use(middleware.guest())

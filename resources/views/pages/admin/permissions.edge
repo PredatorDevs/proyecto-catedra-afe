@@ -1,0 +1,159 @@
+@component('../views/components/layouts/app', { title: 'Admin Permissions - proyecto-catedra-afe' })
+  <div class="page-stack">
+    @if(flashMessages.get('success'))
+      <div class="alert alert-success">
+        <span>{{ flashMessages.get('success') }}</span>
+      </div>
+    @endif
+
+    @if(flashMessages.get('error'))
+      <div class="alert alert-error">
+        <span>{{ flashMessages.get('error') }}</span>
+      </div>
+    @endif
+
+    @if(authPermissions?.includes('permissions.manage'))
+      <div class="surface-card">
+        <div class="surface-card-body">
+          <h2 class="card-title">Crear permiso</h2>
+          <p class="page-subtitle">Los permisos controlan acceso granular a funciones del sistema.</p>
+
+          <form class="grid gap-4 md:grid-cols-2" method="POST" action="/admin/permissions">
+            @if(typeof csrfField === 'function')
+              {{ csrfField() }}
+            @endif
+
+            <label class="form-control">
+              <div class="label"><span class="label-text">Slug</span></div>
+              <input
+                name="slug"
+                type="text"
+                class="input input-bordered w-full @if(errors?.has('slug')) input-error @endif"
+                required
+                value="{{ errors?.has('slug') ? (old('slug') || '') : '' }}"
+              />
+              @if(errors?.has('slug'))
+                <div class="label"><span class="label-text-alt text-error">{{ errors.first('slug') }}</span></div>
+              @endif
+            </label>
+
+            <label class="form-control">
+              <div class="label"><span class="label-text">Nombre</span></div>
+              <input
+                name="name"
+                type="text"
+                class="input input-bordered w-full @if(errors?.has('name')) input-error @endif"
+                required
+                value="{{ errors?.has('name') ? (old('name') || '') : '' }}"
+              />
+              @if(errors?.has('name'))
+                <div class="label"><span class="label-text-alt text-error">{{ errors.first('name') }}</span></div>
+              @endif
+            </label>
+
+            <div class="md:col-span-2 flex justify-end">
+              <button class="btn btn-primary" type="submit">Crear permiso</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    @endif
+
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <h1 class="page-title">Permisos</h1>
+        <p class="page-subtitle">Listado de permisos y roles asociados.</p>
+      </div>
+    </div>
+
+    <div class="surface-card">
+      <div class="surface-card-body overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Slug</th>
+              <th>Nombre</th>
+              <th>Roles</th>
+              @if(authPermissions?.includes('permissions.manage'))
+                <th>Acciones</th>
+              @endif
+            </tr>
+          </thead>
+          <tbody>
+            @if(permissions.length === 0)
+              <tr>
+                <td colspan="{{ authPermissions?.includes('permissions.manage') ? '5' : '4' }}" class="text-center text-base-content opacity-70">
+                  Sin permisos registrados.
+                </td>
+              </tr>
+            @endif
+
+            @each(permission in permissions)
+              <tr>
+                <td>{{ permission.id }}</td>
+                <td>
+                  @if(authPermissions?.includes('permissions.manage'))
+                    <input
+                      form="update-permission-{{ permission.id }}"
+                      name="slug"
+                      type="text"
+                      class="input input-bordered input-sm w-full"
+                      value="{{ permission.slug }}"
+                    />
+                  @else
+                    {{ permission.slug }}
+                  @endif
+                </td>
+                <td>
+                  @if(authPermissions?.includes('permissions.manage'))
+                    <input
+                      form="update-permission-{{ permission.id }}"
+                      name="name"
+                      type="text"
+                      class="input input-bordered input-sm w-full"
+                      value="{{ permission.name }}"
+                    />
+                  @else
+                    {{ permission.name }}
+                  @endif
+                </td>
+                <td>
+                  <div class="flex flex-wrap gap-1">
+                    @if(permission.roles.length === 0)
+                      <span class="badge badge-ghost">sin roles</span>
+                    @endif
+                    @each(role in permission.roles)
+                      <span class="badge badge-outline">{{ role.slug }}</span>
+                    @end
+                  </div>
+                </td>
+                @if(authPermissions?.includes('permissions.manage'))
+                  <td>
+                    <div class="flex gap-2">
+                      <form id="update-permission-{{ permission.id }}" method="POST" action="/admin/permissions/{{ permission.id }}/update">
+                        @if(typeof csrfField === 'function')
+                          {{ csrfField() }}
+                        @endif
+                        <button class="btn btn-info btn-sm" type="submit">Guardar</button>
+                      </form>
+
+                      @if(!['admin.access', 'roles.manage', 'permissions.manage'].includes(permission.slug))
+                        <form method="POST" action="/admin/permissions/{{ permission.id }}/delete">
+                          @if(typeof csrfField === 'function')
+                            {{ csrfField() }}
+                          @endif
+                          <button class="btn btn-error btn-sm" type="submit">Eliminar</button>
+                        </form>
+                      @endif
+                    </div>
+                  </td>
+                @endif
+              </tr>
+            @end
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+@end

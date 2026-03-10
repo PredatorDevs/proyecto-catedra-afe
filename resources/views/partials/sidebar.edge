@@ -11,6 +11,9 @@
     @if(authPermissions?.includes('roles.read'))
       <li><a href="/admin/roles">Roles</a></li>
     @endif
+    @if(authPermissions?.includes('permissions.read'))
+      <li><a href="/admin/permissions">Permisos</a></li>
+    @endif
     @if(authPermissions?.includes('audit_logs.read'))
       <li><a href="/admin/audit-logs">Audit Logs</a></li>
     @endif
