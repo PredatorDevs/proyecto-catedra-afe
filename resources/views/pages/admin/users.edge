@@ -145,13 +145,23 @@
 
             <div class="md:col-span-2 flex justify-end gap-2">
               <button
-                class="btn btn-outline"
+                class="btn app-fixed-btn app-fixed-cancel users-action-btn"
                 type="button"
                 onclick="document.getElementById('create-user-modal')?.close()"
               >
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
                 Cancelar
               </button>
-              <button class="btn app-cta-btn min-w-40 px-8" type="submit">Crear usuario</button>
+              <button class="btn app-fixed-btn app-fixed-create users-action-btn min-w-40" type="submit">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M10 4v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  <path d="M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+                Crear usuario
+              </button>
             </div>
           </form>
         </div>
@@ -276,13 +286,22 @@
 
                           <div class="md:col-span-2 flex justify-end gap-2">
                             <button
-                              class="btn btn-outline"
+                              class="btn app-fixed-btn app-fixed-cancel users-action-btn"
                               type="button"
                               onclick="document.getElementById('edit-user-modal-{{ user.id }}')?.close()"
                             >
+                              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                              </svg>
                               Cancelar
                             </button>
-                            <button class="btn app-cta-btn min-w-40" type="submit">Guardar cambios</button>
+                            <button class="btn app-fixed-btn app-fixed-edit users-action-btn min-w-40" type="submit">
+                              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M4.5 10.5l3.3 3.3L15.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                              </svg>
+                              Guardar cambios
+                            </button>
                           </div>
                         </form>
                       </div>

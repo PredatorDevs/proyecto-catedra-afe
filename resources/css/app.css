@@ -203,6 +203,10 @@
     filter: brightness(1.04);
   }
 
+  .app-fixed-btn svg {
+    flex-shrink: 0;
+  }
+
   .app-fixed-create {
     border-color: rgba(31, 109, 188, 0.72);
     background: linear-gradient(90deg, rgba(24, 96, 168, 0.92), rgba(33, 120, 206, 0.9));
@@ -234,6 +238,17 @@
 
   .app-fixed-edit:hover {
     background: linear-gradient(90deg, rgba(24, 110, 106, 0.96), rgba(33, 142, 136, 0.94));
+  }
+
+  .app-fixed-cancel {
+    border-color: rgba(113, 130, 154, 0.64);
+    background: linear-gradient(90deg, rgba(67, 82, 104, 0.92), rgba(87, 106, 133, 0.9));
+    color: #f1f5ff;
+    box-shadow: 0 10px 22px rgba(23, 31, 43, 0.24);
+  }
+
+  .app-fixed-cancel:hover {
+    background: linear-gradient(90deg, rgba(67, 82, 104, 0.98), rgba(87, 106, 133, 0.96));
   }
 
   .app-sidebar {
@@ -1061,6 +1076,35 @@
     backdrop-filter: none;
   }
 
+  .users-page .app-modal-solid .app-strong-input {
+    border-color: hsl(var(--bc) / 0.3) !important;
+    background: hsl(var(--b1) / 0.94) !important;
+    color: hsl(var(--bc) / 0.98) !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .users-page .app-modal-solid select.app-strong-input[multiple] {
+    background: hsl(var(--b1) / 0.9) !important;
+    box-shadow: inset 0 0 0 1px hsl(var(--bc) / 0.08);
+    padding-top: 0.55rem !important;
+    padding-bottom: 0.55rem !important;
+  }
+
+  .users-page .app-modal-solid select.app-strong-input[multiple] option {
+    padding: 0.36rem 0.45rem;
+    border-radius: 0.35rem;
+  }
+
+  .users-page .app-modal-solid .app-strong-input::placeholder {
+    color: hsl(var(--bc) / 0.56);
+  }
+
+  .users-page .app-modal-solid .app-strong-input:focus {
+    border-color: hsl(var(--p) / 0.72) !important;
+    box-shadow: 0 0 0 4px hsl(var(--p) / 0.2) !important;
+  }
+
   .modal::backdrop {
     background: rgba(10, 20, 36, 0.56);
   }
@@ -1325,12 +1369,42 @@ html[data-theme='corporate'] .app-modal-solid {
   box-shadow: 0 22px 44px rgba(18, 52, 88, 0.28);
 }
 
+html[data-theme='corporate'] .users-page .app-modal-solid .app-strong-input {
+  border-color: rgba(46, 72, 103, 0.48) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  color: #0f172a !important;
+}
+
+html[data-theme='corporate'] .users-page .app-modal-solid select.app-strong-input[multiple] {
+  background: rgba(249, 252, 255, 1) !important;
+  box-shadow: inset 0 0 0 1px rgba(46, 72, 103, 0.14);
+}
+
+html[data-theme='corporate'] .users-page .app-modal-solid .app-strong-input::placeholder {
+  color: rgba(71, 85, 105, 0.84);
+}
+
 html[data-theme='corporate'] .app-main .btn-outline {
   border-color: hsl(var(--bc) / 0.3);
 }
 
 html[data-theme='dark'] .app-main .table :where(th, td) {
   border-bottom-color: hsl(var(--bc) / 0.2);
+}
+
+html[data-theme='dark'] .users-page .app-modal-solid .app-strong-input {
+  border-color: rgba(211, 224, 255, 0.4) !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #eef4ff !important;
+}
+
+html[data-theme='dark'] .users-page .app-modal-solid select.app-strong-input[multiple] {
+  background: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(211, 224, 255, 0.18);
+}
+
+html[data-theme='dark'] .users-page .app-modal-solid .app-strong-input::placeholder {
+  color: rgba(214, 225, 255, 0.7);
 }
 
 html[data-theme='dark'] .app-main .btn {
