@@ -1,14 +1,24 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Permission from '#models/permission'
+import Role from '#models/role'
 import AuditLogger from '#services/audit_logger'
 import { createPermissionValidator } from '#validators/admin/create_permission_validator'
 
 export default class PermissionsController {
   async index({ view }: HttpContext) {
     const permissions = await Permission.query().preload('roles').orderBy('id', 'asc')
+    const roles = await Role.query().orderBy('slug', 'asc')
+    const permissionsWithRoles = permissions.filter((permission) => permission.roles.length > 0).length
+    const permissionsWithoutRoles = permissions.length - permissionsWithRoles
 
     return view.render('pages/admin/permissions', {
       permissions,
+      permissionStats: {
+        totalPermissions: permissions.length,
+        permissionsWithRoles,
+        permissionsWithoutRoles,
+        totalRoles: roles.length,
+      },
     })
   }
 
@@ -43,12 +53,16 @@ export default class PermissionsController {
     const name = String(request.input('name', '')).trim()
 
     if (!slug || !name) {
+      session.flash('openEditPermissionModalId', permission.id)
+      session.flash('editPermissionForm', { slug, name })
       session.flash('error', 'Slug y nombre son obligatorios para actualizar el permiso')
       return response.redirect('/admin/permissions')
     }
 
     const duplicate = await Permission.query().where('slug', slug).whereNot('id', permission.id).first()
     if (duplicate) {
+      session.flash('openEditPermissionModalId', permission.id)
+      session.flash('editPermissionForm', { slug, name })
       session.flash('error', `Ya existe otro permiso con slug "${slug}"`)
       return response.redirect('/admin/permissions')
     }

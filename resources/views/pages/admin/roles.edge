@@ -148,6 +148,15 @@
       </script>
     @endif
 
+    @if(authPermissions?.includes('roles.manage') && flashMessages.get('openEditRoleModalId'))
+      <script>
+        window.addEventListener('DOMContentLoaded', () => {
+          const roleId = String({{ flashMessages.get('openEditRoleModalId') }})
+          document.getElementById(`edit-role-modal-${roleId}`)?.showModal()
+        })
+      </script>
+    @endif
+
     <div class="surface-card">
       <div class="surface-card-body app-table-panel overflow-x-auto">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -179,32 +188,8 @@
             @each(role in roles)
               <tr>
                 <td>{{ role.id }}</td>
-                <td>
-                  @if(authPermissions?.includes('roles.manage'))
-                    <input
-                      form="update-role-{{ role.id }}"
-                      name="slug"
-                      type="text"
-                      class="input input-bordered input-sm app-strong-input w-full"
-                      value="{{ role.slug }}"
-                    />
-                  @else
-                    {{ role.slug }}
-                  @endif
-                </td>
-                <td>
-                  @if(authPermissions?.includes('roles.manage'))
-                    <input
-                      form="update-role-{{ role.id }}"
-                      name="name"
-                      type="text"
-                      class="input input-bordered input-sm app-strong-input w-full"
-                      value="{{ role.name }}"
-                    />
-                  @else
-                    {{ role.name }}
-                  @endif
-                </td>
+                <td>{{ role.slug }}</td>
+                <td>{{ role.name }}</td>
                 <td>
                   <div class="flex flex-wrap gap-1">
                     @if(role.permissions.length === 0)
@@ -218,6 +203,18 @@
                 @if(authPermissions?.includes('roles.manage'))
                   <td>
                     <div class="flex flex-wrap gap-2">
+                      <button
+                        class="btn btn-sm app-fixed-btn app-fixed-edit roles-action-btn"
+                        type="button"
+                        onclick="document.getElementById('edit-role-modal-{{ role.id }}')?.showModal()"
+                      >
+                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                          <path d="M3.5 16.5l3.2-.7 8-8a1.8 1.8 0 0 0-2.5-2.5l-8 8-.7 3.2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                          <path d="M11.3 5.7l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        </svg>
+                        Editar
+                      </button>
+
                       <a class="btn btn-sm app-fixed-btn app-fixed-view roles-action-btn" href="/admin/roles/{{ role.id }}/permissions">
                         <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                           <rect x="3.5" y="4" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.6"></rect>
@@ -226,18 +223,6 @@
                         </svg>
                         Permisos
                       </a>
-
-                      <form id="update-role-{{ role.id }}" method="POST" action="/admin/roles/{{ role.id }}/update">
-                        @if(typeof csrfField === 'function')
-                          {{ csrfField() }}
-                        @endif
-                        <button class="btn btn-sm app-fixed-btn app-fixed-edit roles-action-btn" type="submit">
-                          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                            <path d="M4.5 10.5l3.3 3.3L15.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-                          </svg>
-                          Guardar
-                        </button>
-                      </form>
 
                       @if(role.slug !== 'admin')
                         <form method="POST" action="/admin/roles/{{ role.id }}/delete">
@@ -254,6 +239,63 @@
                         </form>
                       @endif
                     </div>
+
+                    <dialog id="edit-role-modal-{{ role.id }}" class="modal">
+                      <div class="modal-box max-w-3xl app-form-panel app-modal-solid">
+                        <h3 class="card-title app-section-title">Editar rol #{{ role.id }}</h3>
+                        <p class="page-subtitle mt-1">Actualiza slug y nombre del rol.</p>
+
+                        <form class="app-form-grid mt-3 grid gap-4 md:grid-cols-2" method="POST" action="/admin/roles/{{ role.id }}/update">
+                          @if(typeof csrfField === 'function')
+                            {{ csrfField() }}
+                          @endif
+
+                          <label class="app-form-field form-control">
+                            <div class="label"><span class="label-text">Slug</span></div>
+                            <input
+                              name="slug"
+                              type="text"
+                              class="input input-bordered app-strong-input w-full"
+                              required
+                              value="{{ String(flashMessages.get('openEditRoleModalId') || '') === String(role.id) ? (flashMessages.get('editRoleForm')?.slug || role.slug) : role.slug }}"
+                            />
+                            <div class="label"><span class="label-text-alt">Usa minúsculas, números o guiones.</span></div>
+                          </label>
+
+                          <label class="app-form-field form-control">
+                            <div class="label"><span class="label-text">Nombre</span></div>
+                            <input
+                              name="name"
+                              type="text"
+                              class="input input-bordered app-strong-input w-full"
+                              required
+                              value="{{ String(flashMessages.get('openEditRoleModalId') || '') === String(role.id) ? (flashMessages.get('editRoleForm')?.name || role.name) : role.name }}"
+                            />
+                          </label>
+
+                          <div class="md:col-span-2 flex justify-end gap-2">
+                            <button
+                              class="btn app-fixed-btn app-fixed-cancel roles-action-btn"
+                              type="button"
+                              onclick="document.getElementById('edit-role-modal-{{ role.id }}')?.close()"
+                            >
+                              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                              </svg>
+                              Cancelar
+                            </button>
+                            <button class="btn app-fixed-btn app-fixed-edit roles-action-btn min-w-40" type="submit">
+                              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M4.5 10.5l3.3 3.3L15.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                              </svg>
+                              Guardar cambios
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                      <form method="dialog" class="modal-backdrop"><button>Cerrar</button></form>
+                    </dialog>
                   </td>
                 @endif
               </tr>
