@@ -52,6 +52,12 @@ router
       .use(middleware.shareAuth())
 
     router
+      .post('/admin/users/:id/update', [UsersController, 'update'])
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['users.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
       .get('/admin/roles', [RolesController, 'index'])
       .use(middleware.auth())
       .use(middleware.permission({ permissions: ['roles.read'] }))

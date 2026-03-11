@@ -1,18 +1,77 @@
 @component('../views/components/layouts/app', { title: 'Admin Users - proyecto-catedra-afe' })
-  <div class="page-stack">
+  <div class="users-page page-stack">
     @if(flashMessages.get('success'))
       <div class="alert alert-success">
         <span>{{ flashMessages.get('success') }}</span>
       </div>
     @endif
 
-    @if(authPermissions?.includes('users.manage'))
-      <div class="surface-card">
-        <div class="surface-card-body app-form-panel">
-          <h2 class="card-title app-section-title">Crear usuario interno</h2>
-          <p class="page-subtitle">Alta de usuarios controlada por administración y permisos.</p>
+    @if(flashMessages.get('error'))
+      <div class="alert alert-error">
+        <span>{{ flashMessages.get('error') }}</span>
+      </div>
+    @endif
 
-          <form class="app-form-grid grid gap-4 md:grid-cols-2" method="POST" action="/admin/users">
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <section class="users-hero rounded-2xl p-5 md:p-6 lg:p-7">
+          <div class="users-hero-grid gap-5 lg:gap-8">
+            <div>
+              <p class="users-kicker">Administración de identidades</p>
+              <h1 class="users-title mt-2">Gestión de usuarios internos</h1>
+              <p class="users-lead mt-3">
+                Administra altas, actualizaciones y asignación de roles desde un flujo centralizado, con
+                trazabilidad y permisos por política.
+              </p>
+            </div>
+
+            <div class="users-actions flex flex-wrap items-center justify-end gap-2">
+              @if(authPermissions?.includes('users.manage'))
+                <button
+                  class="btn app-cta-btn min-w-44"
+                  type="button"
+                  onclick="document.getElementById('create-user-modal')?.showModal()"
+                >
+                  Nuevo Usuario
+                </button>
+              @endif
+              <a class="btn btn-outline" href="/admin/roles">Ver Roles</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="users-kpi-grid mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <article class="users-kpi-card rounded-xl p-4">
+            <p class="users-kpi-label">Total usuarios</p>
+            <p class="users-kpi-value">{{ userStats.totalUsers }}</p>
+          </article>
+
+          <article class="users-kpi-card rounded-xl p-4">
+            <p class="users-kpi-label">Con roles asignados</p>
+            <p class="users-kpi-value">{{ userStats.usersWithRoles }}</p>
+          </article>
+
+          <article class="users-kpi-card rounded-xl p-4">
+            <p class="users-kpi-label">Sin rol asignado</p>
+            <p class="users-kpi-value">{{ userStats.usersWithoutRoles }}</p>
+          </article>
+
+          <article class="users-kpi-card rounded-xl p-4">
+            <p class="users-kpi-label">Roles disponibles</p>
+            <p class="users-kpi-value">{{ userStats.totalRoles }}</p>
+          </article>
+        </section>
+      </div>
+    </div>
+
+    @if(authPermissions?.includes('users.manage'))
+
+      <dialog id="create-user-modal" class="modal">
+        <div class="modal-box max-w-3xl app-form-panel">
+          <h3 class="card-title app-section-title">Crear usuario interno</h3>
+          <p class="page-subtitle mt-1">Completa los datos y asigna uno o varios roles.</p>
+
+          <form class="app-form-grid mt-3 grid gap-4 md:grid-cols-2" method="POST" action="/admin/users">
             @if(typeof csrfField === 'function')
               {{ csrfField() }}
             @endif
@@ -74,23 +133,29 @@
               <div class="label"><span class="label-text-alt">Puedes seleccionar uno o más roles.</span></div>
             </label>
 
-            <div class="md:col-span-2 flex justify-end">
+            <div class="md:col-span-2 flex justify-end gap-2">
+              <button
+                class="btn btn-outline"
+                type="button"
+                onclick="document.getElementById('create-user-modal')?.close()"
+              >
+                Cancelar
+              </button>
               <button class="btn app-cta-btn min-w-40 px-8" type="submit">Crear usuario</button>
             </div>
           </form>
         </div>
-      </div>
+        <form method="dialog" class="modal-backdrop"><button>Cerrar</button></form>
+      </dialog>
     @endif
 
     <div class="surface-card">
-      <div class="surface-card-body">
-        <h1 class="page-title">Usuarios</h1>
-        <p class="page-subtitle">Listado básico de usuarios del sistema.</p>
-      </div>
-    </div>
-
-    <div class="surface-card">
       <div class="surface-card-body app-table-panel overflow-x-auto">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 class="users-table-title">Listado de usuarios</h2>
+          <span class="badge badge-outline">{{ userStats.totalUsers }} registros</span>
+        </div>
+
         <table class="app-data-table table table-zebra">
           <thead>
             <tr>
@@ -99,12 +164,15 @@
               <th>Email</th>
               <th>Roles</th>
               <th>Creado</th>
+              @if(authPermissions?.includes('users.manage'))
+                <th>Acciones</th>
+              @endif
             </tr>
           </thead>
           <tbody>
             @if(users.length === 0)
               <tr>
-                <td colspan="5" class="text-center text-base-content opacity-70">Sin usuarios registrados.</td>
+                <td colspan="{{ authPermissions?.includes('users.manage') ? '6' : '5' }}" class="text-center text-base-content opacity-70">Sin usuarios registrados.</td>
               </tr>
             @endif
 
@@ -116,7 +184,7 @@
                 <td>
                   <div class="flex flex-wrap gap-1">
                     @if(user.roles.length === 0)
-                      <span class="badge badge-ghost">sin rol</span>
+                      <span class="badge badge-ghost users-empty-role">sin rol</span>
                     @endif
                     @each(role in user.roles)
                       <span class="badge badge-outline">{{ role.slug }}</span>
@@ -124,6 +192,90 @@
                   </div>
                 </td>
                 <td>{{ user.createdAt.toFormat('yyyy-LL-dd HH:mm:ss') }}</td>
+                @if(authPermissions?.includes('users.manage'))
+                  <td>
+                    <button
+                      class="btn btn-info btn-sm"
+                      type="button"
+                      onclick="document.getElementById('edit-user-modal-{{ user.id }}')?.showModal()"
+                    >
+                      Editar
+                    </button>
+
+                    <dialog id="edit-user-modal-{{ user.id }}" class="modal">
+                      <div class="modal-box max-w-3xl app-form-panel">
+                        <h3 class="card-title app-section-title">Editar usuario #{{ user.id }}</h3>
+                        <p class="page-subtitle mt-1">Actualiza datos y asignaciones de rol.</p>
+
+                        <form class="app-form-grid mt-3 grid gap-4 md:grid-cols-2" method="POST" action="/admin/users/{{ user.id }}/update">
+                          @if(typeof csrfField === 'function')
+                            {{ csrfField() }}
+                          @endif
+
+                          <label class="app-form-field form-control">
+                            <div class="label"><span class="label-text">Nombre completo</span></div>
+                            <input
+                              name="fullName"
+                              type="text"
+                              class="input input-bordered app-strong-input w-full"
+                              required
+                              value="{{ user.fullName || '' }}"
+                            />
+                          </label>
+
+                          <label class="app-form-field form-control">
+                            <div class="label"><span class="label-text">Email</span></div>
+                            <input
+                              name="email"
+                              type="email"
+                              class="input input-bordered app-strong-input w-full"
+                              required
+                              value="{{ user.email }}"
+                            />
+                          </label>
+
+                          <label class="app-form-field form-control md:col-span-2">
+                            <div class="label"><span class="label-text">Nueva password (opcional)</span></div>
+                            <input
+                              name="password"
+                              type="password"
+                              class="input input-bordered app-strong-input w-full"
+                              minlength="8"
+                              placeholder="Dejar vacio para conservar la password actual"
+                            />
+                          </label>
+
+                          <label class="app-form-field form-control md:col-span-2">
+                            <div class="label"><span class="label-text">Roles</span></div>
+                            <select name="roleIds" multiple class="select select-bordered app-strong-input h-32 w-full">
+                              @each(role in roles)
+                                <option
+                                  value="{{ role.id }}"
+                                  {{ userRoleIdsByUserId[user.id]?.includes(role.id) ? 'selected' : '' }}
+                                >
+                                  {{ role.name }} ({{ role.slug }})
+                                </option>
+                              @end
+                            </select>
+                            <div class="label"><span class="label-text-alt">Mantén presionada Ctrl para seleccionar varios roles.</span></div>
+                          </label>
+
+                          <div class="md:col-span-2 flex justify-end gap-2">
+                            <button
+                              class="btn btn-outline"
+                              type="button"
+                              onclick="document.getElementById('edit-user-modal-{{ user.id }}')?.close()"
+                            >
+                              Cancelar
+                            </button>
+                            <button class="btn app-cta-btn min-w-40" type="submit">Guardar cambios</button>
+                          </div>
+                        </form>
+                      </div>
+                      <form method="dialog" class="modal-backdrop"><button>Cerrar</button></form>
+                    </dialog>
+                  </td>
+                @endif
               </tr>
             @end
           </tbody>
