@@ -2,13 +2,130 @@
   <div class="page-stack">
     <div class="surface-card">
       <div class="surface-card-body">
-        <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Vista interna del sistema.</p>
+        <div class="dashboard-page space-y-5">
+          <section class="dashboard-hero rounded-2xl p-5 md:p-6 lg:p-7">
+            <div class="dashboard-hero-grid gap-5 lg:gap-8">
+              <div>
+                <p class="dashboard-kicker">Panel operativo</p>
+                <h1 class="dashboard-title mt-2">Dashboard de gestión institucional</h1>
+                <p class="dashboard-lead mt-3">
+                  Vista consolidada con métricas, actividad reciente y placeholders de visualización para
+                  futuras integraciones con datos reales.
+                </p>
+              </div>
 
-        <div class="mt-4 flex flex-wrap gap-2">
-          <a class="btn btn-primary btn-sm" href="/admin/users">Usuarios</a>
-          <a class="btn btn-outline btn-sm" href="/admin/roles">Roles</a>
-          <a class="btn btn-outline btn-sm" href="/admin/audit-logs">Audit Logs</a>
+              <div class="dashboard-actions flex flex-wrap gap-2">
+                <a class="btn btn-primary btn-sm" href="/admin/users">Usuarios</a>
+                <a class="btn btn-outline btn-sm" href="/admin/roles">Roles</a>
+                <a class="btn btn-outline btn-sm" href="/admin/audit-logs">Audit Logs</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="dashboard-kpi-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <article class="dashboard-kpi-card rounded-xl p-4">
+              <p class="dashboard-kpi-label">Usuarios activos</p>
+              <p class="dashboard-kpi-value">1,284</p>
+              <p class="dashboard-kpi-trend is-positive">+4.3% vs semana anterior</p>
+            </article>
+
+            <article class="dashboard-kpi-card rounded-xl p-4">
+              <p class="dashboard-kpi-label">Sesiones hoy</p>
+              <p class="dashboard-kpi-value">3,912</p>
+              <p class="dashboard-kpi-trend is-positive">+9.1% en las últimas 24h</p>
+            </article>
+
+            <article class="dashboard-kpi-card rounded-xl p-4">
+              <p class="dashboard-kpi-label">Alertas pendientes</p>
+              <p class="dashboard-kpi-value">17</p>
+              <p class="dashboard-kpi-trend is-warning">Requiere seguimiento</p>
+            </article>
+
+            <article class="dashboard-kpi-card rounded-xl p-4">
+              <p class="dashboard-kpi-label">Disponibilidad</p>
+              <p class="dashboard-kpi-value">99.94%</p>
+              <p class="dashboard-kpi-trend is-positive">SLA mensual</p>
+            </article>
+          </section>
+
+          <section class="dashboard-charts grid gap-4 xl:grid-cols-3">
+            <article class="dashboard-panel rounded-xl p-4 xl:col-span-2">
+              <div class="dashboard-panel-head flex items-center justify-between gap-3">
+                <h2 class="dashboard-panel-title">Actividad semanal</h2>
+                <span class="badge">Placeholder</span>
+              </div>
+              <div class="dashboard-bars mt-4" aria-label="Grafica de barras de actividad semanal">
+                <div class="dashboard-bar" style="--bar: 38%"><span>Lun</span></div>
+                <div class="dashboard-bar" style="--bar: 54%"><span>Mar</span></div>
+                <div class="dashboard-bar" style="--bar: 47%"><span>Mie</span></div>
+                <div class="dashboard-bar" style="--bar: 74%"><span>Jue</span></div>
+                <div class="dashboard-bar" style="--bar: 66%"><span>Vie</span></div>
+                <div class="dashboard-bar" style="--bar: 41%"><span>Sab</span></div>
+                <div class="dashboard-bar" style="--bar: 58%"><span>Dom</span></div>
+              </div>
+            </article>
+
+            <article class="dashboard-panel rounded-xl p-4">
+              <div class="dashboard-panel-head flex items-center justify-between gap-3">
+                <h2 class="dashboard-panel-title">Distribución por módulo</h2>
+                <span class="badge">Placeholder</span>
+              </div>
+              <div class="dashboard-donut-wrap mt-4">
+                <div class="dashboard-donut" role="img" aria-label="Grafica de dona de distribucion por modulo"></div>
+                <ul class="dashboard-legend mt-4 space-y-2 text-sm">
+                  <li><span class="dot dot-a"></span>Usuarios 42%</li>
+                  <li><span class="dot dot-b"></span>Roles 27%</li>
+                  <li><span class="dot dot-c"></span>Bitacora 19%</li>
+                  <li><span class="dot dot-d"></span>Otros 12%</li>
+                </ul>
+              </div>
+            </article>
+          </section>
+
+          <section class="dashboard-bottom grid gap-4 xl:grid-cols-2">
+            <article class="dashboard-panel rounded-xl p-4">
+              <h2 class="dashboard-panel-title">Tendencia de carga</h2>
+              <div class="dashboard-line mt-4" aria-label="Placeholder de tendencia de carga">
+                <svg viewBox="0 0 560 180" preserveAspectRatio="none" class="h-full w-full">
+                  <polyline
+                    points="0,140 60,120 120,128 180,96 240,104 300,76 360,88 420,64 480,70 560,52"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></polyline>
+                </svg>
+              </div>
+            </article>
+
+            <article class="dashboard-panel rounded-xl p-4">
+              <h2 class="dashboard-panel-title">Resumen de cumplimiento</h2>
+              <div class="mt-4 space-y-3">
+                <div class="dashboard-progress-row">
+                  <div class="flex items-center justify-between text-sm">
+                    <span>Políticas de acceso</span>
+                    <span>86%</span>
+                  </div>
+                  <progress class="progress progress-primary w-full" value="86" max="100"></progress>
+                </div>
+                <div class="dashboard-progress-row">
+                  <div class="flex items-center justify-between text-sm">
+                    <span>Registros auditables</span>
+                    <span>73%</span>
+                  </div>
+                  <progress class="progress progress-info w-full" value="73" max="100"></progress>
+                </div>
+                <div class="dashboard-progress-row">
+                  <div class="flex items-center justify-between text-sm">
+                    <span>Configuraciones completas</span>
+                    <span>91%</span>
+                  </div>
+                  <progress class="progress progress-success w-full" value="91" max="100"></progress>
+                </div>
+              </div>
+            </article>
+          </section>
         </div>
       </div>
     </div>
