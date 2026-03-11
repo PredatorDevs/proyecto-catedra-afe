@@ -1,5 +1,6 @@
 (() => {
   const THEMES = ['corporate', 'dark']
+  const SIDEBAR_KEY = 'sidebarCollapsed'
 
   const ICON_SUN =
     '<svg viewBox="0 0 20 20" fill="none" class="h-4 w-4"><circle cx="10" cy="10" r="3.2" stroke="currentColor" stroke-width="1.5"/><path d="M10 2.5v1.8M10 15.7v1.8M17.5 10h-1.8M4.3 10H2.5M15.3 4.7l-1.2 1.2M5.9 14.1l-1.2 1.2M15.3 15.3l-1.2-1.2M5.9 5.9L4.7 4.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
@@ -41,6 +42,41 @@
     applyTheme(next)
   }
 
+  function applySidebarState(collapsed) {
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches
+    if (!isDesktop) {
+      document.body.classList.remove('sidebar-collapsed')
+      return
+    }
+
+    document.body.classList.toggle('sidebar-collapsed', collapsed)
+
+    const toggleBtn = document.getElementById('sidebarToggle')
+    if (toggleBtn) {
+      toggleBtn.setAttribute('aria-expanded', (!collapsed).toString())
+    }
+  }
+
+  function initSidebarToggle() {
+    const toggleBtn = document.getElementById('sidebarToggle')
+    if (!toggleBtn) return
+
+    const stored = localStorage.getItem(SIDEBAR_KEY)
+    const initialCollapsed = stored === '1'
+    applySidebarState(initialCollapsed)
+
+    toggleBtn.addEventListener('click', () => {
+      const nextCollapsed = !document.body.classList.contains('sidebar-collapsed')
+      localStorage.setItem(SIDEBAR_KEY, nextCollapsed ? '1' : '0')
+      applySidebarState(nextCollapsed)
+    })
+
+    window.addEventListener('resize', () => {
+      const saved = localStorage.getItem(SIDEBAR_KEY) === '1'
+      applySidebarState(saved)
+    })
+  }
+
   // 1) aplica tema guardado al cargar
   const saved = getSavedTheme()
   if (saved) applyTheme(saved)
@@ -53,5 +89,7 @@
       updateThemeToggleButton(document.documentElement.getAttribute('data-theme') || 'corporate')
       btn.addEventListener('click', toggleTheme)
     }
+
+    initSidebarToggle()
   })
 })()

@@ -183,10 +183,26 @@
   }
 
   .app-sidebar {
+    width: 16rem;
     border-right: 1px solid hsl(var(--bc) / 0.2);
     background: linear-gradient(180deg, hsl(var(--b1) / 0.88), hsl(var(--b2) / 0.8));
     box-shadow: 10px 0 24px hsl(var(--n) / 0.16);
     backdrop-filter: blur(8px);
+    transition: width 220ms ease, padding 220ms ease;
+  }
+
+  .app-sidebar-title {
+    color: hsl(var(--bc) / 0.72);
+  }
+
+  .app-sidebar-toggle {
+    border: 1px solid hsl(var(--bc) / 0.2);
+    background: hsl(var(--b1) / 0.65);
+    color: hsl(var(--bc) / 0.88);
+  }
+
+  .app-sidebar-toggle:hover {
+    background: hsl(var(--b2) / 0.8);
   }
 
   .app-menu {
@@ -211,6 +227,10 @@
     font-weight: 600;
   }
 
+  .app-menu-text {
+    white-space: nowrap;
+  }
+
   .app-menu-icon {
     width: 1rem;
     height: 1rem;
@@ -222,6 +242,36 @@
     background: hsl(var(--b2) / 0.62);
     border-color: hsl(var(--bc) / 0.14);
     color: hsl(var(--bc) / 0.98);
+  }
+
+  @media (min-width: 1024px) {
+    body.sidebar-collapsed .app-sidebar {
+      width: 5.2rem;
+      padding-left: 0.7rem;
+      padding-right: 0.7rem;
+    }
+
+    body.sidebar-collapsed .app-sidebar-title {
+      display: none;
+    }
+
+    body.sidebar-collapsed .app-sidebar-head {
+      justify-content: center;
+    }
+
+    body.sidebar-collapsed .app-menu-link {
+      justify-content: center;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    body.sidebar-collapsed .app-menu-text {
+      display: none;
+    }
+
+    body.sidebar-collapsed .app-sidebar-toggle-icon {
+      transform: rotate(180deg);
+    }
   }
 
   .app-main {
