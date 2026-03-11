@@ -59,7 +59,7 @@
 
     <div class="surface-card">
       <div class="surface-card-body app-table-panel">
-        <form class="audit-filters-grid mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5" method="GET" action="/admin/audit-logs">
+        <form class="audit-filters-grid mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-6" method="GET" action="/admin/audit-logs">
           <label class="form-control">
             <div class="label pb-1"><span class="label-text font-medium">Acción</span></div>
             <select name="action" class="select select-bordered app-strong-input w-full">
@@ -90,6 +90,15 @@
             <input name="to" type="date" class="input input-bordered app-strong-input w-full" value="{{ filters.to || '' }}" />
           </label>
 
+          <label class="form-control">
+            <div class="label pb-1"><span class="label-text font-medium">Resultados por página</span></div>
+            <select name="perPage" class="select select-bordered app-strong-input w-full">
+              @each(size in filterOptions.perPage)
+                <option value="{{ size }}" {{ Number(filters.perPage) === Number(size) ? 'selected' : '' }}>{{ size }}</option>
+              @end
+            </select>
+          </label>
+
           <div class="flex items-end gap-2">
             <button class="btn app-fixed-btn app-fixed-view audit-action-btn w-full" type="submit">
               Filtrar
@@ -101,7 +110,7 @@
         <div class="overflow-x-auto">
         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 class="audit-table-title">Eventos recientes</h2>
-          <span class="badge badge-outline">{{ pagination.total }} registros</span>
+          <span class="badge badge-outline">{{ pagination.total }} registros · {{ pagination.perPage }} por página</span>
         </div>
 
         <table class="app-data-table table table-zebra">
@@ -146,25 +155,25 @@
               Página {{ pagination.currentPage }} de {{ pagination.lastPage }}
             </p>
 
-            <div class="join">
+            <div class="audit-pagination-controls">
               @if(pagination.prevUrl)
-                <a class="join-item btn btn-sm" href="{{ pagination.prevUrl }}">Anterior</a>
+                <a class="btn btn-sm audit-page-btn" href="{{ pagination.prevUrl }}">Anterior</a>
               @else
-                <button class="join-item btn btn-sm" type="button" disabled>Anterior</button>
+                <button class="btn btn-sm audit-page-btn" type="button" disabled>Anterior</button>
               @endif
 
               @each(pageNum in pagination.pages)
                 @if(pageNum === pagination.currentPage)
-                  <button class="join-item btn btn-sm btn-active" type="button">{{ pageNum }}</button>
+                  <button class="btn btn-sm btn-active audit-page-btn" type="button">{{ pageNum }}</button>
                 @else
-                  <a class="join-item btn btn-sm" href="{{ pagination.pageUrls[pageNum] }}">{{ pageNum }}</a>
+                  <a class="btn btn-sm audit-page-btn" href="{{ pagination.pageUrls[pageNum] }}">{{ pageNum }}</a>
                 @endif
               @end
 
               @if(pagination.nextUrl)
-                <a class="join-item btn btn-sm" href="{{ pagination.nextUrl }}">Siguiente</a>
+                <a class="btn btn-sm audit-page-btn" href="{{ pagination.nextUrl }}">Siguiente</a>
               @else
-                <button class="join-item btn btn-sm" type="button" disabled>Siguiente</button>
+                <button class="btn btn-sm audit-page-btn" type="button" disabled>Siguiente</button>
               @endif
             </div>
           </div>

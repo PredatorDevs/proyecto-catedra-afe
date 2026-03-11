@@ -7,9 +7,11 @@ export default class AuditLogsController {
     const entityFilter = String(request.input('entity', '')).trim()
     const fromFilter = String(request.input('from', '')).trim()
     const toFilter = String(request.input('to', '')).trim()
+    const perPageInput = Number(request.input('perPage', 25))
     const pageInput = Number(request.input('page', 1))
     const page = Number.isFinite(pageInput) && pageInput > 0 ? Math.floor(pageInput) : 1
-    const perPage = 25
+    const allowedPerPage = [25, 50, 100]
+    const perPage = allowedPerPage.includes(perPageInput) ? perPageInput : 25
 
     const applyFilters = (query: ReturnType<typeof AuditLog.query>) => {
       if (actionFilter) query.where('action', actionFilter)
@@ -55,6 +57,7 @@ export default class AuditLogsController {
     if (entityFilter) queryParams.set('entity', entityFilter)
     if (fromFilter) queryParams.set('from', fromFilter)
     if (toFilter) queryParams.set('to', toFilter)
+    queryParams.set('perPage', String(perPage))
 
     const baseQuery = queryParams.toString()
     const pageUrl = (targetPage: number) =>
@@ -80,10 +83,12 @@ export default class AuditLogsController {
         entity: entityFilter,
         from: fromFilter,
         to: toFilter,
+        perPage,
       },
       filterOptions: {
         actions: actions.map((item) => item.action),
         entities: entities.map((item) => item.entity),
+        perPage: allowedPerPage,
       },
       pagination: {
         currentPage: meta.currentPage,
