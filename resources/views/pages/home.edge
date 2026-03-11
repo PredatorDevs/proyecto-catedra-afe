@@ -2,13 +2,61 @@
   <div class="page-stack">
     <div class="surface-card">
       <div class="surface-card-body">
-        <h1 class="page-title">Home</h1>
-        <p class="page-subtitle">Layout base + Tailwind/DaisyUI + toggle de tema persistente.</p>
-
-        <div class="mt-4 flex flex-wrap gap-2">
-          <a class="btn btn-primary" href="/dashboard">Ir a Dashboard</a>
-          <a class="btn btn-outline" href="/admin">Ir a Administración</a>
-        </div>
+          <h1 class="home-title">Bienvenido al sistema de gestión AFE</h1>
+          <div class="home-page space-y-5">
+            <section class="home-hero rounded-2xl p-5 md:p-6 lg:p-7">
+              <div class="home-hero-grid gap-6 lg:gap-8">
+                <div class="space-y-4">
+                  <div class="home-kicker">Plataforma institucional</div>
+                  <p class="home-lead">
+                    Ingresa a una plataforma centralizada para operar módulos administrativos con una experiencia clara,
+                    segura y consistente en cualquier tema visual.
+                  </p>
+                  <div class="home-chip-row flex flex-wrap gap-2">
+                    <span class="badge">Entorno protegido</span>
+                    <span class="badge">RBAC activo</span>
+                    <span class="badge">Sesión segura</span>
+                  </div>
+                  <div class="home-cta-row flex flex-wrap gap-2 pt-1">
+                    <a class="btn btn-primary" href="/dashboard">Ir a Dashboard</a>
+                    <a class="btn btn-outline" href="/admin">Ir a Administración</a>
+                  </div>
+                </div>
+                <aside class="home-summary rounded-xl p-4 md:p-5">
+                  <h2 class="home-summary-title">Estado del sistema</h2>
+                  <ul class="mt-3 space-y-2 text-sm">
+                    <li class="home-summary-item">Autenticación institucional habilitada.</li>
+                    <li class="home-summary-item">Control por roles y permisos aplicado.</li>
+                    <li class="home-summary-item">Gestión de usuarios centralizada por administración.</li>
+                    <li class="home-summary-item">Interfaz adaptada a tema claro y oscuro.</li>
+                  </ul>
+                </aside>
+              </div>
+            </section>
+            <section class="home-modules grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <article class="home-module-card rounded-xl p-4">
+                <h3 class="home-module-title">Acceso seguro</h3>
+                <p class="home-module-text mt-2">
+                  Solo usuarios autorizados pueden ingresar con credenciales institucionales y sesión protegida.
+                </p>
+              </article>
+              <article class="home-module-card rounded-xl p-4">
+                <h3 class="home-module-title">Permisos por rol</h3>
+                <p class="home-module-text mt-2">
+                  Cada módulo expone acciones según responsabilidades definidas para mantener control operativo.
+                </p>
+              </article>
+              <article class="home-module-card rounded-xl p-4 md:col-span-2 xl:col-span-1">
+                <h3 class="home-module-title">Operación trazable</h3>
+                <p class="home-module-text mt-2">
+                  El flujo de trabajo favorece consistencia visual y decisiones rápidas para procesos internos.
+                </p>
+              </article>
+            </section>
+            <section class="home-footer-note rounded-xl px-4 py-3 text-sm">
+              La creación y mantenimiento de cuentas se gestiona internamente por el área administrativa.
+            </section>
+          </div>
       </div>
     </div>
   </div>

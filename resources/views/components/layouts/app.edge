@@ -26,7 +26,7 @@
       @include('partials/sidebar')
 
       <main class="app-main flex-1 overflow-y-auto px-3 py-4 md:px-4 md:py-5 lg:px-5 lg:py-6">
-        <div class="app-main-frame w-full">
+        <div class="app-main-frame mx-auto w-full max-w-[90rem]">
           {{{ await $slots.main() }}}
         </div>
       </main>
