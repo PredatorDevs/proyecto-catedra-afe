@@ -1,5 +1,5 @@
 @component('../views/components/layouts/app', { title: 'Admin Roles - proyecto-catedra-afe' })
-  <div class="page-stack">
+  <div class="roles-page page-stack">
     @if(flashMessages.get('success'))
       <div class="alert alert-success">
         <span>{{ flashMessages.get('success') }}</span>
@@ -12,23 +12,85 @@
       </div>
     @endif
 
-    @if(authPermissions?.includes('roles.manage'))
-      <div class="surface-card">
-        <div class="surface-card-body">
-          <h2 class="card-title">Crear rol</h2>
-          <p class="page-subtitle">Los roles controlan grupos de permisos para el acceso interno.</p>
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <section class="roles-hero rounded-2xl p-5 md:p-6 lg:p-7">
+          <div class="roles-hero-grid gap-5 lg:gap-8">
+            <div>
+              <p class="roles-kicker">Control de autorizaciones</p>
+              <h1 class="roles-title mt-2">Gestión de roles</h1>
+              <p class="roles-lead mt-3">
+                Define perfiles operativos y mantén una asignación clara de permisos para asegurar un acceso
+                consistente a cada módulo del sistema.
+              </p>
+            </div>
 
-          <form class="grid gap-4 md:grid-cols-2" method="POST" action="/admin/roles">
+            <div class="roles-actions flex flex-wrap items-center justify-end gap-2">
+              @if(authPermissions?.includes('roles.manage'))
+                <button
+                  class="btn app-fixed-btn app-fixed-create roles-action-btn min-w-44"
+                  type="button"
+                  onclick="document.getElementById('create-role-modal')?.showModal()"
+                >
+                  <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M10 4v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                    <path d="M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  </svg>
+                  Nuevo Rol
+                </button>
+              @endif
+              <a class="btn app-fixed-btn app-fixed-view roles-action-btn" href="/admin/permissions">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M3.5 10h13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                  <path d="M10.5 4l6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Ver Permisos
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="roles-kpi-grid mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <article class="roles-kpi-card rounded-xl p-4">
+            <p class="roles-kpi-label">Total roles</p>
+            <p class="roles-kpi-value">{{ roleStats.totalRoles }}</p>
+          </article>
+
+          <article class="roles-kpi-card rounded-xl p-4">
+            <p class="roles-kpi-label">Con permisos</p>
+            <p class="roles-kpi-value">{{ roleStats.rolesWithPermissions }}</p>
+          </article>
+
+          <article class="roles-kpi-card rounded-xl p-4">
+            <p class="roles-kpi-label">Sin permisos</p>
+            <p class="roles-kpi-value">{{ roleStats.rolesWithoutPermissions }}</p>
+          </article>
+
+          <article class="roles-kpi-card rounded-xl p-4">
+            <p class="roles-kpi-label">Permisos disponibles</p>
+            <p class="roles-kpi-value">{{ roleStats.totalPermissions }}</p>
+          </article>
+        </section>
+      </div>
+    </div>
+
+    @if(authPermissions?.includes('roles.manage'))
+      <dialog id="create-role-modal" class="modal">
+        <div class="modal-box max-w-3xl app-form-panel app-modal-solid">
+          <h3 class="card-title app-section-title">Crear rol</h3>
+          <p class="page-subtitle mt-1">Los roles controlan grupos de permisos para el acceso interno.</p>
+
+          <form class="app-form-grid mt-3 grid gap-4 md:grid-cols-2" method="POST" action="/admin/roles">
             @if(typeof csrfField === 'function')
               {{ csrfField() }}
             @endif
 
-            <label class="form-control">
+            <label class="app-form-field form-control">
               <div class="label"><span class="label-text">Slug</span></div>
               <input
                 name="slug"
                 type="text"
-                class="input input-bordered w-full @if(errors?.has('slug')) input-error @endif"
+                class="input input-bordered app-strong-input w-full @if(errors?.has('slug')) input-error @endif"
                 required
                 value="{{ errors?.has('slug') ? (old('slug') || '') : '' }}"
               />
@@ -37,12 +99,12 @@
               @endif
             </label>
 
-            <label class="form-control">
+            <label class="app-form-field form-control">
               <div class="label"><span class="label-text">Nombre</span></div>
               <input
                 name="name"
                 type="text"
-                class="input input-bordered w-full @if(errors?.has('name')) input-error @endif"
+                class="input input-bordered app-strong-input w-full @if(errors?.has('name')) input-error @endif"
                 required
                 value="{{ errors?.has('name') ? (old('name') || '') : '' }}"
               />
@@ -51,24 +113,40 @@
               @endif
             </label>
 
-            <div class="md:col-span-2 flex justify-end">
-              <button class="btn btn-primary" type="submit">Crear rol</button>
+            <div class="md:col-span-2 flex justify-end gap-2">
+              <button
+                class="btn app-fixed-btn app-fixed-cancel roles-action-btn"
+                type="button"
+                onclick="document.getElementById('create-role-modal')?.close()"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+                Cancelar
+              </button>
+              <button class="btn app-fixed-btn app-fixed-create roles-action-btn min-w-40" type="submit">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M10 4v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  <path d="M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+                Crear rol
+              </button>
             </div>
           </form>
         </div>
-      </div>
+        <form method="dialog" class="modal-backdrop"><button>Cerrar</button></form>
+      </dialog>
     @endif
 
     <div class="surface-card">
-      <div class="surface-card-body">
-        <h1 class="page-title">Roles</h1>
-        <p class="page-subtitle">Listado básico de roles y permisos asignados.</p>
-      </div>
-    </div>
+      <div class="surface-card-body app-table-panel overflow-x-auto">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 class="roles-table-title">Listado de roles</h2>
+          <span class="badge badge-outline">{{ roleStats.totalRoles }} registros</span>
+        </div>
 
-    <div class="surface-card">
-      <div class="surface-card-body overflow-x-auto">
-        <table class="table table-zebra">
+        <table class="app-data-table table table-zebra">
           <thead>
             <tr>
               <th>ID</th>
@@ -98,7 +176,7 @@
                       form="update-role-{{ role.id }}"
                       name="slug"
                       type="text"
-                      class="input input-bordered input-sm w-full"
+                      class="input input-bordered input-sm app-strong-input w-full"
                       value="{{ role.slug }}"
                     />
                   @else
@@ -111,7 +189,7 @@
                       form="update-role-{{ role.id }}"
                       name="name"
                       type="text"
-                      class="input input-bordered input-sm w-full"
+                      class="input input-bordered input-sm app-strong-input w-full"
                       value="{{ role.name }}"
                     />
                   @else
@@ -121,7 +199,7 @@
                 <td>
                   <div class="flex flex-wrap gap-1">
                     @if(role.permissions.length === 0)
-                      <span class="badge badge-ghost">sin permisos</span>
+                      <span class="badge badge-ghost roles-empty-permissions">sin permisos</span>
                     @endif
                     @each(permission in role.permissions)
                       <span class="badge badge-outline">{{ permission.slug }}</span>
@@ -130,14 +208,26 @@
                 </td>
                 @if(authPermissions?.includes('roles.manage'))
                   <td>
-                    <div class="flex gap-2">
-                      <a class="btn btn-outline btn-sm" href="/admin/roles/{{ role.id }}/permissions">Permisos</a>
+                    <div class="flex flex-wrap gap-2">
+                      <a class="btn btn-sm app-fixed-btn app-fixed-view roles-action-btn" href="/admin/roles/{{ role.id }}/permissions">
+                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                          <rect x="3.5" y="4" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.6"></rect>
+                          <path d="M7 8.5h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+                          <path d="M7 11.5h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+                        </svg>
+                        Permisos
+                      </a>
 
                       <form id="update-role-{{ role.id }}" method="POST" action="/admin/roles/{{ role.id }}/update">
                         @if(typeof csrfField === 'function')
                           {{ csrfField() }}
                         @endif
-                        <button class="btn btn-info btn-sm" type="submit">Guardar</button>
+                        <button class="btn btn-sm app-fixed-btn app-fixed-edit roles-action-btn" type="submit">
+                          <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="M4.5 10.5l3.3 3.3L15.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                          Guardar
+                        </button>
                       </form>
 
                       @if(role.slug !== 'admin')
@@ -145,7 +235,13 @@
                           @if(typeof csrfField === 'function')
                             {{ csrfField() }}
                           @endif
-                          <button class="btn btn-error btn-sm" type="submit">Eliminar</button>
+                          <button class="btn btn-sm app-danger-btn roles-action-btn" type="submit">
+                            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                              <path d="M6.5 6.5l7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                              <path d="M13.5 6.5l-7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                            </svg>
+                            Eliminar
+                          </button>
                         </form>
                       @endif
                     </div>

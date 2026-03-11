@@ -7,9 +7,18 @@ import { createRoleValidator } from '#validators/admin/create_role_validator'
 export default class RolesController {
   async index({ view }: HttpContext) {
     const roles = await Role.query().preload('permissions').orderBy('id', 'asc')
+    const permissions = await Permission.query().orderBy('slug', 'asc')
+    const rolesWithPermissions = roles.filter((role) => role.permissions.length > 0).length
+    const rolesWithoutPermissions = roles.length - rolesWithPermissions
 
     return view.render('pages/admin/roles', {
       roles,
+      roleStats: {
+        totalRoles: roles.length,
+        rolesWithPermissions,
+        rolesWithoutPermissions,
+        totalPermissions: permissions.length,
+      },
     })
   }
 
