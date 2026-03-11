@@ -1,15 +1,110 @@
 @component('../views/components/layouts/app', { title: 'Audit Logs - proyecto-catedra-afe' })
-  <div class="page-stack">
+  <div class="audit-page page-stack">
     <div class="surface-card">
       <div class="surface-card-body">
-        <h1 class="page-title">Audit Logs</h1>
-        <p class="page-subtitle">Eventos recientes de autenticación y acciones clave del sistema.</p>
+        <section class="audit-hero rounded-2xl p-5 md:p-6 lg:p-7">
+          <div class="audit-hero-grid gap-5 lg:gap-8">
+            <div>
+              <p class="audit-kicker">Trazabilidad operativa</p>
+              <h1 class="audit-title mt-2">Audit Logs</h1>
+              <p class="audit-lead mt-3">
+                Monitorea eventos recientes de autenticación y cambios críticos del sistema para mantener
+                control, transparencia y seguimiento administrativo.
+              </p>
+            </div>
+
+            <div class="audit-actions flex flex-wrap items-center justify-end gap-2">
+              <a class="btn app-fixed-btn app-fixed-view audit-action-btn" href="/admin/users">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M3.5 10h13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                  <path d="M10.5 4l6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Ver Usuarios
+              </a>
+              <a class="btn app-fixed-btn app-fixed-view audit-action-btn" href="/admin/roles">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M3.5 10h13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                  <path d="M10.5 4l6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Ver Roles
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="audit-kpi-grid mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <article class="audit-kpi-card rounded-xl p-4">
+            <p class="audit-kpi-label">Registros cargados</p>
+            <p class="audit-kpi-value">{{ auditStats.total }}</p>
+          </article>
+          <article class="audit-kpi-card rounded-xl p-4">
+            <p class="audit-kpi-label">Creaciones</p>
+            <p class="audit-kpi-value">{{ auditStats.create }}</p>
+          </article>
+          <article class="audit-kpi-card rounded-xl p-4">
+            <p class="audit-kpi-label">Actualizaciones</p>
+            <p class="audit-kpi-value">{{ auditStats.update }}</p>
+          </article>
+          <article class="audit-kpi-card rounded-xl p-4">
+            <p class="audit-kpi-label">Eliminaciones</p>
+            <p class="audit-kpi-value">{{ auditStats.delete }}</p>
+          </article>
+          <article class="audit-kpi-card rounded-xl p-4">
+            <p class="audit-kpi-label">Eventos de acceso</p>
+            <p class="audit-kpi-value">{{ auditStats.auth }}</p>
+          </article>
+        </section>
       </div>
     </div>
 
     <div class="surface-card">
-      <div class="surface-card-body overflow-x-auto">
-        <table class="table table-zebra">
+      <div class="surface-card-body app-table-panel">
+        <form class="audit-filters-grid mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5" method="GET" action="/admin/audit-logs">
+          <label class="form-control">
+            <div class="label pb-1"><span class="label-text font-medium">Acción</span></div>
+            <select name="action" class="select select-bordered app-strong-input w-full">
+              <option value="">Todas</option>
+              @each(action in filterOptions.actions)
+                <option value="{{ action }}" {{ filters.action === action ? 'selected' : '' }}>{{ action }}</option>
+              @end
+            </select>
+          </label>
+
+          <label class="form-control">
+            <div class="label pb-1"><span class="label-text font-medium">Entidad</span></div>
+            <select name="entity" class="select select-bordered app-strong-input w-full">
+              <option value="">Todas</option>
+              @each(entity in filterOptions.entities)
+                <option value="{{ entity }}" {{ filters.entity === entity ? 'selected' : '' }}>{{ entity }}</option>
+              @end
+            </select>
+          </label>
+
+          <label class="form-control">
+            <div class="label pb-1"><span class="label-text font-medium">Desde</span></div>
+            <input name="from" type="date" class="input input-bordered app-strong-input w-full" value="{{ filters.from || '' }}" />
+          </label>
+
+          <label class="form-control">
+            <div class="label pb-1"><span class="label-text font-medium">Hasta</span></div>
+            <input name="to" type="date" class="input input-bordered app-strong-input w-full" value="{{ filters.to || '' }}" />
+          </label>
+
+          <div class="flex items-end gap-2">
+            <button class="btn app-fixed-btn app-fixed-view audit-action-btn w-full" type="submit">
+              Filtrar
+            </button>
+            <a class="btn app-fixed-btn app-fixed-cancel audit-action-btn" href="/admin/audit-logs">Limpiar</a>
+          </div>
+        </form>
+
+        <div class="overflow-x-auto">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 class="audit-table-title">Eventos recientes</h2>
+          <span class="badge badge-outline">{{ pagination.total }} registros</span>
+        </div>
+
+        <table class="app-data-table table table-zebra">
           <thead>
             <tr>
               <th>Fecha</th>
@@ -31,7 +126,11 @@
               <tr>
                 <td>{{ log.createdAt.toFormat('yyyy-LL-dd HH:mm:ss') }}</td>
                 <td>{{ log.user?.email || 'Anónimo/Sistema' }}</td>
-                <td><span class="badge badge-outline">{{ log.action }}</span></td>
+                <td>
+                  <span class="badge badge-outline audit-action-badge">
+                    {{ log.action }}
+                  </span>
+                </td>
                 <td>{{ log.entity }}</td>
                 <td>{{ log.entityId || '-' }}</td>
                 <td>{{ log.ip || '-' }}</td>
@@ -39,6 +138,37 @@
             @end
           </tbody>
         </table>
+        </div>
+
+        @if(pagination.hasPages)
+          <div class="audit-pagination mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p class="text-sm opacity-80">
+              Página {{ pagination.currentPage }} de {{ pagination.lastPage }}
+            </p>
+
+            <div class="join">
+              @if(pagination.prevUrl)
+                <a class="join-item btn btn-sm" href="{{ pagination.prevUrl }}">Anterior</a>
+              @else
+                <button class="join-item btn btn-sm" type="button" disabled>Anterior</button>
+              @endif
+
+              @each(pageNum in pagination.pages)
+                @if(pageNum === pagination.currentPage)
+                  <button class="join-item btn btn-sm btn-active" type="button">{{ pageNum }}</button>
+                @else
+                  <a class="join-item btn btn-sm" href="{{ pagination.pageUrls[pageNum] }}">{{ pageNum }}</a>
+                @endif
+              @end
+
+              @if(pagination.nextUrl)
+                <a class="join-item btn btn-sm" href="{{ pagination.nextUrl }}">Siguiente</a>
+              @else
+                <button class="join-item btn btn-sm" type="button" disabled>Siguiente</button>
+              @endif
+            </div>
+          </div>
+        @endif
       </div>
     </div>
   </div>

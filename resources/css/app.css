@@ -996,6 +996,152 @@
     margin-top: 0.2rem;
   }
 
+  .audit-page {
+    margin-top: 0.2rem;
+  }
+
+  .audit-hero {
+    border: 1px solid hsl(var(--bc) / 0.16);
+    background:
+      radial-gradient(circle at 82% 18%, hsl(var(--wa) / 0.16) 0%, hsl(var(--wa) / 0) 44%),
+      linear-gradient(152deg, hsl(var(--b1) / 0.84), hsl(var(--b2) / 0.72) 62%, hsl(var(--b1) / 0.62));
+    box-shadow: 0 16px 34px hsl(var(--n) / 0.12);
+  }
+
+  .audit-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+    align-items: end;
+  }
+
+  .audit-kicker {
+    display: inline-flex;
+    border: 1px solid hsl(var(--wa) / 0.34);
+    border-radius: 999px;
+    padding: 0.24rem 0.62rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(var(--bc) / 0.86);
+    background: hsl(var(--wa) / 0.12);
+  }
+
+  .audit-title {
+    font-family: 'Sora', 'Segoe UI', Tahoma, sans-serif;
+    font-size: clamp(1.28rem, 2vw, 1.82rem);
+    line-height: 1.2;
+    color: hsl(var(--bc) / 0.98);
+    letter-spacing: 0.01em;
+  }
+
+  .audit-lead {
+    color: hsl(var(--bc) / 0.8);
+    line-height: 1.64;
+    max-width: 76ch;
+  }
+
+  .audit-kpi-card {
+    border: 1px solid hsl(var(--bc) / 0.16);
+    background: linear-gradient(180deg, hsl(var(--b1) / 0.74), hsl(var(--b2) / 0.62));
+    box-shadow: 0 12px 26px hsl(var(--n) / 0.1);
+  }
+
+  .audit-kpi-label {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(var(--bc) / 0.66);
+    font-weight: 700;
+  }
+
+  .audit-kpi-value {
+    margin-top: 0.45rem;
+    font-family: 'Sora', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 1.65rem;
+    line-height: 1.1;
+    color: hsl(var(--bc) / 0.98);
+    font-weight: 700;
+  }
+
+  .audit-table-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: hsl(var(--bc) / 0.95);
+    letter-spacing: 0.01em;
+  }
+
+  .audit-filters-grid .app-strong-input {
+    padding-left: 0.95rem !important;
+    padding-right: 0.95rem !important;
+  }
+
+  .audit-pagination .btn {
+    border-color: hsl(var(--bc) / 0.22);
+    background: hsl(var(--b1) / 0.64);
+    color: hsl(var(--bc) / 0.9);
+  }
+
+  .audit-pagination .btn:hover {
+    background: hsl(var(--b2) / 0.78);
+  }
+
+  .audit-page .app-data-table {
+    border: 1px solid hsl(var(--bc) / 0.2);
+    border-radius: 0.9rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+  }
+
+  .audit-page .app-data-table thead th {
+    background: linear-gradient(180deg, hsl(var(--b3) / 0.66), hsl(var(--b2) / 0.6));
+    color: hsl(var(--bc) / 0.84);
+    border-bottom: 1px solid hsl(var(--bc) / 0.2);
+  }
+
+  .audit-page .app-data-table :where(th, td) {
+    border-right: 1px solid hsl(var(--bc) / 0.12);
+  }
+
+  .audit-page .app-data-table :where(th, td):last-child {
+    border-right: none;
+  }
+
+  .audit-page .app-data-table tbody tr td {
+    border-bottom: 1px solid hsl(var(--bc) / 0.12);
+  }
+
+  .audit-page .app-data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .audit-page .app-data-table tbody tr:nth-child(odd) td {
+    background: hsl(var(--b1) / 0.62);
+  }
+
+  .audit-page .app-data-table tbody tr:nth-child(even) td {
+    background: hsl(var(--b2) / 0.52);
+  }
+
+  .audit-page .app-data-table tbody tr:hover td {
+    background: hsl(var(--b3) / 0.58);
+  }
+
+  .audit-action-badge {
+    border-color: hsl(var(--bc) / 0.24);
+    background: hsl(var(--b1) / 0.58);
+    color: hsl(var(--bc) / 0.92);
+  }
+
+  .audit-action-btn {
+    height: 2.45rem !important;
+    min-height: 2.45rem !important;
+    padding-left: 0.92rem !important;
+    padding-right: 0.92rem !important;
+    border-radius: 0.66rem;
+  }
+
   .role-permissions-hero {
     border: 1px solid hsl(var(--bc) / 0.16);
     background:
@@ -1606,6 +1752,15 @@
   }
 
   @media (max-width: 1024px) {
+    .audit-hero-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .audit-actions {
+      justify-content: flex-start;
+      margin-top: 0.3rem;
+    }
+
     .role-permissions-hero-grid {
       grid-template-columns: 1fr;
     }
@@ -1859,6 +2014,10 @@ html[data-theme='corporate'] .permissions-page .app-data-table {
   border-color: rgba(46, 72, 103, 0.28);
 }
 
+html[data-theme='corporate'] .audit-page .app-data-table {
+  border-color: rgba(46, 72, 103, 0.28);
+}
+
 html[data-theme='corporate'] .role-permissions-item {
   border-color: rgba(46, 72, 103, 0.18);
   background: linear-gradient(180deg, rgba(250, 253, 255, 0.96), rgba(242, 248, 255, 0.94));
@@ -1915,6 +2074,12 @@ html[data-theme='corporate'] .permissions-page .app-data-table thead th {
   border-bottom-color: rgba(46, 72, 103, 0.24);
 }
 
+html[data-theme='corporate'] .audit-page .app-data-table thead th {
+  background: linear-gradient(180deg, rgba(220, 233, 249, 0.95), rgba(210, 226, 245, 0.9));
+  color: rgba(28, 52, 82, 0.9);
+  border-bottom-color: rgba(46, 72, 103, 0.24);
+}
+
 html[data-theme='corporate'] .users-page .app-data-table :where(th, td) {
   border-right-color: rgba(46, 72, 103, 0.12);
 }
@@ -1924,6 +2089,10 @@ html[data-theme='corporate'] .roles-page .app-data-table :where(th, td) {
 }
 
 html[data-theme='corporate'] .permissions-page .app-data-table :where(th, td) {
+  border-right-color: rgba(46, 72, 103, 0.12);
+}
+
+html[data-theme='corporate'] .audit-page .app-data-table :where(th, td) {
   border-right-color: rgba(46, 72, 103, 0.12);
 }
 
@@ -1939,6 +2108,10 @@ html[data-theme='corporate'] .permissions-page .app-data-table tbody tr td {
   border-bottom-color: rgba(46, 72, 103, 0.14);
 }
 
+html[data-theme='corporate'] .audit-page .app-data-table tbody tr td {
+  border-bottom-color: rgba(46, 72, 103, 0.14);
+}
+
 html[data-theme='corporate'] .users-page .app-data-table tbody tr:nth-child(odd) td {
   background: rgba(249, 252, 255, 0.94);
 }
@@ -1948,6 +2121,10 @@ html[data-theme='corporate'] .roles-page .app-data-table tbody tr:nth-child(odd)
 }
 
 html[data-theme='corporate'] .permissions-page .app-data-table tbody tr:nth-child(odd) td {
+  background: rgba(249, 252, 255, 0.94);
+}
+
+html[data-theme='corporate'] .audit-page .app-data-table tbody tr:nth-child(odd) td {
   background: rgba(249, 252, 255, 0.94);
 }
 
@@ -1963,6 +2140,10 @@ html[data-theme='corporate'] .permissions-page .app-data-table tbody tr:nth-chil
   background: rgba(240, 247, 255, 0.96);
 }
 
+html[data-theme='corporate'] .audit-page .app-data-table tbody tr:nth-child(even) td {
+  background: rgba(240, 247, 255, 0.96);
+}
+
 html[data-theme='corporate'] .users-page .app-data-table tbody tr:hover td {
   background: rgba(228, 239, 253, 0.98);
 }
@@ -1972,6 +2153,10 @@ html[data-theme='corporate'] .roles-page .app-data-table tbody tr:hover td {
 }
 
 html[data-theme='corporate'] .permissions-page .app-data-table tbody tr:hover td {
+  background: rgba(228, 239, 253, 0.98);
+}
+
+html[data-theme='corporate'] .audit-page .app-data-table tbody tr:hover td {
   background: rgba(228, 239, 253, 0.98);
 }
 
@@ -2075,6 +2260,10 @@ html[data-theme='dark'] .permissions-page .app-data-table {
   border-color: rgba(208, 222, 255, 0.26);
 }
 
+html[data-theme='dark'] .audit-page .app-data-table {
+  border-color: rgba(208, 222, 255, 0.26);
+}
+
 html[data-theme='dark'] .role-permissions-item {
   border-color: rgba(208, 222, 255, 0.18);
   background: linear-gradient(180deg, rgba(24, 40, 70, 0.7), rgba(30, 48, 82, 0.72));
@@ -2131,6 +2320,12 @@ html[data-theme='dark'] .permissions-page .app-data-table thead th {
   border-bottom-color: rgba(208, 222, 255, 0.2);
 }
 
+html[data-theme='dark'] .audit-page .app-data-table thead th {
+  background: linear-gradient(180deg, rgba(33, 52, 86, 0.92), rgba(27, 44, 74, 0.9));
+  color: rgba(228, 237, 255, 0.9);
+  border-bottom-color: rgba(208, 222, 255, 0.2);
+}
+
 html[data-theme='dark'] .users-page .app-data-table :where(th, td) {
   border-right-color: rgba(208, 222, 255, 0.12);
 }
@@ -2140,6 +2335,10 @@ html[data-theme='dark'] .roles-page .app-data-table :where(th, td) {
 }
 
 html[data-theme='dark'] .permissions-page .app-data-table :where(th, td) {
+  border-right-color: rgba(208, 222, 255, 0.12);
+}
+
+html[data-theme='dark'] .audit-page .app-data-table :where(th, td) {
   border-right-color: rgba(208, 222, 255, 0.12);
 }
 
@@ -2155,6 +2354,10 @@ html[data-theme='dark'] .permissions-page .app-data-table tbody tr td {
   border-bottom-color: rgba(208, 222, 255, 0.14);
 }
 
+html[data-theme='dark'] .audit-page .app-data-table tbody tr td {
+  border-bottom-color: rgba(208, 222, 255, 0.14);
+}
+
 html[data-theme='dark'] .users-page .app-data-table tbody tr:nth-child(odd) td {
   background: rgba(24, 40, 70, 0.7);
 }
@@ -2164,6 +2367,10 @@ html[data-theme='dark'] .roles-page .app-data-table tbody tr:nth-child(odd) td {
 }
 
 html[data-theme='dark'] .permissions-page .app-data-table tbody tr:nth-child(odd) td {
+  background: rgba(24, 40, 70, 0.7);
+}
+
+html[data-theme='dark'] .audit-page .app-data-table tbody tr:nth-child(odd) td {
   background: rgba(24, 40, 70, 0.7);
 }
 
@@ -2179,6 +2386,10 @@ html[data-theme='dark'] .permissions-page .app-data-table tbody tr:nth-child(eve
   background: rgba(30, 48, 82, 0.74);
 }
 
+html[data-theme='dark'] .audit-page .app-data-table tbody tr:nth-child(even) td {
+  background: rgba(30, 48, 82, 0.74);
+}
+
 html[data-theme='dark'] .users-page .app-data-table tbody tr:hover td {
   background: rgba(41, 63, 103, 0.78);
 }
@@ -2188,6 +2399,10 @@ html[data-theme='dark'] .roles-page .app-data-table tbody tr:hover td {
 }
 
 html[data-theme='dark'] .permissions-page .app-data-table tbody tr:hover td {
+  background: rgba(41, 63, 103, 0.78);
+}
+
+html[data-theme='dark'] .audit-page .app-data-table tbody tr:hover td {
   background: rgba(41, 63, 103, 0.78);
 }
 
