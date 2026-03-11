@@ -1,5 +1,5 @@
 @component('../views/components/layouts/app', { title: `Permisos de Rol - ${role.slug}` })
-  <div class="page-stack">
+  <div class="role-permissions-page page-stack">
     @if(flashMessages.get('success'))
       <div class="alert alert-success">
         <span>{{ flashMessages.get('success') }}</span>
@@ -14,41 +14,87 @@
 
     <div class="surface-card">
       <div class="surface-card-body">
-        <h1 class="page-title">Asignación de permisos</h1>
-        <p class="page-subtitle">
-          Rol: <strong>{{ role.name }}</strong> ({{ role.slug }})
-        </p>
+        <section class="role-permissions-hero rounded-2xl p-5 md:p-6 lg:p-7">
+          <div class="role-permissions-hero-grid gap-5 lg:gap-8">
+            <div>
+              <p class="role-permissions-kicker">Matriz de accesos</p>
+              <h1 class="role-permissions-title mt-2">Asignación de permisos</h1>
+              <p class="role-permissions-lead mt-3">
+                Configura las capacidades del rol <strong>{{ role.name }}</strong> ({{ role.slug }}) para controlar
+                de forma precisa qué acciones puede ejecutar dentro del sistema.
+              </p>
+            </div>
+
+            <div class="role-permissions-actions flex flex-wrap items-center justify-end gap-2">
+              <a class="btn app-fixed-btn app-fixed-view role-permissions-action-btn" href="/admin/roles">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M3.5 10h13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                  <path d="M10.5 4l6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Volver a roles
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="role-permissions-kpi-grid mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <article class="role-permissions-kpi-card rounded-xl p-4">
+            <p class="role-permissions-kpi-label">Permisos totales</p>
+            <p class="role-permissions-kpi-value">{{ permissions.length }}</p>
+          </article>
+
+          <article class="role-permissions-kpi-card rounded-xl p-4">
+            <p class="role-permissions-kpi-label">Asignados al rol</p>
+            <p class="role-permissions-kpi-value">{{ assignedPermissionIds.length }}</p>
+          </article>
+
+          <article class="role-permissions-kpi-card rounded-xl p-4">
+            <p class="role-permissions-kpi-label">Pendientes por asignar</p>
+            <p class="role-permissions-kpi-value">{{ permissions.length - assignedPermissionIds.length }}</p>
+          </article>
+        </section>
       </div>
     </div>
 
     <div class="surface-card">
-      <div class="surface-card-body">
+      <div class="surface-card-body app-form-panel">
         <form class="space-y-4" method="POST" action="/admin/roles/{{ role.id }}/permissions">
           @if(typeof csrfField === 'function')
             {{ csrfField() }}
           @endif
 
-          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div class="role-permissions-grid grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             @each(permission in permissions)
-              <label class="label cursor-pointer justify-start gap-3 rounded-box border border-base-300 px-4 py-3">
+              <label class="role-permissions-item label cursor-pointer justify-start gap-3 rounded-box px-4 py-3 {{ assignedPermissionIds.includes(permission.id) ? 'is-selected' : '' }}">
                 <input
                   type="checkbox"
                   name="permissionIds"
                   value="{{ permission.id }}"
-                  class="checkbox checkbox-sm"
+                  class="checkbox checkbox-sm role-permissions-checkbox"
                   {{ assignedPermissionIds.includes(permission.id) ? 'checked' : '' }}
                 />
                 <span class="label-text">
-                  <span class="font-medium">{{ permission.slug }}</span>
-                  <span class="block text-xs text-base-content opacity-70">{{ permission.name }}</span>
+                  <span class="role-permissions-item-slug font-medium">{{ permission.slug }}</span>
+                  <span class="role-permissions-item-name block text-xs">{{ permission.name }}</span>
                 </span>
               </label>
             @end
           </div>
 
           <div class="flex flex-wrap justify-end gap-2">
-            <a class="btn btn-outline" href="/admin/roles">Volver a roles</a>
-            <button class="btn btn-primary" type="submit">Guardar permisos</button>
+            <a class="btn app-fixed-btn app-fixed-cancel role-permissions-action-btn" href="/admin/roles">
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+              Cancelar
+            </a>
+            <button class="btn app-fixed-btn app-fixed-create role-permissions-action-btn min-w-44" type="submit">
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M4.5 10.5l3.3 3.3L15.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              Guardar permisos
+            </button>
           </div>
         </form>
       </div>

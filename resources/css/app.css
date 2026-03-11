@@ -992,6 +992,119 @@
     margin-top: 0.2rem;
   }
 
+  .role-permissions-page {
+    margin-top: 0.2rem;
+  }
+
+  .role-permissions-hero {
+    border: 1px solid hsl(var(--bc) / 0.16);
+    background:
+      radial-gradient(circle at 82% 18%, hsl(var(--su) / 0.16) 0%, hsl(var(--su) / 0) 44%),
+      linear-gradient(152deg, hsl(var(--b1) / 0.84), hsl(var(--b2) / 0.72) 62%, hsl(var(--b1) / 0.62));
+    box-shadow: 0 16px 34px hsl(var(--n) / 0.12);
+  }
+
+  .role-permissions-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+    align-items: end;
+  }
+
+  .role-permissions-kicker {
+    display: inline-flex;
+    border: 1px solid hsl(var(--su) / 0.34);
+    border-radius: 999px;
+    padding: 0.24rem 0.62rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(var(--bc) / 0.86);
+    background: hsl(var(--su) / 0.12);
+  }
+
+  .role-permissions-title {
+    font-family: 'Sora', 'Segoe UI', Tahoma, sans-serif;
+    font-size: clamp(1.28rem, 2vw, 1.82rem);
+    line-height: 1.2;
+    color: hsl(var(--bc) / 0.98);
+    letter-spacing: 0.01em;
+  }
+
+  .role-permissions-lead {
+    color: hsl(var(--bc) / 0.8);
+    line-height: 1.64;
+    max-width: 76ch;
+  }
+
+  .role-permissions-kpi-card {
+    border: 1px solid hsl(var(--bc) / 0.16);
+    background: linear-gradient(180deg, hsl(var(--b1) / 0.74), hsl(var(--b2) / 0.62));
+    box-shadow: 0 12px 26px hsl(var(--n) / 0.1);
+  }
+
+  .role-permissions-kpi-label {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(var(--bc) / 0.66);
+    font-weight: 700;
+  }
+
+  .role-permissions-kpi-value {
+    margin-top: 0.45rem;
+    font-family: 'Sora', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 1.65rem;
+    line-height: 1.1;
+    color: hsl(var(--bc) / 0.98);
+    font-weight: 700;
+  }
+
+  .role-permissions-item {
+    border: 1px solid hsl(var(--bc) / 0.16);
+    background: linear-gradient(180deg, hsl(var(--b1) / 0.72), hsl(var(--b2) / 0.6));
+    transition: border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
+  }
+
+  .role-permissions-item:hover {
+    border-color: hsl(var(--bc) / 0.26);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px hsl(var(--n) / 0.12);
+  }
+
+  .role-permissions-item.is-selected,
+  .role-permissions-item:has(.role-permissions-checkbox:checked) {
+    border-color: hsl(var(--p) / 0.38);
+    box-shadow: inset 0 0 0 1px hsl(var(--p) / 0.2);
+    background: linear-gradient(180deg, hsl(var(--p) / 0.16), hsl(var(--b2) / 0.62));
+  }
+
+  .role-permissions-item-slug {
+    color: hsl(var(--bc) / 0.96);
+  }
+
+  .role-permissions-item-name {
+    color: hsl(var(--bc) / 0.72);
+  }
+
+  .role-permissions-checkbox {
+    border-color: hsl(var(--bc) / 0.34);
+    background: hsl(var(--b1) / 0.86);
+  }
+
+  .role-permissions-checkbox:checked {
+    border-color: hsl(var(--p) / 0.88);
+    background: hsl(var(--p) / 0.82);
+  }
+
+  .role-permissions-action-btn {
+    height: 2.45rem !important;
+    min-height: 2.45rem !important;
+    padding-left: 0.92rem !important;
+    padding-right: 0.92rem !important;
+    border-radius: 0.66rem;
+  }
+
   .permissions-hero {
     border: 1px solid hsl(var(--bc) / 0.16);
     background:
@@ -1448,6 +1561,15 @@
   }
 
   @media (max-width: 1024px) {
+    .role-permissions-hero-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .role-permissions-actions {
+      justify-content: flex-start;
+      margin-top: 0.3rem;
+    }
+
     .permissions-hero-grid {
       grid-template-columns: 1fr;
     }
@@ -1692,6 +1814,28 @@ html[data-theme='corporate'] .permissions-page .app-data-table {
   border-color: rgba(46, 72, 103, 0.28);
 }
 
+html[data-theme='corporate'] .role-permissions-item {
+  border-color: rgba(46, 72, 103, 0.18);
+  background: linear-gradient(180deg, rgba(250, 253, 255, 0.96), rgba(242, 248, 255, 0.94));
+}
+
+html[data-theme='corporate'] .role-permissions-item:hover {
+  border-color: rgba(46, 72, 103, 0.28);
+  box-shadow: 0 12px 20px rgba(21, 54, 91, 0.14);
+}
+
+html[data-theme='corporate'] .role-permissions-item.is-selected,
+html[data-theme='corporate'] .role-permissions-item:has(.role-permissions-checkbox:checked) {
+  border-color: rgba(37, 98, 166, 0.44);
+  box-shadow: inset 0 0 0 1px rgba(37, 98, 166, 0.24);
+  background: linear-gradient(180deg, rgba(225, 239, 255, 0.95), rgba(239, 247, 255, 0.95));
+}
+
+html[data-theme='corporate'] .role-permissions-checkbox {
+  border-color: rgba(46, 72, 103, 0.42);
+  background: rgba(255, 255, 255, 0.98);
+}
+
 html[data-theme='corporate'] .users-page .app-data-table thead th {
   background: linear-gradient(180deg, rgba(220, 233, 249, 0.95), rgba(210, 226, 245, 0.9));
   color: rgba(28, 52, 82, 0.9);
@@ -1868,6 +2012,28 @@ html[data-theme='dark'] .roles-page .app-data-table {
 
 html[data-theme='dark'] .permissions-page .app-data-table {
   border-color: rgba(208, 222, 255, 0.26);
+}
+
+html[data-theme='dark'] .role-permissions-item {
+  border-color: rgba(208, 222, 255, 0.18);
+  background: linear-gradient(180deg, rgba(24, 40, 70, 0.7), rgba(30, 48, 82, 0.72));
+}
+
+html[data-theme='dark'] .role-permissions-item:hover {
+  border-color: rgba(208, 222, 255, 0.28);
+  box-shadow: 0 12px 20px rgba(4, 10, 26, 0.3);
+}
+
+html[data-theme='dark'] .role-permissions-item.is-selected,
+html[data-theme='dark'] .role-permissions-item:has(.role-permissions-checkbox:checked) {
+  border-color: rgba(125, 163, 255, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(125, 163, 255, 0.3);
+  background: linear-gradient(180deg, rgba(48, 72, 116, 0.72), rgba(34, 54, 92, 0.78));
+}
+
+html[data-theme='dark'] .role-permissions-checkbox {
+  border-color: rgba(211, 224, 255, 0.44);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 html[data-theme='dark'] .users-page .app-data-table thead th {
