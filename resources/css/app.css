@@ -57,6 +57,10 @@
     @apply relative;
   }
 
+  .app-body {
+    overflow: hidden;
+  }
+
   .app-navbar {
     position: relative;
     z-index: 60;
@@ -184,6 +188,8 @@
 
   .app-sidebar {
     width: 16rem;
+    height: 100%;
+    overflow-y: auto;
     border-right: 1px solid hsl(var(--bc) / 0.2);
     background: linear-gradient(180deg, hsl(var(--b1) / 0.88), hsl(var(--b2) / 0.8));
     box-shadow: 10px 0 24px hsl(var(--n) / 0.16);
@@ -309,6 +315,7 @@
 
   .app-main {
     @apply relative;
+    min-width: 0;
   }
 
   .app-main-frame {
