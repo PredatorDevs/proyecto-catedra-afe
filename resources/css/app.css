@@ -1055,6 +1055,48 @@
     letter-spacing: 0.01em;
   }
 
+  .users-page .app-data-table {
+    border: 1px solid hsl(var(--bc) / 0.2);
+    border-radius: 0.9rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+  }
+
+  .users-page .app-data-table thead th {
+    background: linear-gradient(180deg, hsl(var(--b3) / 0.66), hsl(var(--b2) / 0.6));
+    color: hsl(var(--bc) / 0.84);
+    border-bottom: 1px solid hsl(var(--bc) / 0.2);
+  }
+
+  .users-page .app-data-table :where(th, td) {
+    border-right: 1px solid hsl(var(--bc) / 0.12);
+  }
+
+  .users-page .app-data-table :where(th, td):last-child {
+    border-right: none;
+  }
+
+  .users-page .app-data-table tbody tr td {
+    border-bottom: 1px solid hsl(var(--bc) / 0.12);
+  }
+
+  .users-page .app-data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .users-page .app-data-table tbody tr:nth-child(odd) td {
+    background: hsl(var(--b1) / 0.62);
+  }
+
+  .users-page .app-data-table tbody tr:nth-child(even) td {
+    background: hsl(var(--b2) / 0.52);
+  }
+
+  .users-page .app-data-table tbody tr:hover td {
+    background: hsl(var(--b3) / 0.58);
+  }
+
   .users-empty-role {
     border-color: hsl(var(--wa) / 0.32);
     background: hsl(var(--wa) / 0.14);
@@ -1324,6 +1366,36 @@ html[data-theme='corporate'] .app-main .table thead tr {
   background: hsl(var(--b3) / 0.82);
 }
 
+html[data-theme='corporate'] .users-page .app-data-table {
+  border-color: rgba(46, 72, 103, 0.28);
+}
+
+html[data-theme='corporate'] .users-page .app-data-table thead th {
+  background: linear-gradient(180deg, rgba(220, 233, 249, 0.95), rgba(210, 226, 245, 0.9));
+  color: rgba(28, 52, 82, 0.9);
+  border-bottom-color: rgba(46, 72, 103, 0.24);
+}
+
+html[data-theme='corporate'] .users-page .app-data-table :where(th, td) {
+  border-right-color: rgba(46, 72, 103, 0.12);
+}
+
+html[data-theme='corporate'] .users-page .app-data-table tbody tr td {
+  border-bottom-color: rgba(46, 72, 103, 0.14);
+}
+
+html[data-theme='corporate'] .users-page .app-data-table tbody tr:nth-child(odd) td {
+  background: rgba(249, 252, 255, 0.94);
+}
+
+html[data-theme='corporate'] .users-page .app-data-table tbody tr:nth-child(even) td {
+  background: rgba(240, 247, 255, 0.96);
+}
+
+html[data-theme='corporate'] .users-page .app-data-table tbody tr:hover td {
+  background: rgba(228, 239, 253, 0.98);
+}
+
 html[data-theme='corporate'] .app-sidebar {
   border-right-color: rgba(44, 71, 102, 0.22);
   background: linear-gradient(180deg, rgba(236, 244, 255, 0.96), rgba(225, 236, 252, 0.9));
@@ -1390,6 +1462,36 @@ html[data-theme='corporate'] .app-main .btn-outline {
 
 html[data-theme='dark'] .app-main .table :where(th, td) {
   border-bottom-color: hsl(var(--bc) / 0.2);
+}
+
+html[data-theme='dark'] .users-page .app-data-table {
+  border-color: rgba(208, 222, 255, 0.26);
+}
+
+html[data-theme='dark'] .users-page .app-data-table thead th {
+  background: linear-gradient(180deg, rgba(33, 52, 86, 0.92), rgba(27, 44, 74, 0.9));
+  color: rgba(228, 237, 255, 0.9);
+  border-bottom-color: rgba(208, 222, 255, 0.2);
+}
+
+html[data-theme='dark'] .users-page .app-data-table :where(th, td) {
+  border-right-color: rgba(208, 222, 255, 0.12);
+}
+
+html[data-theme='dark'] .users-page .app-data-table tbody tr td {
+  border-bottom-color: rgba(208, 222, 255, 0.14);
+}
+
+html[data-theme='dark'] .users-page .app-data-table tbody tr:nth-child(odd) td {
+  background: rgba(24, 40, 70, 0.7);
+}
+
+html[data-theme='dark'] .users-page .app-data-table tbody tr:nth-child(even) td {
+  background: rgba(30, 48, 82, 0.74);
+}
+
+html[data-theme='dark'] .users-page .app-data-table tbody tr:hover td {
+  background: rgba(41, 63, 103, 0.78);
 }
 
 html[data-theme='dark'] .users-page .app-modal-solid .app-strong-input {

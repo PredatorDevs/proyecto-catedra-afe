@@ -73,9 +73,11 @@ export default class UsersController {
     const { params, request, response, session } = ctx
     const user = await User.query().where('id', params.id).preload('roles').firstOrFail()
 
-    const fullName = String(request.input('fullName', '')).trim()
-    const email = String(request.input('email', '')).trim().toLowerCase()
-    const password = String(request.input('password', '')).trim()
+    const normalizeInput = (value: unknown): string => (typeof value === 'string' ? value.trim() : '')
+
+    const fullName = normalizeInput(request.input('fullName'))
+    const email = normalizeInput(request.input('email')).toLowerCase()
+    const password = normalizeInput(request.input('password'))
 
     if (fullName.length < 3 || fullName.length > 120) {
       session.flash('error', 'El nombre completo debe tener entre 3 y 120 caracteres')
