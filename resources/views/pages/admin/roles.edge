@@ -94,6 +94,7 @@
                 required
                 value="{{ errors?.has('slug') ? (old('slug') || '') : '' }}"
               />
+              <div class="label"><span class="label-text-alt">Usa minúsculas, números o guiones. Ejemplo: supervisor-regional</span></div>
               @if(errors?.has('slug'))
                 <div class="label"><span class="label-text-alt text-error">{{ errors.first('slug') }}</span></div>
               @endif
@@ -137,6 +138,14 @@
         </div>
         <form method="dialog" class="modal-backdrop"><button>Cerrar</button></form>
       </dialog>
+    @endif
+
+    @if(authPermissions?.includes('roles.manage') && (errors?.has('slug') || errors?.has('name')))
+      <script>
+        window.addEventListener('DOMContentLoaded', () => {
+          document.getElementById('create-role-modal')?.showModal()
+        })
+      </script>
     @endif
 
     <div class="surface-card">
