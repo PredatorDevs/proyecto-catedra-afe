@@ -77,6 +77,38 @@
     })
   }
 
+  function normalizePath(pathname) {
+    if (!pathname) return '/'
+    if (pathname === '/') return '/'
+    return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname
+  }
+
+  function initActiveSidebarLink() {
+    const currentPath = normalizePath(window.location.pathname)
+    const links = Array.from(document.querySelectorAll('.app-menu-link[href]'))
+
+    if (links.length === 0) return
+
+    links.forEach((link) => {
+      link.classList.remove('is-active')
+      link.removeAttribute('aria-current')
+    })
+
+    const sortedLinks = links
+      .map((link) => ({ link, href: normalizePath(link.getAttribute('href') || '/') }))
+      .sort((a, b) => b.href.length - a.href.length)
+
+    const matched = sortedLinks.find(({ href }) => {
+      if (href === '/') return currentPath === '/'
+      return currentPath === href || currentPath.startsWith(`${href}/`)
+    })
+
+    if (!matched) return
+
+    matched.link.classList.add('is-active')
+    matched.link.setAttribute('aria-current', 'page')
+  }
+
   // 1) aplica tema guardado al cargar
   const saved = getSavedTheme()
   if (saved) applyTheme(saved)
@@ -91,5 +123,6 @@
     }
 
     initSidebarToggle()
+    initActiveSidebarLink()
   })
 })()
