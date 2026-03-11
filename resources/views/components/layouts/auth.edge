@@ -40,31 +40,7 @@
       <div class="auth-glow auth-glow-a"></div>
       <div class="auth-glow auth-glow-b"></div>
 
-      <div class="auth-shell mx-auto grid w-full max-w-6xl gap-6 rounded-3xl p-2 md:grid-cols-[1.1fr_1fr] md:p-4">
-        <section class="auth-showcase hidden rounded-2xl p-8 md:flex md:flex-col md:justify-between">
-          <div>
-            <span class="badge auth-kicker-badge">Portal Institucional</span>
-            <h1 class="auth-showcase-title mt-5 text-3xl leading-tight">
-              Plataforma segura para operar procesos internos.
-            </h1>
-            <p class="auth-showcase-copy mt-4 max-w-md text-sm">
-              Accede con tu cuenta autorizada para gestionar usuarios, roles, permisos y bitácora.
-            </p>
-          </div>
-
-          <div class="auth-showcase-list grid gap-3 text-sm">
-            <div class="auth-feature-pill rounded-xl p-3">
-              Seguridad por roles y permisos
-            </div>
-            <div class="auth-feature-pill rounded-xl p-3">
-              Auditoría de eventos críticos
-            </div>
-            <div class="auth-feature-pill rounded-xl p-3">
-              Administración centralizada
-            </div>
-          </div>
-        </section>
-
+      <div class="auth-shell mx-auto w-full max-w-xl rounded-3xl p-2 md:p-4">
         <section class="auth-form-wrap rounded-2xl p-5 md:p-7">
           {{{ await $slots.main() }}}
         </section>

@@ -421,7 +421,7 @@
   }
 
   .auth-main {
-    @apply relative min-h-[calc(100vh-4rem)] overflow-hidden;
+    @apply relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden;
   }
 
   .auth-shell {
@@ -439,7 +439,7 @@
 
   .auth-form-wrap {
     background: linear-gradient(180deg, hsl(var(--b1) / 0.9), hsl(var(--b2) / 0.86));
-    border: 1px solid hsl(var(--bc) / 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.35);
     box-shadow: 0 30px 70px hsl(var(--n) / 0.34);
   }
 
@@ -477,15 +477,15 @@
   }
 
   .auth-form-wrap .input {
-    border-color: hsl(var(--bc) / 0.12);
-    background-color: hsl(var(--b1) / 0.5);
-    color: hsl(var(--bc) / 0.96);
+    border-color: rgba(255, 255, 255, 0.32);
+    background-color: rgba(255, 255, 255, 0.14);
+    color: #f1f6ff;
     padding-left: 1rem;
     padding-right: 1rem;
   }
 
   .auth-form-wrap .input::placeholder {
-    color: hsl(var(--bc) / 0.45);
+    color: rgba(227, 236, 255, 0.62);
   }
 
   .auth-form-wrap .input:focus {
@@ -495,13 +495,14 @@
   }
 
   .auth-form-wrap .btn-primary {
-    border-color: hsl(var(--p) / 0.8);
-    background: linear-gradient(90deg, hsl(var(--p) / 0.72) 0%, hsl(var(--s) / 0.72) 100%);
-    color: hsl(var(--pc) / 0.98);
+    border-color: rgba(95, 76, 230, 0.95);
+    background: linear-gradient(90deg, rgba(92, 66, 221, 0.98) 0%, rgba(118, 86, 246, 0.98) 100%);
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(80, 58, 194, 0.34);
   }
 
   .auth-form-wrap .btn-primary:hover {
-    filter: brightness(1.08);
+    filter: brightness(1.06);
   }
 
   .auth-form-wrap .alert-error {
@@ -539,6 +540,29 @@ html[data-theme='corporate'] .app-main .table thead tr {
   background: hsl(var(--b3) / 0.82);
 }
 
+html[data-theme='corporate'] .auth-form-wrap {
+  border-color: rgba(41, 68, 98, 0.42);
+  background: linear-gradient(180deg, rgba(246, 250, 255, 0.98), rgba(237, 245, 255, 0.95));
+  box-shadow: 0 18px 34px rgba(18, 52, 88, 0.18);
+}
+
+html[data-theme='corporate'] .auth-form-wrap .input {
+  border-color: rgba(46, 72, 103, 0.4);
+  background-color: rgba(255, 255, 255, 1);
+  color: #0f172a;
+}
+
+html[data-theme='corporate'] .auth-form-wrap .input::placeholder {
+  color: rgba(71, 85, 105, 0.88);
+}
+
+html[data-theme='corporate'] .auth-form-wrap .btn-primary {
+  border-color: rgba(17, 72, 126, 0.95);
+  background: linear-gradient(90deg, rgba(18, 65, 112, 0.98) 0%, rgba(29, 87, 146, 0.98) 100%);
+  color: #f8fbff;
+  box-shadow: 0 8px 20px rgba(15, 58, 100, 0.28);
+}
+
 html[data-theme='corporate'] .app-form-panel,
 html[data-theme='corporate'] .app-table-panel {
   border-color: hsl(var(--bc) / 0.25);
@@ -554,6 +578,29 @@ html[data-theme='dark'] .app-main .table :where(th, td) {
 
 html[data-theme='dark'] .app-main .btn {
   box-shadow: 0 10px 24px hsl(var(--n) / 0.32);
+}
+
+html[data-theme='dark'] .auth-form-wrap {
+  border-color: rgba(214, 226, 255, 0.34);
+  background: linear-gradient(180deg, rgba(19, 34, 64, 0.9), rgba(15, 28, 56, 0.88));
+  box-shadow: 0 24px 44px rgba(6, 14, 34, 0.42);
+}
+
+html[data-theme='dark'] .auth-form-wrap .input {
+  border-color: rgba(211, 224, 255, 0.34);
+  background-color: rgba(255, 255, 255, 0.16);
+  color: #eef4ff;
+}
+
+html[data-theme='dark'] .auth-form-wrap .input::placeholder {
+  color: rgba(214, 225, 255, 0.66);
+}
+
+html[data-theme='dark'] .auth-form-wrap .btn-primary {
+  border-color: rgba(122, 102, 255, 0.95);
+  background: linear-gradient(90deg, rgba(108, 82, 246, 0.98) 0%, rgba(139, 110, 255, 0.98) 100%);
+  color: #ffffff;
+  box-shadow: 0 12px 26px rgba(90, 66, 214, 0.42);
 }
 
 html[data-theme='dark'] .app-form-panel,
