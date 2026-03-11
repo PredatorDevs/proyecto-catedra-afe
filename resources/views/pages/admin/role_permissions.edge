@@ -74,9 +74,18 @@
                 autocomplete="off"
               />
             </label>
-            <span class="badge badge-outline role-permissions-visible-badge">
-              Mostrando <span id="rolePermissionsVisibleCount" class="ml-1 font-semibold">{{ permissions.length }}</span> de {{ permissions.length }}
-            </span>
+
+            <div class="role-permissions-filter-tools flex flex-wrap items-center gap-2">
+              <div class="role-permissions-quick-filters inline-flex items-center gap-1" role="group" aria-label="Filtros de asignacion">
+                <button type="button" class="btn role-permissions-filter-btn is-active" data-permission-filter="all">Todos</button>
+                <button type="button" class="btn role-permissions-filter-btn" data-permission-filter="assigned">Asignados</button>
+                <button type="button" class="btn role-permissions-filter-btn" data-permission-filter="unassigned">No asignados</button>
+              </div>
+
+              <span class="badge badge-outline role-permissions-visible-badge">
+                Mostrando <span id="rolePermissionsVisibleCount" class="ml-1 font-semibold">{{ permissions.length }}</span> de {{ permissions.length }}
+              </span>
+            </div>
           </div>
 
           <div class="role-permissions-grid grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -85,6 +94,7 @@
                 class="role-permissions-item label cursor-pointer justify-start gap-3 rounded-box px-4 py-3 {{ assignedPermissionIds.includes(permission.id) ? 'is-selected' : '' }}"
                 data-permission-item
                 data-search-text="{{ `${permission.slug} ${permission.name}`.toLowerCase() }}"
+                data-assigned="{{ assignedPermissionIds.includes(permission.id) ? '1' : '0' }}"
               >
                 <input
                   type="checkbox"

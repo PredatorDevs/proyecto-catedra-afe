@@ -114,8 +114,10 @@
     if (!searchInput) return
 
     const items = Array.from(document.querySelectorAll('[data-permission-item]'))
+    const modeButtons = Array.from(document.querySelectorAll('[data-permission-filter]'))
     const emptyState = document.getElementById('rolePermissionsEmptyState')
     const visibleCount = document.getElementById('rolePermissionsVisibleCount')
+    let mode = 'all'
 
     const applyFilter = () => {
       const query = (searchInput.value || '').trim().toLowerCase()
@@ -123,7 +125,11 @@
 
       items.forEach((item) => {
         const text = (item.getAttribute('data-search-text') || '').toLowerCase()
-        const match = query.length === 0 || text.includes(query)
+        const matchesQuery = query.length === 0 || text.includes(query)
+        const isAssigned = item.getAttribute('data-assigned') === '1'
+        const matchesMode =
+          mode === 'all' || (mode === 'assigned' && isAssigned) || (mode === 'unassigned' && !isAssigned)
+        const match = matchesQuery && matchesMode
         item.classList.toggle('hidden', !match)
         if (match) visible += 1
       })
@@ -131,6 +137,14 @@
       if (visibleCount) visibleCount.textContent = String(visible)
       if (emptyState) emptyState.classList.toggle('hidden', visible !== 0)
     }
+
+    modeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        mode = button.getAttribute('data-permission-filter') || 'all'
+        modeButtons.forEach((btn) => btn.classList.toggle('is-active', btn === button))
+        applyFilter()
+      })
+    })
 
     searchInput.addEventListener('input', applyFilter)
     applyFilter()

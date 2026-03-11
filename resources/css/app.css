@@ -1071,6 +1071,34 @@
     padding-right: 1rem !important;
   }
 
+  .role-permissions-filter-tools {
+    margin-left: auto;
+  }
+
+  .role-permissions-filter-btn {
+    min-height: 2.1rem;
+    height: 2.1rem;
+    border: 1px solid hsl(var(--bc) / 0.24);
+    background: hsl(var(--b1) / 0.66);
+    color: hsl(var(--bc) / 0.84);
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .role-permissions-filter-btn:hover {
+    background: hsl(var(--b2) / 0.8);
+  }
+
+  .role-permissions-filter-btn.is-active {
+    border-color: hsl(var(--p) / 0.44);
+    background: hsl(var(--p) / 0.16);
+    color: hsl(var(--bc) / 0.98);
+    box-shadow: inset 0 0 0 1px hsl(var(--p) / 0.2);
+  }
+
   .role-permissions-visible-badge {
     align-self: flex-end;
   }
@@ -1836,6 +1864,22 @@ html[data-theme='corporate'] .role-permissions-item {
   background: linear-gradient(180deg, rgba(250, 253, 255, 0.96), rgba(242, 248, 255, 0.94));
 }
 
+html[data-theme='corporate'] .role-permissions-filter-btn {
+  border-color: rgba(46, 72, 103, 0.26);
+  background: rgba(248, 252, 255, 0.98);
+  color: rgba(28, 52, 82, 0.9);
+}
+
+html[data-theme='corporate'] .role-permissions-filter-btn:hover {
+  background: rgba(236, 245, 255, 1);
+}
+
+html[data-theme='corporate'] .role-permissions-filter-btn.is-active {
+  border-color: rgba(37, 98, 166, 0.44);
+  background: rgba(225, 239, 255, 0.95);
+  box-shadow: inset 0 0 0 1px rgba(37, 98, 166, 0.24);
+}
+
 html[data-theme='corporate'] .role-permissions-item:hover {
   border-color: rgba(46, 72, 103, 0.28);
   box-shadow: 0 12px 20px rgba(21, 54, 91, 0.14);
@@ -2034,6 +2078,22 @@ html[data-theme='dark'] .permissions-page .app-data-table {
 html[data-theme='dark'] .role-permissions-item {
   border-color: rgba(208, 222, 255, 0.18);
   background: linear-gradient(180deg, rgba(24, 40, 70, 0.7), rgba(30, 48, 82, 0.72));
+}
+
+html[data-theme='dark'] .role-permissions-filter-btn {
+  border-color: rgba(208, 222, 255, 0.24);
+  background: rgba(24, 40, 70, 0.72);
+  color: rgba(228, 237, 255, 0.9);
+}
+
+html[data-theme='dark'] .role-permissions-filter-btn:hover {
+  background: rgba(30, 48, 82, 0.82);
+}
+
+html[data-theme='dark'] .role-permissions-filter-btn.is-active {
+  border-color: rgba(125, 163, 255, 0.5);
+  background: rgba(46, 72, 116, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(125, 163, 255, 0.3);
 }
 
 html[data-theme='dark'] .role-permissions-item:hover {
