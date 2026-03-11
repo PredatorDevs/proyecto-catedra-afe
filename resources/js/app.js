@@ -109,6 +109,33 @@
     matched.link.setAttribute('aria-current', 'page')
   }
 
+  function initRolePermissionsFilter() {
+    const searchInput = document.getElementById('rolePermissionsSearch')
+    if (!searchInput) return
+
+    const items = Array.from(document.querySelectorAll('[data-permission-item]'))
+    const emptyState = document.getElementById('rolePermissionsEmptyState')
+    const visibleCount = document.getElementById('rolePermissionsVisibleCount')
+
+    const applyFilter = () => {
+      const query = (searchInput.value || '').trim().toLowerCase()
+      let visible = 0
+
+      items.forEach((item) => {
+        const text = (item.getAttribute('data-search-text') || '').toLowerCase()
+        const match = query.length === 0 || text.includes(query)
+        item.classList.toggle('hidden', !match)
+        if (match) visible += 1
+      })
+
+      if (visibleCount) visibleCount.textContent = String(visible)
+      if (emptyState) emptyState.classList.toggle('hidden', visible !== 0)
+    }
+
+    searchInput.addEventListener('input', applyFilter)
+    applyFilter()
+  }
+
   // 1) aplica tema guardado al cargar
   const saved = getSavedTheme()
   if (saved) applyTheme(saved)
@@ -124,5 +151,6 @@
 
     initSidebarToggle()
     initActiveSidebarLink()
+    initRolePermissionsFilter()
   })
 })()

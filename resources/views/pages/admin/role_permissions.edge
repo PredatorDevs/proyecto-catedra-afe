@@ -63,9 +63,29 @@
             {{ csrfField() }}
           @endif
 
+          <div class="role-permissions-filter flex flex-wrap items-end justify-between gap-3">
+            <label class="form-control w-full md:max-w-md">
+              <div class="label pb-1"><span class="label-text font-medium">Buscar permiso</span></div>
+              <input
+                id="rolePermissionsSearch"
+                type="text"
+                class="input input-bordered app-strong-input role-permissions-filter-input w-full"
+                placeholder="Filtrar por slug o nombre..."
+                autocomplete="off"
+              />
+            </label>
+            <span class="badge badge-outline role-permissions-visible-badge">
+              Mostrando <span id="rolePermissionsVisibleCount" class="ml-1 font-semibold">{{ permissions.length }}</span> de {{ permissions.length }}
+            </span>
+          </div>
+
           <div class="role-permissions-grid grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             @each(permission in permissions)
-              <label class="role-permissions-item label cursor-pointer justify-start gap-3 rounded-box px-4 py-3 {{ assignedPermissionIds.includes(permission.id) ? 'is-selected' : '' }}">
+              <label
+                class="role-permissions-item label cursor-pointer justify-start gap-3 rounded-box px-4 py-3 {{ assignedPermissionIds.includes(permission.id) ? 'is-selected' : '' }}"
+                data-permission-item
+                data-search-text="{{ `${permission.slug} ${permission.name}`.toLowerCase() }}"
+              >
                 <input
                   type="checkbox"
                   name="permissionIds"
@@ -80,6 +100,10 @@
               </label>
             @end
           </div>
+
+          <p id="rolePermissionsEmptyState" class="role-permissions-empty-state hidden text-sm">
+            No hay permisos que coincidan con la búsqueda.
+          </p>
 
           <div class="flex flex-wrap justify-end gap-2">
             <a class="btn app-fixed-btn app-fixed-cancel role-permissions-action-btn" href="/admin/roles">
