@@ -1521,6 +1521,26 @@
     border-radius: 0.66rem;
   }
 
+  .permissions-form-shell {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .permissions-form-panel {
+    padding: clamp(1rem, 1.4vw, 1.6rem) !important;
+  }
+
+  .permissions-form-panel .app-form-grid {
+    row-gap: 1rem;
+    column-gap: 1rem;
+  }
+
+  .permissions-form-panel .app-form-field .label {
+    padding-bottom: 0.35rem;
+  }
+
   .permissions-page .app-modal-solid .app-strong-input {
     border-color: hsl(var(--bc) / 0.3) !important;
     background: hsl(var(--b1) / 0.94) !important;
@@ -1665,6 +1685,26 @@
     border-radius: 0.66rem;
   }
 
+  .roles-form-shell {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .roles-form-panel {
+    padding: clamp(1rem, 1.4vw, 1.6rem) !important;
+  }
+
+  .roles-form-panel .app-form-grid {
+    row-gap: 1rem;
+    column-gap: 1rem;
+  }
+
+  .roles-form-panel .app-form-field .label {
+    padding-bottom: 0.35rem;
+  }
+
   .roles-page .app-modal-solid .app-strong-input {
     border-color: hsl(var(--bc) / 0.3) !important;
     background: hsl(var(--b1) / 0.94) !important;
@@ -1807,6 +1847,26 @@
     padding-left: 0.92rem !important;
     padding-right: 0.92rem !important;
     border-radius: 0.66rem;
+  }
+
+  .users-form-shell {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .users-form-panel {
+    padding: clamp(1rem, 1.4vw, 1.6rem) !important;
+  }
+
+  .users-form-panel .app-form-grid {
+    row-gap: 1rem;
+    column-gap: 1rem;
+  }
+
+  .users-form-panel .app-form-field .label {
+    padding-bottom: 0.35rem;
   }
 
   .app-modal-solid {

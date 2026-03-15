@@ -8,22 +8,50 @@ export default class UsersController {
   async index({ view }: HttpContext) {
     const users = await User.query().preload('roles').orderBy('id', 'asc')
     const roles = await Role.query().orderBy('slug', 'asc')
-    const userRoleIdsByUserId = Object.fromEntries(
-      users.map((user) => [user.id, user.roles.map((role) => role.id)])
-    )
     const usersWithRoles = users.filter((user) => user.roles.length > 0).length
     const usersWithoutRoles = users.length - usersWithRoles
 
     return view.render('pages/admin/users', {
       users,
-      roles,
-      userRoleIdsByUserId,
       userStats: {
         totalUsers: users.length,
         usersWithRoles,
         usersWithoutRoles,
         totalRoles: roles.length,
       },
+    })
+  }
+
+  async create({ view }: HttpContext) {
+    const roles = await Role.query().orderBy('slug', 'asc')
+
+    return view.render('pages/admin/users_form', {
+      formMode: 'create',
+      formAction: '/admin/users',
+      formTitle: 'Crear usuario interno',
+      formSubtitle: 'Completa los datos y asigna uno o varios roles para habilitar acceso.',
+      submitLabel: 'Crear usuario',
+      backHref: '/admin/users',
+      user: null,
+      selectedRoleIds: [],
+      roles,
+    })
+  }
+
+  async edit({ params, view }: HttpContext) {
+    const user = await User.query().where('id', params.id).preload('roles').firstOrFail()
+    const roles = await Role.query().orderBy('slug', 'asc')
+
+    return view.render('pages/admin/users_form', {
+      formMode: 'edit',
+      formAction: `/admin/users/${user.id}/update`,
+      formTitle: `Editar usuario #${user.id}`,
+      formSubtitle: 'Actualiza datos de cuenta y ajusta las asignaciones de rol.',
+      submitLabel: 'Guardar cambios',
+      backHref: '/admin/users',
+      user,
+      selectedRoleIds: user.roles.map((role) => String(role.id)),
+      roles,
     })
   }
 
@@ -81,24 +109,24 @@ export default class UsersController {
 
     if (fullName.length < 3 || fullName.length > 120) {
       session.flash('error', 'El nombre completo debe tener entre 3 y 120 caracteres')
-      return response.redirect('/admin/users')
+      return response.redirect(`/admin/users/${user.id}/edit`)
     }
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailPattern.test(email)) {
       session.flash('error', 'Debes ingresar un email valido para actualizar el usuario')
-      return response.redirect('/admin/users')
+      return response.redirect(`/admin/users/${user.id}/edit`)
     }
 
     if (password && password.length < 8) {
       session.flash('error', 'Si defines una nueva password, debe tener al menos 8 caracteres')
-      return response.redirect('/admin/users')
+      return response.redirect(`/admin/users/${user.id}/edit`)
     }
 
     const duplicate = await User.query().where('email', email).whereNot('id', user.id).first()
     if (duplicate) {
       session.flash('error', `Ya existe otro usuario con email "${email}"`)
-      return response.redirect('/admin/users')
+      return response.redirect(`/admin/users/${user.id}/edit`)
     }
 
     const rawRoleIds = request.input('roleIds')

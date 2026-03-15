@@ -22,6 +22,32 @@ export default class PermissionsController {
     })
   }
 
+  async create({ view }: HttpContext) {
+    return view.render('pages/admin/permissions_form', {
+      formMode: 'create',
+      formAction: '/admin/permissions',
+      formTitle: 'Crear permiso',
+      formSubtitle: 'Define capacidades granulares para controlar acceso a funciones del sistema.',
+      submitLabel: 'Crear permiso',
+      backHref: '/admin/permissions',
+      permission: null,
+    })
+  }
+
+  async edit({ params, view }: HttpContext) {
+    const permission = await Permission.findOrFail(params.id)
+
+    return view.render('pages/admin/permissions_form', {
+      formMode: 'edit',
+      formAction: `/admin/permissions/${permission.id}/update`,
+      formTitle: `Editar permiso #${permission.id}`,
+      formSubtitle: 'Actualiza slug y nombre para mantener una matriz de autorización clara.',
+      submitLabel: 'Guardar cambios',
+      backHref: '/admin/permissions',
+      permission,
+    })
+  }
+
   async store(ctx: HttpContext) {
     const { request, response, session } = ctx
     const payload = await request.validateUsing(createPermissionValidator)
@@ -53,18 +79,14 @@ export default class PermissionsController {
     const name = String(request.input('name', '')).trim()
 
     if (!slug || !name) {
-      session.flash('openEditPermissionModalId', permission.id)
-      session.flash('editPermissionForm', { slug, name })
       session.flash('error', 'Slug y nombre son obligatorios para actualizar el permiso')
-      return response.redirect('/admin/permissions')
+      return response.redirect(`/admin/permissions/${permission.id}/edit`)
     }
 
     const duplicate = await Permission.query().where('slug', slug).whereNot('id', permission.id).first()
     if (duplicate) {
-      session.flash('openEditPermissionModalId', permission.id)
-      session.flash('editPermissionForm', { slug, name })
       session.flash('error', `Ya existe otro permiso con slug "${slug}"`)
-      return response.redirect('/admin/permissions')
+      return response.redirect(`/admin/permissions/${permission.id}/edit`)
     }
 
     const previous = { slug: permission.slug, name: permission.name }

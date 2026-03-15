@@ -22,6 +22,32 @@ export default class RolesController {
     })
   }
 
+  async create({ view }: HttpContext) {
+    return view.render('pages/admin/roles_form', {
+      formMode: 'create',
+      formAction: '/admin/roles',
+      formTitle: 'Crear rol',
+      formSubtitle: 'Define slug y nombre para controlar grupos de permisos internos.',
+      submitLabel: 'Crear rol',
+      backHref: '/admin/roles',
+      role: null,
+    })
+  }
+
+  async edit({ params, view }: HttpContext) {
+    const role = await Role.findOrFail(params.id)
+
+    return view.render('pages/admin/roles_form', {
+      formMode: 'edit',
+      formAction: `/admin/roles/${role.id}/update`,
+      formTitle: `Editar rol #${role.id}`,
+      formSubtitle: 'Actualiza la identidad del rol para mantener una nomenclatura consistente.',
+      submitLabel: 'Guardar cambios',
+      backHref: '/admin/roles',
+      role,
+    })
+  }
+
   async store(ctx: HttpContext) {
     const { request, response, session } = ctx
     const payload = await request.validateUsing(createRoleValidator)
@@ -53,18 +79,14 @@ export default class RolesController {
     const name = String(request.input('name', '')).trim()
 
     if (!slug || !name) {
-      session.flash('openEditRoleModalId', role.id)
-      session.flash('editRoleForm', { slug, name })
       session.flash('error', 'Slug y nombre son obligatorios para actualizar el rol')
-      return response.redirect('/admin/roles')
+      return response.redirect(`/admin/roles/${role.id}/edit`)
     }
 
     const duplicate = await Role.query().where('slug', slug).whereNot('id', role.id).first()
     if (duplicate) {
-      session.flash('openEditRoleModalId', role.id)
-      session.flash('editRoleForm', { slug, name })
       session.flash('error', `Ya existe otro rol con slug "${slug}"`)
-      return response.redirect('/admin/roles')
+      return response.redirect(`/admin/roles/${role.id}/edit`)
     }
 
     const previous = { slug: role.slug, name: role.name }

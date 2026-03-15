@@ -1,0 +1,143 @@
+@component('../views/components/layouts/app', { title: `${formMode === 'create' ? 'Crear Usuario' : 'Editar Usuario'} - proyecto-catedra-afe` })
+  <div class="users-page page-stack">
+    @if(flashMessages.get('success'))
+      <div class="alert alert-success">
+        <span>{{ flashMessages.get('success') }}</span>
+      </div>
+    @endif
+
+    @if(flashMessages.get('error'))
+      <div class="alert alert-error">
+        <span>{{ flashMessages.get('error') }}</span>
+      </div>
+    @endif
+
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <section class="users-hero rounded-2xl p-5 md:p-6 lg:p-7">
+          <div class="users-hero-grid gap-5 lg:gap-8">
+            <div>
+              <p class="users-kicker">Administración de identidades</p>
+              <h1 class="users-title mt-2">{{ formTitle }}</h1>
+              <p class="users-lead mt-3">{{ formSubtitle }}</p>
+            </div>
+
+            <div class="users-actions flex flex-wrap items-center justify-end gap-2">
+              <a class="btn app-fixed-btn app-fixed-view users-action-btn" href="{{ backHref }}">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M3.5 10h13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                  <path d="M10.5 4l6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Volver al listado
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="surface-card">
+      <div class="surface-card-body app-form-panel app-modal-solid users-form-shell users-form-panel">
+        <form class="app-form-grid grid gap-4 md:grid-cols-2 xl:grid-cols-3" method="POST" action="{{ formAction }}">
+          @if(typeof csrfField === 'function')
+            {{ csrfField() }}
+          @endif
+
+          <label class="app-form-field form-control">
+            <div class="label"><span class="label-text">Nombre completo</span></div>
+            <input
+              name="fullName"
+              type="text"
+              class="input input-bordered app-strong-input w-full @if(errors?.has('fullName')) input-error @endif"
+              required
+              value="{{ old('fullName') || (user?.fullName || '') }}"
+            />
+            @if(errors?.has('fullName'))
+              <div class="label"><span class="label-text-alt text-error">{{ errors.first('fullName') }}</span></div>
+            @endif
+          </label>
+
+          <label class="app-form-field form-control">
+            <div class="label"><span class="label-text">Email</span></div>
+            <input
+              name="email"
+              type="email"
+              class="input input-bordered app-strong-input w-full @if(errors?.has('email')) input-error @endif"
+              required
+              value="{{ old('email') || (user?.email || '') }}"
+            />
+            @if(errors?.has('email'))
+              <div class="label"><span class="label-text-alt text-error">{{ errors.first('email') }}</span></div>
+            @endif
+          </label>
+
+          <label class="app-form-field form-control md:col-span-2 xl:col-span-3">
+            <div class="label"><span class="label-text">{{ formMode === 'create' ? 'Password' : 'Nueva password (opcional)' }}</span></div>
+            @if(formMode === 'create')
+              <input
+                name="password"
+                type="password"
+                class="input input-bordered app-strong-input w-full @if(errors?.has('password')) input-error @endif"
+                minlength="8"
+                required
+              />
+            @else
+              <input
+                name="password"
+                type="password"
+                class="input input-bordered app-strong-input w-full @if(errors?.has('password')) input-error @endif"
+                minlength="8"
+                placeholder="Dejar vacio para conservar la password actual"
+              />
+            @endif
+            @if(errors?.has('password'))
+              <div class="label"><span class="label-text-alt text-error">{{ errors.first('password') }}</span></div>
+            @endif
+          </label>
+
+          <label class="app-form-field form-control md:col-span-2 xl:col-span-3">
+            <div class="label"><span class="label-text">Roles</span></div>
+            <select name="roleIds" multiple class="select select-bordered app-strong-input h-32 w-full">
+              @each(role in roles)
+                <option
+                  value="{{ role.id }}"
+                  {{ old('roleIds')?.includes(String(role.id)) || (!old('roleIds') && selectedRoleIds?.includes(String(role.id))) ? 'selected' : '' }}
+                >
+                  {{ role.name }} ({{ role.slug }})
+                </option>
+              @end
+            </select>
+            <div class="label">
+              <span class="label-text-alt">
+                {{ formMode === 'create' ? 'Puedes seleccionar uno o más roles.' : 'Mantén presionada Ctrl para seleccionar varios roles.' }}
+              </span>
+            </div>
+          </label>
+
+          <div class="md:col-span-2 xl:col-span-3 flex flex-wrap justify-end gap-2">
+            <a class="btn app-fixed-btn app-fixed-cancel users-action-btn" href="{{ backHref }}">
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+              Cancelar
+            </a>
+            <button class="btn app-fixed-btn {{ formMode === 'create' ? 'app-fixed-create' : 'app-fixed-edit' }} users-action-btn min-w-40" type="submit">
+              @if(formMode === 'create')
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M10 4v12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  <path d="M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+              @else
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M4.5 10.5l3.3 3.3L15.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              @endif
+              {{ submitLabel }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+@end

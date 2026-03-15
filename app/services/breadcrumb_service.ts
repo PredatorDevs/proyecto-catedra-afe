@@ -78,10 +78,34 @@ const namedBreadcrumbs: Record<string, BreadcrumbDefinition> = {
     { label: 'Administracion', routeName: 'admin.index' },
     { label: 'Usuarios', routeName: 'admin.users.index' },
   ],
+  'admin.users.create': [
+    { label: ROOT_LABEL, routeName: 'home' },
+    { label: 'Administracion', routeName: 'admin.index' },
+    { label: 'Usuarios', routeName: 'admin.users.index' },
+    { label: 'Nuevo usuario' },
+  ],
+  'admin.users.edit': [
+    { label: ROOT_LABEL, routeName: 'home' },
+    { label: 'Administracion', routeName: 'admin.index' },
+    { label: 'Usuarios', routeName: 'admin.users.index' },
+    { label: 'Editar usuario' },
+  ],
   'admin.roles.index': [
     { label: ROOT_LABEL, routeName: 'home' },
     { label: 'Administracion', routeName: 'admin.index' },
     { label: 'Roles', routeName: 'admin.roles.index' },
+  ],
+  'admin.roles.create': [
+    { label: ROOT_LABEL, routeName: 'home' },
+    { label: 'Administracion', routeName: 'admin.index' },
+    { label: 'Roles', routeName: 'admin.roles.index' },
+    { label: 'Nuevo rol' },
+  ],
+  'admin.roles.edit': [
+    { label: ROOT_LABEL, routeName: 'home' },
+    { label: 'Administracion', routeName: 'admin.index' },
+    { label: 'Roles', routeName: 'admin.roles.index' },
+    { label: 'Editar rol' },
   ],
   'admin.roles.permissions.edit': [
     { label: ROOT_LABEL, routeName: 'home' },
@@ -93,6 +117,18 @@ const namedBreadcrumbs: Record<string, BreadcrumbDefinition> = {
     { label: ROOT_LABEL, routeName: 'home' },
     { label: 'Administracion', routeName: 'admin.index' },
     { label: 'Permisos', routeName: 'admin.permissions.index' },
+  ],
+  'admin.permissions.create': [
+    { label: ROOT_LABEL, routeName: 'home' },
+    { label: 'Administracion', routeName: 'admin.index' },
+    { label: 'Permisos', routeName: 'admin.permissions.index' },
+    { label: 'Nuevo permiso' },
+  ],
+  'admin.permissions.edit': [
+    { label: ROOT_LABEL, routeName: 'home' },
+    { label: 'Administracion', routeName: 'admin.index' },
+    { label: 'Permisos', routeName: 'admin.permissions.index' },
+    { label: 'Editar permiso' },
   ],
   'admin.auditLogs.index': [
     { label: ROOT_LABEL, routeName: 'home' },

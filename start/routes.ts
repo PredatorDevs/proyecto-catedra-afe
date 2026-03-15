@@ -51,6 +51,20 @@ router
       .use(middleware.shareAuth())
 
     router
+      .get('/admin/users/new', [UsersController, 'create'])
+      .as('admin.users.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['users.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/users/:id/edit', [UsersController, 'edit'])
+      .as('admin.users.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['users.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
       .post('/admin/users', [UsersController, 'store'])
       .as('admin.users.store')
       .use(middleware.auth())
@@ -69,6 +83,20 @@ router
       .as('admin.roles.index')
       .use(middleware.auth())
       .use(middleware.permission({ permissions: ['roles.read'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/roles/new', [RolesController, 'create'])
+      .as('admin.roles.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['roles.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/roles/:id/edit', [RolesController, 'edit'])
+      .as('admin.roles.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['roles.manage'] }))
       .use(middleware.shareAuth())
 
     router
@@ -111,6 +139,20 @@ router
       .as('admin.permissions.index')
       .use(middleware.auth())
       .use(middleware.permission({ permissions: ['permissions.read'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/permissions/new', [PermissionsController, 'create'])
+      .as('admin.permissions.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['permissions.manage'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/permissions/:id/edit', [PermissionsController, 'edit'])
+      .as('admin.permissions.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['permissions.manage'] }))
       .use(middleware.shareAuth())
 
     router
