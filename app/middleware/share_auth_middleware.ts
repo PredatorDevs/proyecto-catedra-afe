@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import BreadcrumbService from '#services/breadcrumb_service'
 
 export default class ShareAuthMiddleware {
   async handle(ctx: HttpContext, next: () => Promise<void>) {
@@ -18,12 +19,15 @@ export default class ShareAuthMiddleware {
     }
 
     const uniquePermissions = Array.from(new Set(authPermissions))
+    const routeName = ctx.route?.name
+    const breadcrumbs = BreadcrumbService.build(ctx.request.url(), routeName)
 
     // Comparte variables para cualquier vista/partial del request
     ctx.view?.share({
       authUser: ctx.auth.user,
       isAuthenticated: !!ctx.auth.user,
       authPermissions: uniquePermissions,
+      breadcrumbs,
     })
 
     return next()

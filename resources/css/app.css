@@ -387,6 +387,65 @@
     animation: app-enter 420ms ease-out;
   }
 
+  .app-breadcrumb-wrap {
+    border: 1px solid hsl(var(--bc) / 0.14);
+    border-radius: 0.8rem;
+    background: linear-gradient(180deg, hsl(var(--b1) / 0.7), hsl(var(--b2) / 0.56));
+    padding: 0.5rem 0.85rem;
+  }
+
+  .app-breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.2rem 0.72rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .app-breadcrumb-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .app-breadcrumb-item + .app-breadcrumb-item::before {
+    content: '/';
+    position: absolute;
+    left: -0.48rem;
+    color: hsl(var(--bc) / 0.45);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .app-breadcrumb-link,
+  .app-breadcrumb-current {
+    display: inline-block;
+    max-width: min(48vw, 20rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.82rem;
+    line-height: 1.25;
+  }
+
+  .app-breadcrumb-link {
+    color: hsl(var(--bc) / 0.72);
+    font-weight: 600;
+    transition: color 160ms ease;
+  }
+
+  .app-breadcrumb-link:hover {
+    color: hsl(var(--p) / 0.88);
+  }
+
+  .app-breadcrumb-current {
+    color: hsl(var(--bc) / 0.94);
+    font-weight: 700;
+  }
+
   .app-main .page-title,
   .app-main .card-title {
     color: hsl(var(--bc) / 0.98);

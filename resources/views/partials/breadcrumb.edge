@@ -1,0 +1,15 @@
+@if(isAuthenticated && breadcrumbs && breadcrumbs.length)
+  <nav class="app-breadcrumb-wrap mb-4" aria-label="breadcrumb">
+    <ol class="app-breadcrumb-list">
+      @each(item in breadcrumbs)
+        <li class="app-breadcrumb-item">
+          @if(item.href && !item.current)
+            <a class="app-breadcrumb-link" href="{{ item.href }}">{{ item.label }}</a>
+          @else
+            <span class="app-breadcrumb-current" aria-current="page">{{ item.label }}</span>
+          @endif
+        </li>
+      @end
+    </ol>
+  </nav>
+@endif
