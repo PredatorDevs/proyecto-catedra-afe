@@ -1240,6 +1240,53 @@
     border-radius: 0.66rem;
   }
 
+  .audit-detail-btn {
+    height: 1.8rem !important;
+    min-height: 1.8rem !important;
+    padding-left: 0.6rem !important;
+    padding-right: 0.6rem !important;
+    border-radius: 0.55rem;
+  }
+
+  .audit-change-badge {
+    border-color: hsl(var(--bc) / 0.24);
+    background: hsl(var(--b1) / 0.56);
+    color: hsl(var(--bc) / 0.9);
+  }
+
+  .audit-detail-modal {
+    width: min(92vw, 72rem);
+  }
+
+  .audit-detail-block {
+    border: 1px solid hsl(var(--bc) / 0.18);
+    border-radius: 0.75rem;
+    background: hsl(var(--b1) / 0.6);
+    padding: 0.7rem;
+  }
+
+  .audit-detail-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: hsl(var(--bc) / 0.76);
+    margin-bottom: 0.4rem;
+  }
+
+  .audit-detail-json {
+    margin: 0;
+    max-height: 18rem;
+    overflow: auto;
+    border: 1px solid hsl(var(--bc) / 0.16);
+    border-radius: 0.6rem;
+    background: hsl(var(--b1) / 0.88);
+    padding: 0.62rem;
+    font-size: 0.76rem;
+    line-height: 1.45;
+    color: hsl(var(--bc) / 0.92);
+  }
+
   .role-permissions-hero {
     border: 1px solid hsl(var(--bc) / 0.16);
     background:

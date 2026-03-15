@@ -21,6 +21,7 @@ export default class AuthController {
           action: 'LOGIN',
           entity: 'auth',
           userId: user.id,
+          newValues: { email },
           metadata: { email },
         },
         ctx
@@ -32,6 +33,7 @@ export default class AuthController {
         {
           action: 'LOGIN_FAILED',
           entity: 'auth',
+          newValues: { email },
           metadata: { email },
         },
         ctx
@@ -51,6 +53,7 @@ export default class AuthController {
         action: 'LOGOUT',
         entity: 'auth',
         userId,
+        newValues: { userId },
       },
       ctx
     )

@@ -121,13 +121,14 @@
               <th>Acción</th>
               <th>Entidad</th>
               <th>Entity ID</th>
+              <th>Cambios</th>
               <th>IP</th>
             </tr>
           </thead>
           <tbody>
             @if(auditLogs.length === 0)
               <tr>
-                <td colspan="6" class="text-center text-base-content opacity-70">Sin registros todavía.</td>
+                <td colspan="7" class="text-center text-base-content opacity-70">Sin registros todavía.</td>
               </tr>
             @endif
 
@@ -142,6 +143,59 @@
                 </td>
                 <td>{{ log.entity }}</td>
                 <td>{{ log.entityId || '-' }}</td>
+                <td>
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    @if(log.changedFields && log.changedFields.length)
+                      @each(field in log.changedFields)
+                        <span class="badge badge-outline audit-change-badge">{{ field }}</span>
+                      @end
+                    @else
+                      <span class="text-xs opacity-65">sin diff</span>
+                    @endif
+
+                    <button
+                      class="btn btn-xs app-fixed-btn app-fixed-view audit-detail-btn"
+                      type="button"
+                      onclick="document.getElementById('audit-detail-{{ log.id }}')?.showModal()"
+                    >
+                      Ver
+                    </button>
+                  </div>
+
+                  <dialog id="audit-detail-{{ log.id }}" class="modal">
+                    <div class="modal-box max-w-5xl app-form-panel app-modal-solid audit-detail-modal">
+                      <div class="mb-3 flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <h3 class="card-title app-section-title">Detalle de cambio #{{ log.id }}</h3>
+                          <p class="page-subtitle mt-1">{{ log.action }} · {{ log.entity }} · {{ log.createdAt.toFormat('yyyy-LL-dd HH:mm:ss') }}</p>
+                        </div>
+                        <button class="btn btn-sm app-fixed-btn app-fixed-cancel audit-detail-btn" type="button" onclick="document.getElementById('audit-detail-{{ log.id }}')?.close()">Cerrar</button>
+                      </div>
+
+                      <div class="mb-3 flex flex-wrap gap-1.5">
+                        @if(log.changedFields && log.changedFields.length)
+                          @each(field in log.changedFields)
+                            <span class="badge badge-outline audit-change-badge">{{ field }}</span>
+                          @end
+                        @else
+                          <span class="text-xs opacity-65">No hay campos detectados como cambiados.</span>
+                        @endif
+                      </div>
+
+                      <div class="grid gap-3 md:grid-cols-2">
+                        <div class="audit-detail-block">
+                          <p class="audit-detail-label">Old Values</p>
+                          <pre class="audit-detail-json">{{ JSON.stringify(log.oldValues || {}, null, 2) }}</pre>
+                        </div>
+                        <div class="audit-detail-block">
+                          <p class="audit-detail-label">New Values</p>
+                          <pre class="audit-detail-json">{{ JSON.stringify(log.newValues || {}, null, 2) }}</pre>
+                        </div>
+                      </div>
+                    </div>
+                    <form method="dialog" class="modal-backdrop"><button>Cerrar</button></form>
+                  </dialog>
+                </td>
                 <td>{{ log.ip || '-' }}</td>
               </tr>
             @end

@@ -62,7 +62,9 @@ export default class RolesController {
         action: 'CREATE',
         entity: 'role',
         entityId: role.id,
-        metadata: { slug: role.slug, name: role.name },
+        oldValues: null,
+        newValues: { slug: role.slug, name: role.name },
+        metadata: { source: 'admin.roles.store' },
       },
       ctx
     )
@@ -100,9 +102,10 @@ export default class RolesController {
         action: 'UPDATE',
         entity: 'role',
         entityId: role.id,
+        oldValues: previous,
+        newValues: { slug: role.slug, name: role.name },
         metadata: {
-          previous,
-          current: { slug: role.slug, name: role.name },
+          source: 'admin.roles.update',
         },
       },
       ctx
@@ -121,7 +124,7 @@ export default class RolesController {
       return response.redirect('/admin/roles')
     }
 
-    const metadata = { slug: role.slug, name: role.name }
+    const previous = { slug: role.slug, name: role.name }
     await role.delete()
 
     await AuditLogger.log(
@@ -129,7 +132,11 @@ export default class RolesController {
         action: 'DELETE',
         entity: 'role',
         entityId: params.id,
-        metadata,
+        oldValues: previous,
+        newValues: null,
+        metadata: {
+          source: 'admin.roles.destroy',
+        },
       },
       ctx
     )
@@ -178,10 +185,15 @@ export default class RolesController {
         action: 'UPDATE',
         entity: 'role_permissions',
         entityId: role.id,
+        oldValues: {
+          permissionIds: previousPermissionIds,
+        },
+        newValues: {
+          permissionIds,
+        },
         metadata: {
+          source: 'admin.roles.updatePermissions',
           role: { id: role.id, slug: role.slug },
-          previousPermissionIds,
-          currentPermissionIds: permissionIds,
           added,
           removed,
         },

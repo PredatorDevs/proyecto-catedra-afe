@@ -62,7 +62,9 @@ export default class PermissionsController {
         action: 'CREATE',
         entity: 'permission',
         entityId: permission.id,
-        metadata: { slug: permission.slug, name: permission.name },
+        oldValues: null,
+        newValues: { slug: permission.slug, name: permission.name },
+        metadata: { source: 'admin.permissions.store' },
       },
       ctx
     )
@@ -100,9 +102,10 @@ export default class PermissionsController {
         action: 'UPDATE',
         entity: 'permission',
         entityId: permission.id,
+        oldValues: previous,
+        newValues: { slug: permission.slug, name: permission.name },
         metadata: {
-          previous,
-          current: { slug: permission.slug, name: permission.name },
+          source: 'admin.permissions.update',
         },
       },
       ctx
@@ -122,7 +125,7 @@ export default class PermissionsController {
       return response.redirect('/admin/permissions')
     }
 
-    const metadata = { slug: permission.slug, name: permission.name }
+    const previous = { slug: permission.slug, name: permission.name }
     await permission.delete()
 
     await AuditLogger.log(
@@ -130,7 +133,9 @@ export default class PermissionsController {
         action: 'DELETE',
         entity: 'permission',
         entityId: params.id,
-        metadata,
+        oldValues: previous,
+        newValues: null,
+        metadata: { source: 'admin.permissions.destroy' },
       },
       ctx
     )

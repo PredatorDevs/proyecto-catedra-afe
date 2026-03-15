@@ -85,9 +85,15 @@ export default class UsersController {
         action: 'CREATE',
         entity: 'user',
         entityId: user.id,
+        oldValues: null,
+        newValues: {
+          fullName: user.fullName,
+          email: user.email,
+          roleIds,
+        },
         metadata: {
           source: 'admin.users.store',
-          roleIds,
+          passwordSet: true,
         },
       },
       ctx
@@ -159,14 +165,14 @@ export default class UsersController {
         action: 'UPDATE',
         entity: 'user',
         entityId: user.id,
+        oldValues: previous,
+        newValues: {
+          fullName: user.fullName,
+          email: user.email,
+          roleIds,
+        },
         metadata: {
           source: 'admin.users.update',
-          previous,
-          current: {
-            fullName: user.fullName,
-            email: user.email,
-            roleIds,
-          },
           passwordChanged: Boolean(password),
         },
       },
