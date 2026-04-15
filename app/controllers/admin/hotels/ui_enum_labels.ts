@@ -65,6 +65,49 @@ export const unitOfMeasureLabels: Record<string, string> = {
   SERVICE: 'Servicio',
 }
 
+export const reservationSourceLabels: Record<string, string> = {
+  WEB: 'Web',
+  RECEPTION: 'Recepción',
+  PHONE: 'Teléfono',
+  WALK_IN: 'Walk-in',
+  OTHER: 'Otro canal',
+}
+
+export const reservationStatusLabels: Record<string, string> = {
+  DRAFT: 'Borrador',
+  PENDING_ADMIN_CONFIRMATION: 'Pendiente de confirmación administrativa',
+  PENDING_PAYMENT: 'Pendiente de pago',
+  PAYMENT_UNDER_REVIEW: 'Pago en revisión',
+  CONFIRMED: 'Confirmada',
+  CHECKED_IN: 'Check-in realizado',
+  CHECKED_OUT: 'Check-out realizado',
+  CANCELLED: 'Cancelada',
+  EXPIRED: 'Expirada',
+  NO_SHOW: 'No show',
+  REFUND_PENDING: 'Reembolso pendiente',
+  REFUNDED: 'Reembolsada',
+}
+
+export const reservationGuestTypeLabels: Record<string, string> = {
+  PRIMARY: 'Titular',
+  ADDITIONAL: 'Adicional',
+}
+
+export const checkinCheckoutActionLabels: Record<string, string> = {
+  CHECK_IN: 'Check-in',
+  CHECK_OUT: 'Check-out',
+  ROOM_CHANGE_OUT: 'Cambio habitación (salida)',
+  ROOM_CHANGE_IN: 'Cambio habitación (entrada)',
+  NO_SHOW: 'No show',
+}
+
+export const reservationChargeStatusLabels: Record<string, string> = {
+  PENDING: 'Pendiente',
+  PAID: 'Pagado',
+  BILLED: 'Facturado',
+  VOIDED: 'Anulado',
+}
+
 export const customerTypeOptions = makeOptions(customerTypeLabels)
 export const documentTypeOptions = makeOptions(documentTypeLabels)
 export const roomStatusOptions = makeOptions(roomStatusLabels)
@@ -73,6 +116,11 @@ export const pricingScopeOptions = makeOptions(pricingScopeLabels)
 export const priceBasisOptions = makeOptions(priceBasisLabels)
 export const chargeKindOptions = makeOptions(chargeKindLabels)
 export const unitOfMeasureOptions = makeOptions(unitOfMeasureLabels)
+export const reservationSourceOptions = makeOptions(reservationSourceLabels)
+export const reservationStatusOptions = makeOptions(reservationStatusLabels)
+export const reservationGuestTypeOptions = makeOptions(reservationGuestTypeLabels)
+export const checkinCheckoutActionOptions = makeOptions(checkinCheckoutActionLabels)
+export const reservationChargeStatusOptions = makeOptions(reservationChargeStatusLabels)
 
 export const customerTypeLabel = (value: string | null | undefined) => getLabel(customerTypeLabels, value)
 export const documentTypeLabel = (value: string | null | undefined) => getLabel(documentTypeLabels, value)
@@ -82,3 +130,11 @@ export const pricingScopeLabel = (value: string | null | undefined) => getLabel(
 export const priceBasisLabel = (value: string | null | undefined) => getLabel(priceBasisLabels, value)
 export const chargeKindLabel = (value: string | null | undefined) => getLabel(chargeKindLabels, value)
 export const unitOfMeasureLabel = (value: string | null | undefined) => getLabel(unitOfMeasureLabels, value)
+export const reservationSourceLabel = (value: string | null | undefined) => getLabel(reservationSourceLabels, value)
+export const reservationStatusLabel = (value: string | null | undefined) => getLabel(reservationStatusLabels, value)
+export const reservationGuestTypeLabel = (value: string | null | undefined) =>
+  getLabel(reservationGuestTypeLabels, value)
+export const checkinCheckoutActionLabel = (value: string | null | undefined) =>
+  getLabel(checkinCheckoutActionLabels, value)
+export const reservationChargeStatusLabel = (value: string | null | undefined) =>
+  getLabel(reservationChargeStatusLabels, value)

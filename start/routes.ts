@@ -22,6 +22,10 @@ import AdditionalChargeCatalogController from '#controllers/admin/hotels/additio
 import CustomersController from '#controllers/admin/hotels/customers_controller'
 import RoomImagesController from '#controllers/admin/hotels/room_images_controller'
 import RoomPricesController from '#controllers/admin/hotels/room_prices_controller'
+import ReservationsController from '#controllers/admin/hotels/reservations_controller'
+import ReservationGuestsController from '#controllers/admin/hotels/reservation_guests_controller'
+import CheckinCheckoutLogsController from '#controllers/admin/hotels/checkin_checkout_logs_controller'
+import ReservationChargesController from '#controllers/admin/hotels/reservation_charges_controller'
 
 router
   .group(() => {
@@ -432,6 +436,146 @@ router
     router
       .post('/admin/hotels/room-prices/:id/update', [RoomPricesController, 'update'])
       .as('admin.hotels.roomPrices.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/reservations', [ReservationsController, 'index'])
+      .as('admin.hotels.reservations.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/reservations/new', [ReservationsController, 'create'])
+      .as('admin.hotels.reservations.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/reservations/:id/edit', [ReservationsController, 'edit'])
+      .as('admin.hotels.reservations.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/reservations', [ReservationsController, 'store'])
+      .as('admin.hotels.reservations.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/reservations/:id/update', [ReservationsController, 'update'])
+      .as('admin.hotels.reservations.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/reservation-guests', [ReservationGuestsController, 'index'])
+      .as('admin.hotels.reservationGuests.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/reservation-guests/new', [ReservationGuestsController, 'create'])
+      .as('admin.hotels.reservationGuests.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/reservation-guests/:id/edit', [ReservationGuestsController, 'edit'])
+      .as('admin.hotels.reservationGuests.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/reservation-guests', [ReservationGuestsController, 'store'])
+      .as('admin.hotels.reservationGuests.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/reservation-guests/:id/update', [ReservationGuestsController, 'update'])
+      .as('admin.hotels.reservationGuests.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/checkin-checkout-logs', [CheckinCheckoutLogsController, 'index'])
+      .as('admin.hotels.checkinCheckoutLogs.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/checkin-checkout-logs/new', [CheckinCheckoutLogsController, 'create'])
+      .as('admin.hotels.checkinCheckoutLogs.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/checkin-checkout-logs/:id/edit', [CheckinCheckoutLogsController, 'edit'])
+      .as('admin.hotels.checkinCheckoutLogs.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/checkin-checkout-logs', [CheckinCheckoutLogsController, 'store'])
+      .as('admin.hotels.checkinCheckoutLogs.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/checkin-checkout-logs/:id/update', [CheckinCheckoutLogsController, 'update'])
+      .as('admin.hotels.checkinCheckoutLogs.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/reservation-charges', [ReservationChargesController, 'index'])
+      .as('admin.hotels.reservationCharges.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/reservation-charges/new', [ReservationChargesController, 'create'])
+      .as('admin.hotels.reservationCharges.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/reservation-charges/:id/edit', [ReservationChargesController, 'edit'])
+      .as('admin.hotels.reservationCharges.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/reservation-charges', [ReservationChargesController, 'store'])
+      .as('admin.hotels.reservationCharges.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/reservation-charges/:id/update', [ReservationChargesController, 'update'])
+      .as('admin.hotels.reservationCharges.update')
       .use(middleware.auth())
       .use(middleware.permission({ permissions: ['admin.access'] }))
       .use(middleware.shareAuth())
