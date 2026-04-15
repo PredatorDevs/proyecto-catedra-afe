@@ -26,6 +26,14 @@ import ReservationsController from '#controllers/admin/hotels/reservations_contr
 import ReservationGuestsController from '#controllers/admin/hotels/reservation_guests_controller'
 import CheckinCheckoutLogsController from '#controllers/admin/hotels/checkin_checkout_logs_controller'
 import ReservationChargesController from '#controllers/admin/hotels/reservation_charges_controller'
+import PaymentMethodsController from '#controllers/admin/hotels/payment_methods_controller'
+import CashierShiftsController from '#controllers/admin/hotels/cashier_shifts_controller'
+import PaymentsController from '#controllers/admin/hotels/payments_controller'
+import FiscalDocumentsController from '#controllers/admin/hotels/fiscal_documents_controller'
+import PaymentProofsController from '#controllers/admin/hotels/payment_proofs_controller'
+import PaymentTransactionsController from '#controllers/admin/hotels/payment_transactions_controller'
+import PaymentReservationAllocationsController from '#controllers/admin/hotels/payment_reservation_allocations_controller'
+import PaymentChargeAllocationsController from '#controllers/admin/hotels/payment_charge_allocations_controller'
 
 router
   .group(() => {
@@ -576,6 +584,289 @@ router
     router
       .post('/admin/hotels/reservation-charges/:id/update', [ReservationChargesController, 'update'])
       .as('admin.hotels.reservationCharges.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-methods', [PaymentMethodsController, 'index'])
+      .as('admin.hotels.paymentMethods.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-methods/new', [PaymentMethodsController, 'create'])
+      .as('admin.hotels.paymentMethods.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-methods/:id/edit', [PaymentMethodsController, 'edit'])
+      .as('admin.hotels.paymentMethods.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payment-methods', [PaymentMethodsController, 'store'])
+      .as('admin.hotels.paymentMethods.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payment-methods/:id/update', [PaymentMethodsController, 'update'])
+      .as('admin.hotels.paymentMethods.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/cashier-shifts', [CashierShiftsController, 'index'])
+      .as('admin.hotels.cashierShifts.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/cashier-shifts/new', [CashierShiftsController, 'create'])
+      .as('admin.hotels.cashierShifts.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/cashier-shifts/:id/edit', [CashierShiftsController, 'edit'])
+      .as('admin.hotels.cashierShifts.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/cashier-shifts', [CashierShiftsController, 'store'])
+      .as('admin.hotels.cashierShifts.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/cashier-shifts/:id/update', [CashierShiftsController, 'update'])
+      .as('admin.hotels.cashierShifts.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payments', [PaymentsController, 'index'])
+      .as('admin.hotels.payments.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payments/new', [PaymentsController, 'create'])
+      .as('admin.hotels.payments.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payments/:id/edit', [PaymentsController, 'edit'])
+      .as('admin.hotels.payments.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payments', [PaymentsController, 'store'])
+      .as('admin.hotels.payments.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payments/:id/update', [PaymentsController, 'update'])
+      .as('admin.hotels.payments.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/fiscal-documents', [FiscalDocumentsController, 'index'])
+      .as('admin.hotels.fiscalDocuments.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/fiscal-documents/new', [FiscalDocumentsController, 'create'])
+      .as('admin.hotels.fiscalDocuments.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/fiscal-documents/:id/edit', [FiscalDocumentsController, 'edit'])
+      .as('admin.hotels.fiscalDocuments.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/fiscal-documents', [FiscalDocumentsController, 'store'])
+      .as('admin.hotels.fiscalDocuments.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/fiscal-documents/:id/update', [FiscalDocumentsController, 'update'])
+      .as('admin.hotels.fiscalDocuments.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-proofs', [PaymentProofsController, 'index'])
+      .as('admin.hotels.paymentProofs.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-proofs/new', [PaymentProofsController, 'create'])
+      .as('admin.hotels.paymentProofs.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-proofs/:id/edit', [PaymentProofsController, 'edit'])
+      .as('admin.hotels.paymentProofs.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payment-proofs', [PaymentProofsController, 'store'])
+      .as('admin.hotels.paymentProofs.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payment-proofs/:id/update', [PaymentProofsController, 'update'])
+      .as('admin.hotels.paymentProofs.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-transactions', [PaymentTransactionsController, 'index'])
+      .as('admin.hotels.paymentTransactions.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-transactions/new', [PaymentTransactionsController, 'create'])
+      .as('admin.hotels.paymentTransactions.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-transactions/:id/edit', [PaymentTransactionsController, 'edit'])
+      .as('admin.hotels.paymentTransactions.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payment-transactions', [PaymentTransactionsController, 'store'])
+      .as('admin.hotels.paymentTransactions.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payment-transactions/:id/update', [PaymentTransactionsController, 'update'])
+      .as('admin.hotels.paymentTransactions.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-reservation-allocations', [PaymentReservationAllocationsController, 'index'])
+      .as('admin.hotels.paymentReservationAllocations.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-reservation-allocations/new', [PaymentReservationAllocationsController, 'create'])
+      .as('admin.hotels.paymentReservationAllocations.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-reservation-allocations/:id/edit', [PaymentReservationAllocationsController, 'edit'])
+      .as('admin.hotels.paymentReservationAllocations.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payment-reservation-allocations', [PaymentReservationAllocationsController, 'store'])
+      .as('admin.hotels.paymentReservationAllocations.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post(
+        '/admin/hotels/payment-reservation-allocations/:id/update',
+        [PaymentReservationAllocationsController, 'update']
+      )
+      .as('admin.hotels.paymentReservationAllocations.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-charge-allocations', [PaymentChargeAllocationsController, 'index'])
+      .as('admin.hotels.paymentChargeAllocations.index')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-charge-allocations/new', [PaymentChargeAllocationsController, 'create'])
+      .as('admin.hotels.paymentChargeAllocations.create')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .get('/admin/hotels/payment-charge-allocations/:id/edit', [PaymentChargeAllocationsController, 'edit'])
+      .as('admin.hotels.paymentChargeAllocations.edit')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payment-charge-allocations', [PaymentChargeAllocationsController, 'store'])
+      .as('admin.hotels.paymentChargeAllocations.store')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/payment-charge-allocations/:id/update', [PaymentChargeAllocationsController, 'update'])
+      .as('admin.hotels.paymentChargeAllocations.update')
       .use(middleware.auth())
       .use(middleware.permission({ permissions: ['admin.access'] }))
       .use(middleware.shareAuth())

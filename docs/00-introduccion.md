@@ -25,3 +25,6 @@ Servir como base reutilizable para proyectos académicos o empresariales, permit
 5. Implementar auth (registro/login/logout)
 6. Implementar RBAC
 7. Implementar bitácora parcial
+
+## Guias recomendadas
+- Guia de presentacion del proyecto: [docs/13-guia-presentacion-proyecto.md](docs/13-guia-presentacion-proyecto.md)

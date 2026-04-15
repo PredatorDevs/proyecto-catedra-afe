@@ -3,6 +3,8 @@
 ## Anexos tecnicos
 
 - Diseno fisico Fase 1 (tablas base): [docs/requirements/fase-1-diseno-fisico-db.md](docs/requirements/fase-1-diseno-fisico-db.md)
+- Diseno fisico Fase 2 (reservaciones): [docs/requirements/fase-2-reservaciones.md](docs/requirements/fase-2-reservaciones.md)
+- Diseno fisico Fase 3 (pagos, caja y fiscal): [docs/requirements/fase-3-pagos-caja-fiscal.md](docs/requirements/fase-3-pagos-caja-fiscal.md)
 
 ---
 

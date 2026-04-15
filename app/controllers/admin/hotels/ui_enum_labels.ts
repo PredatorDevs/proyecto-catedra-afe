@@ -108,6 +108,56 @@ export const reservationChargeStatusLabels: Record<string, string> = {
   VOIDED: 'Anulado',
 }
 
+export const cashierShiftStatusLabels: Record<string, string> = {
+  OPEN: 'Abierto',
+  CLOSED: 'Cerrado',
+  CANCELLED: 'Cancelado',
+}
+
+export const paymentCategoryLabels: Record<string, string> = {
+  LODGING: 'Hospedaje',
+  ADDITIONAL_CHARGES: 'Cargos adicionales',
+  MIXED: 'Mixto',
+  REFUND: 'Reembolso',
+  REVERSAL: 'Reversa',
+}
+
+export const paymentStatusLabels: Record<string, string> = {
+  PENDING: 'Pendiente',
+  REPORTED: 'Reportado',
+  UNDER_REVIEW: 'En revision',
+  APPROVED: 'Aprobado',
+  REJECTED: 'Rechazado',
+  VOIDED: 'Anulado',
+  REFUNDED: 'Reembolsado',
+}
+
+export const paymentProofValidationStatusLabels: Record<string, string> = {
+  PENDING: 'Pendiente',
+  APPROVED: 'Aprobado',
+  REJECTED: 'Rechazado',
+}
+
+export const fiscalDocumentTypeLabels: Record<string, string> = {
+  CONSUMER_FINAL: 'Consumidor final',
+  CREDITO_FISCAL: 'Credito fiscal',
+  NOTA_CREDITO: 'Nota de credito',
+  ANULACION: 'Anulacion',
+}
+
+export const fiscalDocumentStatusLabels: Record<string, string> = {
+  PENDING: 'Pendiente',
+  ISSUED: 'Emitido',
+  VOIDED: 'Anulado',
+  ERROR: 'Error',
+}
+
+export const fiscalDocumentItemTypeLabels: Record<string, string> = {
+  LODGING: 'Hospedaje',
+  ADDITIONAL_CHARGE: 'Cargo adicional',
+  ADJUSTMENT: 'Ajuste',
+}
+
 export const customerTypeOptions = makeOptions(customerTypeLabels)
 export const documentTypeOptions = makeOptions(documentTypeLabels)
 export const roomStatusOptions = makeOptions(roomStatusLabels)
@@ -121,6 +171,13 @@ export const reservationStatusOptions = makeOptions(reservationStatusLabels)
 export const reservationGuestTypeOptions = makeOptions(reservationGuestTypeLabels)
 export const checkinCheckoutActionOptions = makeOptions(checkinCheckoutActionLabels)
 export const reservationChargeStatusOptions = makeOptions(reservationChargeStatusLabels)
+export const cashierShiftStatusOptions = makeOptions(cashierShiftStatusLabels)
+export const paymentCategoryOptions = makeOptions(paymentCategoryLabels)
+export const paymentStatusOptions = makeOptions(paymentStatusLabels)
+export const paymentProofValidationStatusOptions = makeOptions(paymentProofValidationStatusLabels)
+export const fiscalDocumentTypeOptions = makeOptions(fiscalDocumentTypeLabels)
+export const fiscalDocumentStatusOptions = makeOptions(fiscalDocumentStatusLabels)
+export const fiscalDocumentItemTypeOptions = makeOptions(fiscalDocumentItemTypeLabels)
 
 export const customerTypeLabel = (value: string | null | undefined) => getLabel(customerTypeLabels, value)
 export const documentTypeLabel = (value: string | null | undefined) => getLabel(documentTypeLabels, value)
@@ -138,3 +195,16 @@ export const checkinCheckoutActionLabel = (value: string | null | undefined) =>
   getLabel(checkinCheckoutActionLabels, value)
 export const reservationChargeStatusLabel = (value: string | null | undefined) =>
   getLabel(reservationChargeStatusLabels, value)
+export const cashierShiftStatusLabel = (value: string | null | undefined) =>
+  getLabel(cashierShiftStatusLabels, value)
+export const paymentCategoryLabel = (value: string | null | undefined) =>
+  getLabel(paymentCategoryLabels, value)
+export const paymentStatusLabel = (value: string | null | undefined) => getLabel(paymentStatusLabels, value)
+export const paymentProofValidationStatusLabel = (value: string | null | undefined) =>
+  getLabel(paymentProofValidationStatusLabels, value)
+export const fiscalDocumentTypeLabel = (value: string | null | undefined) =>
+  getLabel(fiscalDocumentTypeLabels, value)
+export const fiscalDocumentStatusLabel = (value: string | null | undefined) =>
+  getLabel(fiscalDocumentStatusLabels, value)
+export const fiscalDocumentItemTypeLabel = (value: string | null | undefined) =>
+  getLabel(fiscalDocumentItemTypeLabels, value)
