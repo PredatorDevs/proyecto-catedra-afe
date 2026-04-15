@@ -535,6 +535,12 @@
     color: hsl(var(--bc) / 0.96);
   }
 
+  .app-main .select option,
+  .app-main .select optgroup {
+    background-color: hsl(var(--b1));
+    color: hsl(var(--bc) / 0.98);
+  }
+
   .app-main .input::placeholder,
   .app-main .textarea::placeholder {
     color: hsl(var(--bc) / 0.45);
@@ -1923,6 +1929,22 @@
     backdrop-filter: none;
   }
 
+  .app-modal-solid select.app-strong-input {
+    background: hsl(var(--b1) / 0.94) !important;
+    color: hsl(var(--bc) / 0.98) !important;
+  }
+
+  .app-modal-solid select.app-strong-input option,
+  .app-modal-solid select.app-strong-input optgroup {
+    background: hsl(var(--b1));
+    color: hsl(var(--bc) / 0.98);
+  }
+
+  .app-modal-solid select.app-strong-input option:checked {
+    background: hsl(var(--p) / 0.34);
+    color: hsl(var(--bc) / 1);
+  }
+
   .users-page .app-modal-solid .app-strong-input {
     border-color: hsl(var(--bc) / 0.3) !important;
     background: hsl(var(--b1) / 0.94) !important;
@@ -2416,6 +2438,12 @@ html[data-theme='corporate'] .users-page .app-modal-solid .app-strong-input {
   color: #0f172a !important;
 }
 
+html[data-theme='corporate'] .app-modal-solid select.app-strong-input option,
+html[data-theme='corporate'] .app-modal-solid select.app-strong-input optgroup {
+  background: #ffffff;
+  color: #0f172a;
+}
+
 html[data-theme='corporate'] .roles-page .app-modal-solid .app-strong-input {
   border-color: rgba(46, 72, 103, 0.48) !important;
   background: rgba(255, 255, 255, 0.98) !important;
@@ -2461,6 +2489,17 @@ html[data-theme='corporate'] .app-main .btn-outline {
 
 html[data-theme='dark'] .app-main .table :where(th, td) {
   border-bottom-color: hsl(var(--bc) / 0.2);
+}
+
+html[data-theme='dark'] .app-modal-solid select.app-strong-input option,
+html[data-theme='dark'] .app-modal-solid select.app-strong-input optgroup {
+  background: #1f2d46;
+  color: #e7eef9;
+}
+
+html[data-theme='dark'] .app-modal-solid select.app-strong-input option:checked {
+  background: #315183;
+  color: #f5f9ff;
 }
 
 html[data-theme='dark'] .users-page .app-data-table {

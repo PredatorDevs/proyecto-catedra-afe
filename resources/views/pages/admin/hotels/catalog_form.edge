@@ -1,0 +1,117 @@
+@component('../views/components/layouts/app', { title: `${formTitle} - proyecto-catedra-afe` })
+  <div class="users-page page-stack">
+    @if(flashMessages.get('success'))
+      <div class="alert alert-success">
+        <span>{{ flashMessages.get('success') }}</span>
+      </div>
+    @endif
+
+    @if(flashMessages.get('error'))
+      <div class="alert alert-error">
+        <span>{{ flashMessages.get('error') }}</span>
+      </div>
+    @endif
+
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <section class="users-hero rounded-2xl p-5 md:p-6 lg:p-7">
+          <div class="users-hero-grid gap-5 lg:gap-8">
+            <div>
+              <p class="users-kicker">{{ formKicker }}</p>
+              <h1 class="users-title mt-2">{{ formTitle }}</h1>
+              <p class="users-lead mt-3">{{ formSubtitle }}</p>
+            </div>
+
+            <div class="users-actions flex flex-wrap items-center justify-end gap-2">
+              <a class="btn app-fixed-btn app-fixed-view users-action-btn" href="{{ backHref }}">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M3.5 10h13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                  <path d="M10.5 4l6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Volver al listado
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="surface-card">
+      <div class="surface-card-body app-form-panel app-modal-solid users-form-shell users-form-panel">
+        <form class="app-form-grid grid gap-4 md:grid-cols-2 xl:grid-cols-3" method="POST" action="{{ formAction }}">
+          @if(typeof csrfField === 'function')
+            {{ csrfField() }}
+          @endif
+
+          @each(field in fields)
+            <label
+              class="app-form-field form-control {{
+                field.fullWidth
+                  ? 'md:col-span-2 xl:col-span-3'
+                  : `${field.colSpanMd === 2 ? 'md:col-span-2' : ''} ${field.colSpanXl === 2 ? 'xl:col-span-2' : field.colSpanXl === 3 ? 'xl:col-span-3' : ''}`
+              }}"
+            >
+              <div class="label"><span class="label-text">{{ field.label }}</span></div>
+
+              @if(field.type === 'select')
+                <select name="{{ field.name }}" class="select select-bordered app-strong-input w-full @if(errors?.has(field.name)) select-error @endif" {{ field.required ? 'required' : '' }}>
+                  @if(!field.required)
+                    <option value="" disabled {{ !old(field.name) && !values[field.name] ? 'selected' : '' }}>Selecciona...</option>
+                  @endif
+                  @each(option in field.options)
+                    <option value="{{ option.value }}" {{ String(old(field.name) || values[field.name] || '') === String(option.value) ? 'selected' : '' }}>
+                      {{ option.label }}
+                    </option>
+                  @end
+                </select>
+              @elseif(field.type === 'checkbox')
+                <input
+                  name="{{ field.name }}"
+                  type="checkbox"
+                  value="true"
+                  class="checkbox checkbox-primary"
+                  {{ ['true', '1', 'on'].includes(String(old(field.name) || '').toLowerCase()) ? 'checked' : (!old(field.name) && values[field.name] ? 'checked' : '') }}
+                />
+              @elseif(field.type === 'textarea')
+                <textarea
+                  name="{{ field.name }}"
+                  class="textarea textarea-bordered app-strong-input w-full @if(errors?.has(field.name)) textarea-error @endif"
+                  {{ field.required ? 'required' : '' }}
+                  rows="{{ field.rows || 3 }}"
+                >{{ old(field.name) || values[field.name] || '' }}</textarea>
+              @else
+                <input
+                  name="{{ field.name }}"
+                  type="{{ field.type || 'text' }}"
+                  class="input input-bordered app-strong-input w-full @if(errors?.has(field.name)) input-error @endif"
+                  {{ field.required ? 'required' : '' }}
+                  min="{{ field.min !== undefined ? field.min : '' }}"
+                  max="{{ field.max !== undefined ? field.max : '' }}"
+                  step="{{ field.step !== undefined ? field.step : '' }}"
+                  value="{{ old(field.name) || values[field.name] || '' }}"
+                />
+              @endif
+
+              @if(errors?.has(field.name))
+                <div class="label"><span class="label-text-alt text-error">{{ errors.first(field.name) }}</span></div>
+              @endif
+            </label>
+          @end
+
+          <div class="md:col-span-2 xl:col-span-3 flex flex-wrap justify-end gap-2">
+            <a class="btn app-fixed-btn app-fixed-cancel users-action-btn" href="{{ backHref }}">
+              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+              Cancelar
+            </a>
+            <button class="btn app-fixed-btn {{ formMode === 'create' ? 'app-fixed-create' : 'app-fixed-edit' }} users-action-btn min-w-40" type="submit">
+              {{ submitLabel }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+@end

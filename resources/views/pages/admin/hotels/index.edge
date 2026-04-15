@@ -1,0 +1,90 @@
+@component('../views/components/layouts/app', { title: 'Admin Hoteles - proyecto-catedra-afe' })
+  <div class="page-stack">
+    @if(flashMessages.get('success'))
+      <div class="alert alert-success">
+        <span>{{ flashMessages.get('success') }}</span>
+      </div>
+    @endif
+
+    @if(flashMessages.get('error'))
+      <div class="alert alert-error">
+        <span>{{ flashMessages.get('error') }}</span>
+      </div>
+    @endif
+
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <section class="users-hero rounded-2xl p-5 md:p-6 lg:p-7">
+          <div class="users-hero-grid gap-5 lg:gap-8">
+            <div>
+              <p class="users-kicker">Operación hotelera</p>
+              <h1 class="users-title mt-2">Catálogos base de hoteles</h1>
+              <p class="users-lead mt-3">
+                Administra clientes, habitaciones, temporadas, tarifas y cargos adicionales con el mismo flujo
+                visual del panel administrativo.
+              </p>
+            </div>
+
+            <div class="users-actions flex flex-wrap items-center justify-end gap-2">
+              <a class="btn app-fixed-btn app-fixed-view users-action-btn" href="/admin">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M3.5 10h13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                  <path d="M10.5 4l6 6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Volver a Administración
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="surface-card">
+      <div class="surface-card-body">
+        <section class="admin-modules grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <a class="admin-module-card rounded-xl p-4" href="/admin/hotels/customers">
+            <h3 class="admin-module-title">Clientes</h3>
+            <p class="admin-module-text mt-2">Registro de huéspedes y datos de facturación.</p>
+            <span class="admin-module-link mt-3">Abrir módulo</span>
+          </a>
+
+          <a class="admin-module-card rounded-xl p-4" href="/admin/hotels/room-types">
+            <h3 class="admin-module-title">Tipos de Habitación</h3>
+            <p class="admin-module-text mt-2">Configuración de capacidad base, camas y precio de referencia.</p>
+            <span class="admin-module-link mt-3">Abrir módulo</span>
+          </a>
+
+          <a class="admin-module-card rounded-xl p-4" href="/admin/hotels/rooms">
+            <h3 class="admin-module-title">Habitaciones</h3>
+            <p class="admin-module-text mt-2">Inventario físico, estado operativo y notas internas.</p>
+            <span class="admin-module-link mt-3">Abrir módulo</span>
+          </a>
+
+          <a class="admin-module-card rounded-xl p-4" href="/admin/hotels/room-images">
+            <h3 class="admin-module-title">Imágenes</h3>
+            <p class="admin-module-text mt-2">Galería por habitación con control de imagen portada.</p>
+            <span class="admin-module-link mt-3">Abrir módulo</span>
+          </a>
+
+          <a class="admin-module-card rounded-xl p-4" href="/admin/hotels/seasons">
+            <h3 class="admin-module-title">Temporadas</h3>
+            <p class="admin-module-text mt-2">Vigencias de alta, baja, promocional y especial.</p>
+            <span class="admin-module-link mt-3">Abrir módulo</span>
+          </a>
+
+          <a class="admin-module-card rounded-xl p-4" href="/admin/hotels/room-prices">
+            <h3 class="admin-module-title">Tarifas</h3>
+            <p class="admin-module-text mt-2">Reglas de precio por tipo/habitación, rango de fechas y prioridad.</p>
+            <span class="admin-module-link mt-3">Abrir módulo</span>
+          </a>
+
+          <a class="admin-module-card rounded-xl p-4" href="/admin/hotels/additional-charges">
+            <h3 class="admin-module-title">Cargos Adicionales</h3>
+            <p class="admin-module-text mt-2">Catálogo de servicios/productos extra con impuestos aplicables.</p>
+            <span class="admin-module-link mt-3">Abrir módulo</span>
+          </a>
+        </section>
+      </div>
+    </div>
+  </div>
+@end
