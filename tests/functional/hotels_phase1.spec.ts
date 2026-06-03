@@ -49,19 +49,20 @@ test.group('Hotels Phase 1 endpoints', (group) => {
     })
 
     await grantPermissionToUser(user, 'admin.access')
-
-    const code = `CUST-${Date.now()}`
+    const email = `cliente.${Date.now()}@afe.local`
 
     const response = await client.post('/admin/hotels/customers').withGuard('web').loginAs(user).form({
-      customerCode: code,
       customerType: 'INDIVIDUAL',
+      firstName: 'Cliente',
+      lastName: 'Hotel Prueba',
       fullName: 'Cliente Hotel Prueba',
-      email: `cliente.${Date.now()}@afe.local`,
+      documentType: 'DUI',
+      email,
     })
 
     response.assertStatus(201)
 
-    const created = await Customer.findBy('customerCode', code)
+    const created = await Customer.findBy('email', email)
     assert.exists(created)
 
     const audit = await AuditLog.query()
@@ -71,6 +72,46 @@ test.group('Hotels Phase 1 endpoints', (group) => {
       .first()
 
     assert.exists(audit)
+  })
+
+  test('rejects company customer when tax fields are missing', async ({ client }) => {
+    const user = await User.create({
+      fullName: 'Hotels Company Validation Admin',
+      email: `hotels.company.validation.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(user, 'admin.access')
+
+    const response = await client.post('/admin/hotels/customers').withGuard('web').loginAs(user).form({
+      customerType: 'COMPANY',
+      fullName: 'Empresa sin datos fiscales',
+      email: `empresa.${Date.now()}@afe.local`,
+    })
+
+    response.assertStatus(400)
+    response.assertBodyContains({ message: 'Para tipo Empresa, la razón social es obligatoria' })
+  })
+
+  test('rejects individual customer when document type is missing', async ({ client }) => {
+    const user = await User.create({
+      fullName: 'Hotels Individual Validation Admin',
+      email: `hotels.individual.validation.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(user, 'admin.access')
+
+    const response = await client.post('/admin/hotels/customers').withGuard('web').loginAs(user).form({
+      customerType: 'INDIVIDUAL',
+      firstName: 'Persona',
+      lastName: 'Sin Documento',
+      fullName: 'Persona sin tipo documento',
+      email: `persona.${Date.now()}@afe.local`,
+    })
+
+    response.assertStatus(400)
+    response.assertBodyContains({ message: 'Para tipo Persona natural, el tipo de documento es obligatorio' })
   })
 
   test('rejects overlapping active room prices for same room type scope', async ({ client }) => {

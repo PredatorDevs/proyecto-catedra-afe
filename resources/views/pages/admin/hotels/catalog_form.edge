@@ -50,6 +50,8 @@
                   ? 'md:col-span-2 xl:col-span-3'
                   : `${field.colSpanMd === 2 ? 'md:col-span-2' : ''} ${field.colSpanXl === 2 ? 'xl:col-span-2' : field.colSpanXl === 3 ? 'xl:col-span-3' : ''}`
               }}"
+              data-show-when-field="{{ field.showWhenField || '' }}"
+              data-show-when-values="{{ field.showWhenValues ? field.showWhenValues.join('|') : '' }}"
             >
               <div class="label"><span class="label-text">{{ field.label }}</span></div>
 
@@ -59,7 +61,19 @@
                     <option value="" disabled {{ !old(field.name) && !values[field.name] ? 'selected' : '' }}>Selecciona...</option>
                   @endif
                   @each(option in field.options)
-                    <option value="{{ option.value }}" {{ String(old(field.name) || values[field.name] || '') === String(option.value) ? 'selected' : '' }}>
+                    <option
+                      value="{{ option.value }}"
+                      {{ String(old(field.name) || values[field.name] || '') === String(option.value) ? 'selected' : '' }}
+                      {{ option.disabled ? 'disabled' : '' }}
+                      {{ option.defaultNightlyPrice !== undefined ? `data-default-nightly-price="${option.defaultNightlyPrice}"` : '' }}
+                      {{ option.baseCapacity !== undefined ? `data-base-capacity="${option.baseCapacity}"` : '' }}
+                      {{ option.basePrice !== undefined ? `data-base-price="${option.basePrice}"` : '' }}
+                      {{ option.extraGuestPrice !== undefined ? `data-extra-guest-price="${option.extraGuestPrice}"` : '' }}
+                      {{ option.priceBasis ? `data-price-basis="${option.priceBasis}"` : '' }}
+                      {{ option.pricingScope ? `data-pricing-scope="${option.pricingScope}"` : '' }}
+                      {{ option.roomId !== undefined ? `data-room-id="${option.roomId ?? ''}"` : '' }}
+                      {{ option.roomTypeId !== undefined ? `data-room-type-id="${option.roomTypeId}"` : '' }}
+                    >
                       {{ option.label }}
                     </option>
                   @end
@@ -77,6 +91,7 @@
                   name="{{ field.name }}"
                   class="textarea textarea-bordered app-strong-input w-full @if(errors?.has(field.name)) textarea-error @endif"
                   {{ field.required ? 'required' : '' }}
+                  {{ field.readOnly ? 'readonly' : '' }}
                   rows="{{ field.rows || 3 }}"
                 >{{ old(field.name) || values[field.name] || '' }}</textarea>
               @else
@@ -85,6 +100,7 @@
                   type="{{ field.type || 'text' }}"
                   class="input input-bordered app-strong-input w-full @if(errors?.has(field.name)) input-error @endif"
                   {{ field.required ? 'required' : '' }}
+                  {{ field.readOnly ? 'readonly' : '' }}
                   min="{{ field.min !== undefined ? field.min : '' }}"
                   max="{{ field.max !== undefined ? field.max : '' }}"
                   step="{{ field.step !== undefined ? field.step : '' }}"
@@ -94,6 +110,8 @@
 
               @if(errors?.has(field.name))
                 <div class="label"><span class="label-text-alt text-error">{{ errors.first(field.name) }}</span></div>
+              @elseif(field.helpText)
+                <div class="label"><span class="label-text-alt opacity-70">{{ field.helpText }}</span></div>
               @endif
             </label>
           @end

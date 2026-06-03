@@ -21,6 +21,38 @@ import {
 type CustomerType = 'INDIVIDUAL' | 'COMPANY'
 
 export default class CustomersController {
+  private validateCustomerTypeFields(payload: Awaited<ReturnType<typeof createCustomerValidator['validate']>>) {
+    if (payload.customerType === 'COMPANY') {
+      if (!payload.taxName || payload.taxName.trim().length < 2) {
+        return 'Para tipo Empresa, la razón social es obligatoria'
+      }
+
+      if (!payload.taxNit || payload.taxNit.trim().length < 3) {
+        return 'Para tipo Empresa, el NIT es obligatorio'
+      }
+
+      if (!payload.taxNrc || payload.taxNrc.trim().length < 3) {
+        return 'Para tipo Empresa, el NRC es obligatorio'
+      }
+    }
+
+    if (payload.customerType === 'INDIVIDUAL') {
+      if (!payload.firstName || payload.firstName.trim().length < 2) {
+        return 'Para tipo Persona natural, el nombre es obligatorio'
+      }
+
+      if (!payload.lastName || payload.lastName.trim().length < 2) {
+        return 'Para tipo Persona natural, el apellido es obligatorio'
+      }
+
+      if (!payload.documentType) {
+        return 'Para tipo Persona natural, el tipo de documento es obligatorio'
+      }
+    }
+
+    return null
+  }
+
   async index(ctx: HttpContext) {
     const rows = await Customer.query().preload('user').orderBy('id', 'asc')
 
@@ -34,7 +66,6 @@ export default class CustomersController {
         editBaseHref: '/admin/hotels/customers',
         columns: [
           { key: 'id', label: 'ID' },
-          { key: 'customerCode', label: 'Código', badge: true },
           { key: 'fullName', label: 'Nombre completo' },
           { key: 'customerType', label: 'Tipo', badge: true },
           { key: 'email', label: 'Email' },
@@ -42,7 +73,6 @@ export default class CustomersController {
         ],
         rows: rows.map((row) => ({
           id: row.id,
-          customerCode: row.customerCode ?? '-',
           fullName: row.fullName,
           customerType: customerTypeLabel(row.customerType),
           email: row.email ?? '-',
@@ -66,26 +96,69 @@ export default class CustomersController {
         colSpanXl: 2,
         options: users.map((item) => ({ value: item.id, label: `${item.id} - ${item.email}` })),
       },
-      { name: 'customerCode', label: 'Código cliente' },
       {
         name: 'customerType',
         label: 'Tipo de cliente',
         type: 'select',
         required: true,
         options: customerTypeOptions,
+        colSpanMd: 1,
+        colSpanXl: 1,
       },
-      { name: 'firstName', label: 'Nombre' },
-      { name: 'lastName', label: 'Apellido' },
-      { name: 'fullName', label: 'Nombre completo', required: true, colSpanMd: 2, colSpanXl: 2 },
+      {
+        name: 'firstName',
+        label: 'Nombre',
+        showWhenField: 'customerType',
+        showWhenValues: ['INDIVIDUAL'],
+      },
+      {
+        name: 'lastName',
+        label: 'Apellido',
+        showWhenField: 'customerType',
+        showWhenValues: ['INDIVIDUAL'],
+      },
+      {
+        name: 'fullName',
+        label: 'Nombre completo',
+        required: true,
+        colSpanMd: 2,
+        colSpanXl: 2,
+        readOnly: true,
+        helpText: 'Se completa automáticamente según el tipo de cliente.',
+      },
+      {
+        name: 'taxName',
+        label: 'Razón social',
+        colSpanMd: 2,
+        colSpanXl: 2,
+        showWhenField: 'customerType',
+        showWhenValues: ['COMPANY'],
+      },
       { name: 'email', label: 'Email', type: 'email' },
       { name: 'phone', label: 'Teléfono' },
       { name: 'birthDate', label: 'Fecha nacimiento', type: 'date' },
       { name: 'nationality', label: 'Nacionalidad' },
-      { name: 'documentType', label: 'Tipo de documento', type: 'select', options: documentTypeOptions },
+      {
+        name: 'documentType',
+        label: 'Tipo de documento',
+        type: 'select',
+        options: documentTypeOptions,
+        showWhenField: 'customerType',
+        showWhenValues: ['INDIVIDUAL'],
+      },
       { name: 'documentNumber', label: 'Número documento' },
-      { name: 'taxName', label: 'Razón social', colSpanMd: 2, colSpanXl: 2 },
-      { name: 'taxNit', label: 'NIT' },
-      { name: 'taxNrc', label: 'NRC' },
+      {
+        name: 'taxNit',
+        label: 'NIT',
+        showWhenField: 'customerType',
+        showWhenValues: ['COMPANY'],
+      },
+      {
+        name: 'taxNrc',
+        label: 'NRC',
+        showWhenField: 'customerType',
+        showWhenValues: ['COMPANY'],
+      },
       { name: 'taxAddress', label: 'Dirección fiscal', type: 'textarea', fullWidth: true },
       { name: 'notes', label: 'Notas', type: 'textarea', fullWidth: true },
       { name: 'isActive', label: 'Activo', type: 'checkbox', colSpanMd: 2, colSpanXl: 1 },
@@ -119,7 +192,6 @@ export default class CustomersController {
       fields: await this.customerFields(),
       values: {
         userId: row.userId,
-        customerCode: row.customerCode,
         customerType: row.customerType,
         firstName: row.firstName,
         lastName: row.lastName,
@@ -144,6 +216,11 @@ export default class CustomersController {
     const { request } = ctx
     const payload = await request.validateUsing(createCustomerValidator)
 
+    const customerTypeError = this.validateCustomerTypeFields(payload)
+    if (customerTypeError) {
+      return respondConflictOrRedirect(ctx, customerTypeError, '/admin/hotels/customers/new', 400)
+    }
+
     if (payload.userId) {
       const linkedUser = await User.find(payload.userId)
       if (!linkedUser) {
@@ -156,17 +233,8 @@ export default class CustomersController {
       }
     }
 
-    if (payload.customerCode) {
-      const code = payload.customerCode.trim().toUpperCase()
-      const duplicateCode = await Customer.query().where('customer_code', code).first()
-      if (duplicateCode) {
-        return respondConflictOrRedirect(ctx, `Ya existe un cliente con codigo ${code}`, '/admin/hotels/customers/new')
-      }
-    }
-
     const row = await Customer.create({
       userId: payload.userId ?? null,
-      customerCode: payload.customerCode ? payload.customerCode.trim().toUpperCase() : null,
       customerType: payload.customerType as CustomerType,
       firstName: payload.firstName ?? null,
       lastName: payload.lastName ?? null,
@@ -192,7 +260,6 @@ export default class CustomersController {
         entityId: row.id,
         oldValues: null,
         newValues: {
-          customerCode: row.customerCode,
           customerType: row.customerType,
           fullName: row.fullName,
           email: row.email,
@@ -211,6 +278,11 @@ export default class CustomersController {
     const row = await Customer.findOrFail(params.id)
     const payload = await request.validateUsing(createCustomerValidator)
 
+    const customerTypeError = this.validateCustomerTypeFields(payload)
+    if (customerTypeError) {
+      return respondConflictOrRedirect(ctx, customerTypeError, `/admin/hotels/customers/${row.id}/edit`, 400)
+    }
+
     if (payload.userId) {
       const linkedUser = await User.find(payload.userId)
       if (!linkedUser) {
@@ -227,23 +299,7 @@ export default class CustomersController {
       }
     }
 
-    const normalizedCode = payload.customerCode ? payload.customerCode.trim().toUpperCase() : null
-    if (normalizedCode) {
-      const duplicateCode = await Customer.query()
-        .where('customer_code', normalizedCode)
-        .whereNot('id', row.id)
-        .first()
-      if (duplicateCode) {
-        return respondConflictOrRedirect(
-          ctx,
-          `Ya existe otro cliente con codigo ${normalizedCode}`,
-          `/admin/hotels/customers/${row.id}/edit`
-        )
-      }
-    }
-
     const previous = {
-      customerCode: row.customerCode,
       customerType: row.customerType,
       fullName: row.fullName,
       email: row.email,
@@ -251,7 +307,6 @@ export default class CustomersController {
     }
 
     row.userId = payload.userId ?? null
-    row.customerCode = normalizedCode
     row.customerType = payload.customerType as CustomerType
     row.firstName = payload.firstName ?? null
     row.lastName = payload.lastName ?? null
@@ -277,7 +332,6 @@ export default class CustomersController {
         entityId: row.id,
         oldValues: previous,
         newValues: {
-          customerCode: row.customerCode,
           customerType: row.customerType,
           fullName: row.fullName,
           email: row.email,

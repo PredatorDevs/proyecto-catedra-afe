@@ -82,12 +82,14 @@ export default class RolesController {
 
     if (!slug || !name) {
       session.flash('error', 'Slug y nombre son obligatorios para actualizar el rol')
+      session.flashAll()
       return response.redirect(`/admin/roles/${role.id}/edit`)
     }
 
     const duplicate = await Role.query().where('slug', slug).whereNot('id', role.id).first()
     if (duplicate) {
       session.flash('error', `Ya existe otro rol con slug "${slug}"`)
+      session.flashAll()
       return response.redirect(`/admin/roles/${role.id}/edit`)
     }
 

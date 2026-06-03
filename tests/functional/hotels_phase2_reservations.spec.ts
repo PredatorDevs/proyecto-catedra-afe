@@ -4,6 +4,7 @@ import Permission from '#models/permission'
 import Customer from '#models/customer'
 import RoomType from '#models/room_type'
 import Room from '#models/room'
+import RoomPrice from '#models/room_price'
 import Reservation from '#models/reservation'
 import ReservationGuest from '#models/reservation_guest'
 import ReservationCharge from '#models/reservation_charge'
@@ -155,9 +156,7 @@ test.group('Hotels Phase 2 reservation endpoints', (group) => {
       })
 
     overlapResponse.assertStatus(400)
-    overlapResponse.assertBodyContains({
-      message: 'Existe una reservación solapada para la habitación seleccionada',
-    })
+    overlapResponse.assertTextIncludes('Podemos ofrecer')
   })
 
   test('rejects second PRIMARY guest for same reservation', async ({ client, assert }) => {
@@ -547,5 +546,492 @@ test.group('Hotels Phase 2 reservation endpoints', (group) => {
       })
 
     closedEdit.assertStatus(409)
+  })
+
+  test('requires cancellation reason when cancelling a reservation', async ({ client }) => {
+    const admin = await User.create({
+      fullName: 'Reservations Cancel Guard Admin',
+      email: `reservations.cancel.guard.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(admin, 'admin.access')
+    const { customer, roomType, room } = await seedReservationBase(admin)
+
+    const reservation = await Reservation.create({
+      reservationNumber: `RSV-CANCEL-G-${Date.now()}`,
+      customerId: customer.id,
+      roomTypeId: roomType.id,
+      roomId: room.id,
+      source: 'WEB',
+      status: 'CONFIRMED',
+      adultsCount: 1,
+      childrenCount: 0,
+      guestsCount: 1,
+      checkInPlannedAt: DateTime.fromISO('2026-11-01'),
+      checkOutPlannedAt: DateTime.fromISO('2026-11-03'),
+      lodgingSubtotal: 120,
+      discountTotal: 0,
+      ivaTotal: 0,
+      tourismTaxTotal: 0,
+      totalAmount: 120,
+      amountPaid: 0,
+      balanceDue: 120,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const response = await client
+      .post(`/admin/hotels/reservations/${reservation.id}/cancel`)
+      .withGuard('web')
+      .loginAs(admin)
+      .form({ cancellationReason: 'no' })
+
+    response.assertStatus(400)
+    response.assertBodyContains({
+      message: 'Debes indicar un motivo de cancelación de al menos 5 caracteres',
+    })
+  })
+
+  test('cancels reservation and stores reason with audit log', async ({ client, assert }) => {
+    const admin = await User.create({
+      fullName: 'Reservations Cancel Admin',
+      email: `reservations.cancel.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(admin, 'admin.access')
+    const { customer, roomType, room } = await seedReservationBase(admin)
+
+    const reservation = await Reservation.create({
+      reservationNumber: `RSV-CANCEL-${Date.now()}`,
+      customerId: customer.id,
+      roomTypeId: roomType.id,
+      roomId: room.id,
+      source: 'WEB',
+      status: 'CONFIRMED',
+      adultsCount: 2,
+      childrenCount: 0,
+      guestsCount: 2,
+      checkInPlannedAt: DateTime.fromISO('2026-11-10'),
+      checkOutPlannedAt: DateTime.fromISO('2026-11-12'),
+      lodgingSubtotal: 180,
+      discountTotal: 0,
+      ivaTotal: 0,
+      tourismTaxTotal: 0,
+      totalAmount: 180,
+      amountPaid: 0,
+      balanceDue: 180,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const response = await client
+      .post(`/admin/hotels/reservations/${reservation.id}/cancel`)
+      .withGuard('web')
+      .loginAs(admin)
+      .form({ cancellationReason: 'Cliente solicita cancelación por cambio de plan' })
+
+    response.assertStatus(200)
+
+    await reservation.refresh()
+    assert.equal(reservation.status, 'CANCELLED')
+    assert.equal(reservation.cancellationReason, 'Cliente solicita cancelación por cambio de plan')
+    assert.equal(reservation.cancelledByUserId, admin.id)
+    assert.exists(reservation.cancelledAt)
+
+    const refreshedRoom = await Room.findOrFail(room.id)
+    assert.equal(refreshedRoom.currentStatus, 'MAINTENANCE')
+    assert.include(refreshedRoom.internalNotes || '', `Reserva ${reservation.reservationNumber} cancelada`)
+
+    const audit = await AuditLog.query()
+      .where('action', 'CANCEL')
+      .where('entity', 'reservation')
+      .andWhere('entity_id', String(reservation.id))
+      .first()
+
+    assert.exists(audit)
+  })
+
+  test('suggests a better room type at same price when requested type is full', async ({ client }) => {
+    const admin = await User.create({
+      fullName: 'Reservations Upgrade Suggest Admin',
+      email: `reservations.upgrade.suggest.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(admin, 'admin.access')
+    const customer = await Customer.create({
+      customerType: 'INDIVIDUAL',
+      fullName: `Cliente Upgrade ${Date.now()}`,
+      email: `reservation.upgrade.customer.${Date.now()}@afe.local`,
+      isActive: true,
+    })
+
+    const basicType = await RoomType.create({
+      code: `BAS-${Date.now()}`,
+      name: 'Básica',
+      description: null,
+      baseCapacity: 2,
+      maxCapacity: 2,
+      bedType: 'DOUBLE',
+      bedCount: 1,
+      hasPrivateBathroom: true,
+      defaultNightlyPrice: 80,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const deluxeType = await RoomType.create({
+      code: `DLX-${Date.now()}`,
+      name: 'Deluxe',
+      description: null,
+      baseCapacity: 2,
+      maxCapacity: 3,
+      bedType: 'QUEEN',
+      bedCount: 1,
+      hasPrivateBathroom: true,
+      defaultNightlyPrice: 120,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const basicRoom = await Room.create({
+      roomTypeId: basicType.id,
+      roomNumber: `B-${Math.floor(Math.random() * 10000)}`,
+      name: 'Básica 1',
+      floorNumber: 1,
+      currentStatus: 'AVAILABLE_CLEAN',
+      isSmokingAllowed: false,
+      internalNotes: null,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    await Room.create({
+      roomTypeId: deluxeType.id,
+      roomNumber: `D-${Math.floor(Math.random() * 10000)}`,
+      name: 'Deluxe 1',
+      floorNumber: 2,
+      currentStatus: 'AVAILABLE_CLEAN',
+      isSmokingAllowed: false,
+      internalNotes: null,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    await Reservation.create({
+      reservationNumber: `RSV-UP-FULL-${Date.now()}`,
+      customerId: customer.id,
+      roomTypeId: basicType.id,
+      roomId: basicRoom.id,
+      source: 'WEB',
+      status: 'CONFIRMED',
+      adultsCount: 2,
+      childrenCount: 0,
+      guestsCount: 2,
+      checkInPlannedAt: DateTime.fromISO('2026-12-10'),
+      checkOutPlannedAt: DateTime.fromISO('2026-12-12'),
+      lodgingSubtotal: 100,
+      discountTotal: 0,
+      ivaTotal: 0,
+      tourismTaxTotal: 0,
+      totalAmount: 100,
+      amountPaid: 0,
+      balanceDue: 100,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const response = await client.post('/admin/hotels/reservations').withGuard('web').loginAs(admin).form({
+      customerId: String(customer.id),
+      roomTypeId: String(basicType.id),
+      source: 'WEB',
+      status: 'DRAFT',
+      adultsCount: '2',
+      childrenCount: '0',
+      guestsCount: '2',
+      checkInPlannedAt: '2026-12-10',
+      checkOutPlannedAt: '2026-12-12',
+      lodgingSubtotal: '100',
+    })
+
+    response.assertStatus(400)
+    response.assertTextIncludes('No hay disponibilidad para Básica')
+    response.assertTextIncludes('Podemos ofrecer')
+  })
+
+  test('applies upgrade at same price when requested type is full and option is enabled', async ({ client, assert }) => {
+    const admin = await User.create({
+      fullName: 'Reservations Upgrade Apply Admin',
+      email: `reservations.upgrade.apply.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(admin, 'admin.access')
+    const customer = await Customer.create({
+      customerType: 'INDIVIDUAL',
+      fullName: `Cliente Upgrade Apply ${Date.now()}`,
+      email: `reservation.upgrade.apply.customer.${Date.now()}@afe.local`,
+      isActive: true,
+    })
+
+    const basicType = await RoomType.create({
+      code: `BAP-${Date.now()}`,
+      name: 'Básica',
+      description: null,
+      baseCapacity: 2,
+      maxCapacity: 2,
+      bedType: 'DOUBLE',
+      bedCount: 1,
+      hasPrivateBathroom: true,
+      defaultNightlyPrice: 70,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const deluxeType = await RoomType.create({
+      code: `DAP-${Date.now()}`,
+      name: 'Deluxe',
+      description: null,
+      baseCapacity: 2,
+      maxCapacity: 3,
+      bedType: 'QUEEN',
+      bedCount: 1,
+      hasPrivateBathroom: true,
+      defaultNightlyPrice: 110,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const basicRoom = await Room.create({
+      roomTypeId: basicType.id,
+      roomNumber: `BA-${Math.floor(Math.random() * 10000)}`,
+      name: 'Básica A',
+      floorNumber: 1,
+      currentStatus: 'AVAILABLE_CLEAN',
+      isSmokingAllowed: false,
+      internalNotes: null,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    await Room.create({
+      roomTypeId: deluxeType.id,
+      roomNumber: `DA-${Math.floor(Math.random() * 10000)}`,
+      name: 'Deluxe A',
+      floorNumber: 2,
+      currentStatus: 'AVAILABLE_CLEAN',
+      isSmokingAllowed: false,
+      internalNotes: null,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    await Reservation.create({
+      reservationNumber: `RSV-UP-APPLY-${Date.now()}`,
+      customerId: customer.id,
+      roomTypeId: basicType.id,
+      roomId: basicRoom.id,
+      source: 'WEB',
+      status: 'CONFIRMED',
+      adultsCount: 2,
+      childrenCount: 0,
+      guestsCount: 2,
+      checkInPlannedAt: DateTime.fromISO('2026-12-20'),
+      checkOutPlannedAt: DateTime.fromISO('2026-12-22'),
+      lodgingSubtotal: 95,
+      discountTotal: 0,
+      ivaTotal: 0,
+      tourismTaxTotal: 0,
+      totalAmount: 95,
+      amountPaid: 0,
+      balanceDue: 95,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const baseTypePrice = await RoomPrice.create({
+      roomTypeId: basicType.id,
+      roomId: null,
+      seasonId: null,
+      name: `Tarifa basica upgrade ${Date.now()}`,
+      pricingScope: 'ROOM_TYPE',
+      priceBasis: 'NIGHT',
+      validFrom: DateTime.fromISO('2026-12-01'),
+      validTo: DateTime.fromISO('2027-01-05'),
+      daysOfWeekMask: '1111111',
+      basePrice: 47.5,
+      extraGuestPrice: 0,
+      priority: 100,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const response = await client.post('/admin/hotels/reservations').withGuard('web').loginAs(admin).form({
+      customerId: String(customer.id),
+      roomTypeId: String(basicType.id),
+      source: 'WEB',
+      status: 'DRAFT',
+      adultsCount: '2',
+      childrenCount: '0',
+      guestsCount: '2',
+      checkInPlannedAt: '2026-12-20',
+      checkOutPlannedAt: '2026-12-22',
+      allowUpgradeAtSamePrice: 'true',
+    })
+
+    response.assertStatus(201)
+
+    const created = await Reservation.query().where('customer_id', customer.id).orderBy('id', 'desc').firstOrFail()
+    assert.notEqual(created.roomTypeId, basicType.id)
+    assert.notEqual(created.roomId, basicRoom.id)
+    assert.equal(Number(created.lodgingSubtotal), 95)
+    assert.equal(created.appliedRoomPriceId, baseTypePrice.id)
+    assert.include(created.internalNotes || '', 'Upgrade aplicado al mismo precio')
+  })
+
+  test('auto-applies active tariff when no appliedRoomPriceId is provided', async ({ client, assert }) => {
+    const admin = await User.create({
+      fullName: 'Reservations Auto Pricing Admin',
+      email: `reservations.auto.pricing.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(admin, 'admin.access')
+    const { customer, roomType, room } = await seedReservationBase(admin)
+
+    const autoPrice = await RoomPrice.create({
+      roomTypeId: roomType.id,
+      roomId: null,
+      seasonId: null,
+      name: `Tarifa automatica ${Date.now()}`,
+      pricingScope: 'ROOM_TYPE',
+      priceBasis: 'NIGHT',
+      validFrom: DateTime.fromISO('2026-06-01'),
+      validTo: DateTime.fromISO('2026-12-31'),
+      daysOfWeekMask: '1111111',
+      basePrice: 55,
+      extraGuestPrice: 7,
+      priority: 10,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const response = await client.post('/admin/hotels/reservations').withGuard('web').loginAs(admin).form({
+      customerId: String(customer.id),
+      roomTypeId: String(roomType.id),
+      roomId: String(room.id),
+      source: 'WEB',
+      status: 'DRAFT',
+      adultsCount: '2',
+      childrenCount: '1',
+      guestsCount: '3',
+      checkInPlannedAt: '2026-11-10',
+      checkOutPlannedAt: '2026-11-12',
+      discountTotal: '5',
+      ivaTotal: '2',
+      tourismTaxTotal: '1',
+    })
+
+    response.assertStatus(201)
+
+    const created = await Reservation.query().where('customer_id', customer.id).orderBy('id', 'desc').firstOrFail()
+    assert.equal(created.appliedRoomPriceId, autoPrice.id)
+    assert.equal(Number(created.lodgingSubtotal), 124)
+    assert.equal(Number(created.totalAmount), 122)
+    assert.equal(Number(created.balanceDue), 122)
+  })
+
+  test('rejects selecting a room already marked as RESERVED', async ({ client }) => {
+    const admin = await User.create({
+      fullName: 'Reservations Reserved Room Admin',
+      email: `reservations.reserved.room.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(admin, 'admin.access')
+    const { customer, roomType } = await seedReservationBase(admin)
+
+    const reservedRoom = await Room.create({
+      roomTypeId: roomType.id,
+      roomNumber: `RR-${Math.floor(Math.random() * 10000)}`,
+      name: 'Habitación reservada',
+      floorNumber: 3,
+      currentStatus: 'RESERVED',
+      isSmokingAllowed: false,
+      internalNotes: null,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const response = await client.post('/admin/hotels/reservations').withGuard('web').loginAs(admin).form({
+      customerId: String(customer.id),
+      roomTypeId: String(roomType.id),
+      roomId: String(reservedRoom.id),
+      source: 'WEB',
+      status: 'DRAFT',
+      adultsCount: '1',
+      childrenCount: '0',
+      guestsCount: '1',
+      checkInPlannedAt: '2026-12-26',
+      checkOutPlannedAt: '2026-12-28',
+      lodgingSubtotal: '90',
+    })
+
+    response.assertStatus(400)
+    response.assertTextIncludes('no puede elegirse')
+  })
+
+  test('rejects selecting a room already marked as OCCUPIED', async ({ client }) => {
+    const admin = await User.create({
+      fullName: 'Reservations Occupied Room Admin',
+      email: `reservations.occupied.room.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(admin, 'admin.access')
+    const { customer, roomType } = await seedReservationBase(admin)
+
+    const occupiedRoom = await Room.create({
+      roomTypeId: roomType.id,
+      roomNumber: `OR-${Math.floor(Math.random() * 10000)}`,
+      name: 'Habitación ocupada',
+      floorNumber: 4,
+      currentStatus: 'OCCUPIED',
+      isSmokingAllowed: false,
+      internalNotes: null,
+      isActive: true,
+      createdByUserId: admin.id,
+      updatedByUserId: admin.id,
+    })
+
+    const response = await client.post('/admin/hotels/reservations').withGuard('web').loginAs(admin).form({
+      customerId: String(customer.id),
+      roomTypeId: String(roomType.id),
+      roomId: String(occupiedRoom.id),
+      source: 'WEB',
+      status: 'DRAFT',
+      adultsCount: '1',
+      childrenCount: '0',
+      guestsCount: '1',
+      checkInPlannedAt: '2026-12-29',
+      checkOutPlannedAt: '2026-12-31',
+      lodgingSubtotal: '95',
+    })
+
+    response.assertStatus(400)
+    response.assertTextIncludes('no puede elegirse')
   })
 })

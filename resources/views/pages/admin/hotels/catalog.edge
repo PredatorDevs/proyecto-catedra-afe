@@ -78,13 +78,27 @@
                   </td>
                 @end
                 <td>
-                  <a class="btn app-fixed-btn app-fixed-edit users-action-btn" href="{{ editBaseHref }}/{{ row.id }}/edit">
-                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                      <path d="M3.5 16.5l3.2-.7 8-8a1.8 1.8 0 0 0-2.5-2.5l-8 8-.7 3.2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                      <path d="M11.3 5.7l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                    </svg>
-                    Editar
-                  </a>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <a class="btn app-fixed-btn app-fixed-edit users-action-btn" href="{{ editBaseHref }}/{{ row.id }}/edit">
+                      <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M3.5 16.5l3.2-.7 8-8a1.8 1.8 0 0 0-2.5-2.5l-8 8-.7 3.2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                        <path d="M11.3 5.7l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                      </svg>
+                      Editar
+                    </a>
+
+                    @if(cancellationModal && row.canCancel)
+                      <button
+                        type="button"
+                        class="btn btn-error btn-outline users-action-btn"
+                        data-cancel-trigger
+                        data-cancel-id="{{ row.id }}"
+                        data-cancel-label="{{ row.reservationNumber ?? row.id }}"
+                      >
+                        Cancelar
+                      </button>
+                    @endif
+                  </div>
                 </td>
               </tr>
             @end
@@ -92,5 +106,37 @@
         </table>
       </div>
     </div>
+
+    @if(cancellationModal)
+      <dialog id="reservationCancelModal" class="modal">
+        <div class="modal-box max-w-xl">
+          <h3 class="font-semibold text-lg">{{ cancellationModal.title }}</h3>
+          <p class="mt-2 text-sm opacity-80">
+            Se cancelará la reservación <span class="font-semibold" data-cancel-target-label>#-</span>.
+            Indica el motivo para dejar trazabilidad.
+          </p>
+
+          <form id="reservationCancelForm" method="POST" class="mt-4 space-y-3">
+            {{{ csrfField() }}}
+            <label class="form-control w-full">
+              <span class="label-text">Motivo de cancelación</span>
+              <textarea
+                name="cancellationReason"
+                class="textarea textarea-bordered min-h-28"
+                minlength="5"
+                maxlength="500"
+                required
+                placeholder="Describe por qué se cancela la reservación"
+              ></textarea>
+            </label>
+
+            <div class="modal-action mt-5">
+              <button type="submit" class="btn btn-error">Confirmar cancelación</button>
+              <button type="button" class="btn" data-cancel-close>Cerrar</button>
+            </div>
+          </form>
+        </div>
+      </dialog>
+    @endif
   </div>
 @end

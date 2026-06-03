@@ -484,6 +484,13 @@ router
       .use(middleware.shareAuth())
 
     router
+      .post('/admin/hotels/reservations/:id/cancel', [ReservationsController, 'cancel'])
+      .as('admin.hotels.reservations.cancel')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
       .get('/admin/hotels/reservation-guests', [ReservationGuestsController, 'index'])
       .as('admin.hotels.reservationGuests.index')
       .use(middleware.auth())

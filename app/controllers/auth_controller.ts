@@ -40,6 +40,7 @@ export default class AuthController {
       )
 
       session.flash('error', 'Credenciales inválidas')
+      session.flashAll()
       return response.redirect().back()
     }
   }

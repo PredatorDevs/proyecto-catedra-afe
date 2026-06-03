@@ -11,10 +11,9 @@ export default class extends BaseSeeder {
     const admin = await User.findByOrFail('email', 'admin@afe.local')
 
     const customerA = await Customer.updateOrCreate(
-      { customerCode: 'CUST-DEMO-001' },
+      { email: 'cliente.demo1@afe.local' },
       {
         customerType: 'INDIVIDUAL',
-        customerCode: 'CUST-DEMO-001',
         firstName: 'Carlos',
         lastName: 'Mendez',
         fullName: 'Carlos Mendez',
@@ -27,10 +26,9 @@ export default class extends BaseSeeder {
     )
 
     await Customer.updateOrCreate(
-      { customerCode: 'CUST-DEMO-002' },
+      { email: 'cliente.demo2@afe.local' },
       {
         customerType: 'INDIVIDUAL',
-        customerCode: 'CUST-DEMO-002',
         firstName: 'Ana',
         lastName: 'Lopez',
         fullName: 'Ana Lopez',

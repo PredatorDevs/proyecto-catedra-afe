@@ -6,6 +6,7 @@ export const createReservationValidator = vine.compile(
     customerId: vine.number().withoutDecimals().positive(),
     roomTypeId: vine.number().withoutDecimals().positive(),
     roomId: vine.number().withoutDecimals().positive().optional(),
+    allowUpgradeAtSamePrice: vine.boolean().optional(),
     appliedRoomPriceId: vine.number().withoutDecimals().positive().optional(),
     source: vine.string().trim().in(['WEB', 'RECEPTION', 'PHONE', 'WALK_IN', 'OTHER']).optional(),
     status: vine

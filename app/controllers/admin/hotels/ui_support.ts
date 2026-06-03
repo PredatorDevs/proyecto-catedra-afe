@@ -1,10 +1,26 @@
 import type { HttpContext } from '@adonisjs/core/http'
 
-type FormFieldOption = { value: string | number; label: string }
+type FormFieldOption = {
+  value: string | number
+  label: string
+  disabled?: boolean
+  defaultNightlyPrice?: number
+  baseCapacity?: number
+  basePrice?: number
+  extraGuestPrice?: number
+  priceBasis?: string
+  pricingScope?: string
+  roomId?: number | null
+  roomTypeId?: number
+}
 
 export type CatalogField = {
   name: string
   label: string
+  helpText?: string
+  showWhenField?: string
+  showWhenValues?: string[]
+  readOnly?: boolean
   type?: 'text' | 'number' | 'email' | 'date' | 'textarea' | 'select' | 'checkbox'
   required?: boolean
   fullWidth?: boolean
@@ -48,6 +64,8 @@ export function respondConflictOrRedirect(
 ) {
   if (prefersHtml(ctx)) {
     ctx.session.flash('error', message)
+    // Preserve form input after a failing submit so users only fix invalid fields.
+    ctx.session.flashAll()
     return ctx.response.redirect(redirectTo)
   }
 

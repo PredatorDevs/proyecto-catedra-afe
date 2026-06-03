@@ -82,12 +82,14 @@ export default class PermissionsController {
 
     if (!slug || !name) {
       session.flash('error', 'Slug y nombre son obligatorios para actualizar el permiso')
+      session.flashAll()
       return response.redirect(`/admin/permissions/${permission.id}/edit`)
     }
 
     const duplicate = await Permission.query().where('slug', slug).whereNot('id', permission.id).first()
     if (duplicate) {
       session.flash('error', `Ya existe otro permiso con slug "${slug}"`)
+      session.flashAll()
       return response.redirect(`/admin/permissions/${permission.id}/edit`)
     }
 

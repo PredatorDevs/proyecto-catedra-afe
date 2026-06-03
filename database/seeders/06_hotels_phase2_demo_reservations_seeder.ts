@@ -13,7 +13,7 @@ import { DateTime } from 'luxon'
 export default class extends BaseSeeder {
   async run() {
     const admin = await User.findByOrFail('email', 'admin@afe.local')
-    const customer = await Customer.findByOrFail('customerCode', 'CUST-DEMO-001')
+    const customer = await Customer.findByOrFail('email', 'cliente.demo1@afe.local')
     const roomType = await RoomType.findByOrFail('code', 'STD_Q')
     const room = await Room.findByOrFail('roomNumber', '101')
     const roomPrice = await RoomPrice.findByOrFail('name', 'Tarifa base estandar demo')
