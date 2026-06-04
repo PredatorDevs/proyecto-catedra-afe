@@ -355,10 +355,97 @@
 
     const pricingScopeSelect = document.querySelector('[name="pricingScope"]')
 
+    const parseIsoDate = (value) => {
+      if (!value) return null
+      const date = new Date(`${value}T00:00:00`)
+      return Number.isNaN(date.getTime()) ? null : date
+    }
+
+    const formatDate = (date) => {
+      if (!date) return '-'
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    }
+
+    const dayMaskApplies = (mask, checkIn, nights) => {
+      const normalizedMask = String(mask || '1111111').trim()
+      if (!/^[01]{7}$/.test(normalizedMask)) return true
+
+      for (let offset = 0; offset < nights; offset++) {
+        const day = new Date(checkIn.getTime())
+        day.setDate(day.getDate() + offset)
+        const weekdayIndex = (day.getDay() + 6) % 7
+        if (normalizedMask[weekdayIndex] !== '1') {
+          return false
+        }
+      }
+
+      return true
+    }
+
+    const buildCompatibility = (option, roomTypeId, roomId, checkIn, checkOut, nights) => {
+      const optionTypeId = String(option?.dataset.roomTypeId || '').trim()
+      const optionScope = String(option?.dataset.pricingScope || 'ROOM_TYPE').trim().toUpperCase()
+      const optionRoomId = String(option?.dataset.roomId || '').trim()
+      const optionActive = String(option?.dataset.isActive || '').trim().toLowerCase()
+      const validFrom = parseIsoDate(option?.dataset.validFrom)
+      const validTo = parseIsoDate(option?.dataset.validTo)
+      const startsBeforeStay = !validFrom || validFrom <= checkIn
+      const endsAfterStay = !validTo || validTo >= checkOut
+      const coversRange = startsBeforeStay && endsAfterStay
+      const roomTypeMatches = optionTypeId !== '' && optionTypeId === roomTypeId
+      const roomMatches =
+        optionScope !== 'ROOM' ||
+        (roomId && optionRoomId && optionRoomId === roomId) ||
+        (!roomId && !optionRoomId)
+      const activeMatches = optionActive === '' || optionActive === 'true' || optionActive === '1'
+      const daysMatch = dayMaskApplies(option?.dataset.daysOfWeekMask, checkIn, nights)
+
+      return {
+        valid: roomTypeMatches && roomMatches && activeMatches && coversRange && daysMatch,
+        reason: {
+          roomTypeMatches,
+          roomMatches,
+          activeMatches,
+          coversRange,
+          daysMatch,
+        },
+        rangeLabel: `${formatDate(validFrom)} a ${formatDate(validTo)}`,
+      }
+    }
+
     const syncPricingScope = () => {
       if (!pricingScopeSelect) return
       const hasRoom = String(document.querySelector('[name="roomId"]')?.value || '').trim().length > 0
       pricingScopeSelect.value = hasRoom ? 'ROOM' : 'ROOM_TYPE'
+    }
+
+    const updateRateOptions = (checkIn, checkOut, nights) => {
+      const roomTypeId = String(roomTypeSelect.value || '').trim()
+      const roomId = String(document.querySelector('[name="roomId"]')?.value || '').trim()
+      const options = Array.from(roomPriceSelect.options || []).filter((option) => Boolean(option.value))
+
+      let bestOption = null
+
+      options.forEach((option) => {
+        const info = buildCompatibility(option, roomTypeId, roomId, checkIn, checkOut, nights)
+        option.disabled = !info.valid
+        option.hidden = !info.valid
+
+        if (!bestOption && info.valid) {
+          bestOption = { option, info }
+        }
+      })
+
+      const selectedOption = getSelectedOption(roomPriceSelect)
+      const selectedInfo = selectedOption
+        ? buildCompatibility(selectedOption, roomTypeId, roomId, checkIn, checkOut, nights)
+        : null
+
+      if (selectedOption && selectedInfo && !selectedInfo.valid) {
+        roomPriceSelect.value = ''
+      }
+
+      return { bestOption, selectedOption, selectedInfo }
     }
 
     const compute = () => {
@@ -378,16 +465,20 @@
       const adults = Math.max(1, parseNumber(adultsInput.value, 1))
       const children = Math.max(0, parseNumber(childrenInput.value, 0))
       const guests = Math.max(1, parseNumber(guestsInput.value, adults + children))
+      const roomId = String(document.querySelector('[name="roomId"]')?.value || '').trim()
 
       const selectedType = getSelectedOption(roomTypeSelect)
       const baseCapacity = parseNumber(selectedType?.dataset.baseCapacity, 1)
       const defaultNightlyPrice = parseNumber(selectedType?.dataset.defaultNightlyPrice, 0)
-      const selectedPrice = getSelectedOption(roomPriceSelect)
+      const { bestOption, selectedOption, selectedInfo } = updateRateOptions(checkIn, checkOut, nights)
+      const effectiveSelectedPrice = selectedOption && selectedInfo?.valid ? selectedOption : null
+      const selectedPrice = effectiveSelectedPrice || (bestOption ? bestOption.option : null)
 
       const extraGuests = Math.max(0, guests - baseCapacity)
       let subtotal = 0
       let formula = ''
       let source = ''
+      let recommendation = ''
 
       if (selectedPrice) {
         const basePrice = parseNumber(selectedPrice.dataset.basePrice, 0)
@@ -400,11 +491,18 @@
           priceBasis === 'STAY'
             ? `${basePrice.toFixed(2)} + (${extraGuestPrice.toFixed(2)} x ${extraGuests} huésped(es) extra)`
             : `(${basePrice.toFixed(2)} + ${extraGuestPrice.toFixed(2)} x ${extraGuests}) x ${nights} noche(s)`
-        source = `Tarifa manual seleccionada (${pricingScope === 'ROOM' ? 'por habitación' : 'por tipo'})`
+        if (effectiveSelectedPrice) {
+          source = `Tarifa seleccionada manualmente (${pricingScope === 'ROOM' ? 'por habitación' : 'por tipo'})`
+        } else {
+          source = `Tarifa recomendada automáticamente (${pricingScope === 'ROOM' ? 'por habitación' : 'por tipo'})`
+        }
+        recommendation = `Tarifa recomendada: ${selectedPrice.textContent?.trim() || 'N/A'}`
       } else {
         subtotal = defaultNightlyPrice * nights
         formula = `${defaultNightlyPrice.toFixed(2)} x ${nights} noche(s)`
         source = 'Estimación por precio base del tipo (la tarifa final se resuelve en servidor)'
+        recommendation =
+          'No hay tarifas activas que cubran toda la estancia con los filtros actuales. Se usará precio base del tipo.'
       }
 
       subtotal = round(subtotal)
@@ -417,7 +515,9 @@
 
       panel.innerHTML = [
         '<strong>Fórmula de cobro estimada</strong>',
+        `<div>${recommendation}</div>`,
         `<div>Fuente: ${source}</div>`,
+        `<div>Contexto tarifa: tipo ${String(roomTypeSelect.value || '-')}${roomId ? `, habitación ${roomId}` : ', sin habitación específica'}</div>`,
         `<div>Ocupación: ${guests} huésped(es), capacidad base ${baseCapacity}, extras ${extraGuests}</div>`,
         `<div>Hospedaje: ${formula} = <strong>${subtotal.toFixed(2)}</strong></div>`,
         `<div>Total estimado: ${subtotal.toFixed(2)} - ${discount.toFixed(2)} + ${iva.toFixed(2)} + ${tourismTax.toFixed(2)} = <strong>${total.toFixed(2)}</strong></div>`,

@@ -18,7 +18,7 @@ export const createPaymentValidator = vine.compile(
       .in(['PENDING', 'REPORTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'VOIDED', 'REFUNDED'])
       .optional(),
     currencyCode: vine.string().trim().fixedLength(3).optional(),
-    amount: vine.number().positive(),
+    amount: vine.number().positive().optional(),
     referenceNumber: vine.string().trim().maxLength(120).optional(),
     receiptNumber: vine.string().trim().maxLength(120).optional(),
     reportedAt: vine.date().optional(),

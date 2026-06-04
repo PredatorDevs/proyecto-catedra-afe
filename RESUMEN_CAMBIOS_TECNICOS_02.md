@@ -110,7 +110,3 @@ Con estos cambios, el sistema queda con estas decisiones funcionales:
 - El alcance de una tarifa se define de forma automatica y consistente
 - El formulario de tarifas se mantiene simple y sin filtros artificiales de habitaciones
 - El sitio general sigue compilando y funcionando correctamente, incluido el tema claro/oscuro
-
-## 6. Nota de continuidad
-Este documento complementa al resumen tecnico anterior sin reemplazarlo.
-El archivo previo sigue siendo util para consultar el primer bloque grande de cambios funcionales del modulo hotelero.

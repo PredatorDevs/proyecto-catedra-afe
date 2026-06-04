@@ -491,6 +491,13 @@ router
       .use(middleware.shareAuth())
 
     router
+      .post('/admin/hotels/reservations/:id/transition', [ReservationsController, 'transition'])
+      .as('admin.hotels.reservations.transition')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
       .get('/admin/hotels/reservation-guests', [ReservationGuestsController, 'index'])
       .as('admin.hotels.reservationGuests.index')
       .use(middleware.auth())
@@ -731,6 +738,13 @@ router
     router
       .post('/admin/hotels/fiscal-documents/:id/update', [FiscalDocumentsController, 'update'])
       .as('admin.hotels.fiscalDocuments.update')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/fiscal-documents/generate-from-reservation', [FiscalDocumentsController, 'generateFromReservation'])
+      .as('admin.hotels.fiscalDocuments.generateFromReservation')
       .use(middleware.auth())
       .use(middleware.permission({ permissions: ['admin.access'] }))
       .use(middleware.shareAuth())

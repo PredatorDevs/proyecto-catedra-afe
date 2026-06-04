@@ -1,10 +1,18 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
+import db from '@adonisjs/lucid/services/db'
 import FiscalDocument from '#models/fiscal_document'
+import FiscalDocumentItem from '#models/fiscal_document_item'
+import FiscalDocumentPayment from '#models/fiscal_document_payment'
+import CheckinCheckoutLog from '#models/checkin_checkout_log'
 import Reservation from '#models/reservation'
 import Customer from '#models/customer'
+import Payment from '#models/payment'
+import ReservationCharge from '#models/reservation_charge'
+import Room from '#models/room'
 import AuditLogger from '#services/audit_logger'
 import { createFiscalDocumentValidator } from '#validators/admin/hotels/create_fiscal_document_validator'
+import { generateFiscalDocumentValidator } from '#validators/admin/hotels/generate_fiscal_document_validator'
 import {
   fiscalDocumentStatusLabel,
   fiscalDocumentStatusOptions,
@@ -25,7 +33,42 @@ function asMoney(value: number | undefined, fallback = 0) {
   return value
 }
 
+function buildFiscalDocumentNumber(documentType: 'CONSUMER_FINAL' | 'CREDITO_FISCAL') {
+  const stamp = DateTime.now().toFormat('yyyyLLddHHmmss')
+  const rand = Math.floor(Math.random() * 9000) + 1000
+  const prefix = documentType === 'CREDITO_FISCAL' ? 'CCF' : 'CF'
+  return `${prefix}-${stamp}-${rand}`
+}
+
+function toTwoDecimals(value: number) {
+  return Number(value.toFixed(2))
+}
+
+function isTruthyFlag(value: unknown) {
+  if (typeof value === 'boolean') return value
+  if (typeof value !== 'string') return false
+
+  const normalized = value.trim().toLowerCase()
+  return normalized === 'true' || normalized === '1' || normalized === 'on' || normalized === 'yes'
+}
+
 export default class FiscalDocumentsController {
+  private async buildUniqueDocumentNumber(documentType: 'CONSUMER_FINAL' | 'CREDITO_FISCAL') {
+    for (let i = 0; i < 8; i++) {
+      const candidate = buildFiscalDocumentNumber(documentType)
+      const exists = await FiscalDocument.query().where('document_number', candidate).first()
+      if (!exists) return candidate
+    }
+
+    throw new Error('No se pudo generar un numero de documento fiscal unico')
+  }
+
+  private nightsBetween(checkIn: DateTime, checkOut: DateTime) {
+    const diffInDays = checkOut.diff(checkIn, 'days').days
+    const rounded = Math.ceil(diffInDays)
+    return Math.max(1, rounded)
+  }
+
   private async fields(): Promise<CatalogField[]> {
     const [reservations, customers] = await Promise.all([
       Reservation.query().orderBy('id', 'desc').limit(300),
@@ -316,5 +359,296 @@ export default class FiscalDocumentsController {
     )
 
     return respondSuccessOrJson(ctx, 'Documento fiscal actualizado', '/admin/hotels/fiscal-documents', row)
+  }
+
+  async generateFromReservation(ctx: HttpContext) {
+    const payload = await ctx.request.validateUsing(generateFiscalDocumentValidator)
+    const autoCheckoutRequested = isTruthyFlag(ctx.request.input('autoCheckout'))
+
+    const reservation = await Reservation.query().where('id', payload.reservationId).preload('customer').first()
+    if (!reservation) {
+      return respondConflictOrRedirect(ctx, 'reservationId no existe', '/admin/hotels/fiscal-documents/new', 400)
+    }
+
+    if (!['CHECKED_IN', 'CHECKED_OUT'].includes(reservation.status)) {
+      return respondConflictOrRedirect(
+        ctx,
+        'Solo se puede generar fiscal para reservaciones en CHECKED_IN o CHECKED_OUT',
+        '/admin/hotels/fiscal-documents/new',
+        400
+      )
+    }
+
+    if (reservation.status === 'CHECKED_IN' && !autoCheckoutRequested) {
+      return respondConflictOrRedirect(
+        ctx,
+        'La reservacion esta CHECKED_IN. Para facturar desde aqui debes habilitar autoCheckout.',
+        '/admin/hotels/fiscal-documents/new',
+        400
+      )
+    }
+
+    const documentType = payload.documentType as 'CONSUMER_FINAL' | 'CREDITO_FISCAL'
+    const customer = reservation.customer
+
+    if (documentType === 'CREDITO_FISCAL') {
+      if (!customer.taxName?.trim() || !customer.taxNit?.trim() || !customer.taxNrc?.trim() || !customer.taxAddress?.trim()) {
+        return respondConflictOrRedirect(
+          ctx,
+          'Para CREDITO_FISCAL el cliente debe tener nombre fiscal, NIT, NRC y direccion fiscal',
+          '/admin/hotels/fiscal-documents/new',
+          400
+        )
+      }
+    }
+
+    const existing = await FiscalDocument.query()
+      .where('reservation_id', reservation.id)
+      .whereIn('document_type', ['CONSUMER_FINAL', 'CREDITO_FISCAL'])
+      .whereIn('status', ['PENDING', 'ISSUED'])
+      .first()
+
+    if (existing) {
+      return respondConflictOrRedirect(
+        ctx,
+        'La reservacion ya tiene un documento fiscal activo',
+        `/admin/hotels/fiscal-documents/${existing.id}/edit`,
+        409
+      )
+    }
+
+    const approvedPayments = await Payment.query()
+      .where('reservation_id', reservation.id)
+      .where('status', 'APPROVED')
+      .orderBy('id', 'asc')
+
+    if (approvedPayments.length === 0) {
+      return respondConflictOrRedirect(
+        ctx,
+        'No hay pagos APPROVED para la reservacion',
+        '/admin/hotels/fiscal-documents/new',
+        400
+      )
+    }
+
+    const activeCharges = await ReservationCharge.query()
+      .where('reservation_id', reservation.id)
+      .whereNot('charge_status', 'VOIDED')
+      .orderBy('id', 'asc')
+
+    const lodgingSubtotal = toTwoDecimals(
+      Math.max(0, Number(reservation.totalAmount) - Number(reservation.ivaTotal) - Number(reservation.tourismTaxTotal))
+    )
+    const lodgingIva = toTwoDecimals(Number(reservation.ivaTotal))
+    const lodgingTourism = toTwoDecimals(Number(reservation.tourismTaxTotal))
+    const lodgingTotal = toTwoDecimals(Number(reservation.totalAmount))
+
+    const additionalSubtotal = toTwoDecimals(
+      activeCharges.reduce((acc, item) => acc + Number(item.subtotal), 0)
+    )
+    const additionalIva = toTwoDecimals(activeCharges.reduce((acc, item) => acc + Number(item.ivaTotal), 0))
+    const additionalTourism = toTwoDecimals(
+      activeCharges.reduce((acc, item) => acc + Number(item.tourismTaxTotal), 0)
+    )
+    const additionalTotal = toTwoDecimals(
+      activeCharges.reduce((acc, item) => acc + Number(item.totalAmount), 0)
+    )
+
+    const fiscalSubtotal = toTwoDecimals(lodgingSubtotal + additionalSubtotal)
+    const fiscalIva = toTwoDecimals(lodgingIva + additionalIva)
+    const fiscalTourism = toTwoDecimals(lodgingTourism + additionalTourism)
+    const fiscalTotal = toTwoDecimals(lodgingTotal + additionalTotal)
+
+    const approvedTotal = toTwoDecimals(approvedPayments.reduce((acc, item) => acc + Number(item.amount), 0))
+    if (approvedTotal + 0.0001 < fiscalTotal) {
+      return respondConflictOrRedirect(
+        ctx,
+        'Los pagos APPROVED no cubren el total fiscal de la liquidacion',
+        '/admin/hotels/fiscal-documents/new',
+        400
+      )
+    }
+
+    const documentNumber = await this.buildUniqueDocumentNumber(documentType)
+    const issuedAt = DateTime.now()
+    const generationUserId = ctx.auth.user?.id ?? null
+    const nights = this.nightsBetween(reservation.checkInPlannedAt, reservation.checkOutPlannedAt)
+    const shouldAutoCheckout = reservation.status === 'CHECKED_IN' && autoCheckoutRequested
+
+    let createdDocument: FiscalDocument
+
+    await db.transaction(async (trx) => {
+      if (shouldAutoCheckout) {
+        const occurredAt = DateTime.now()
+
+        reservation.status = 'CHECKED_OUT'
+        reservation.checkedOutAt = occurredAt
+        reservation.updatedByUserId = generationUserId
+        await reservation.useTransaction(trx).save()
+
+        if (reservation.roomId) {
+          const room = await Room.find(reservation.roomId, { client: trx })
+          if (room) {
+            room.currentStatus = 'DIRTY'
+            room.updatedByUserId = generationUserId
+            await room.useTransaction(trx).save()
+          }
+        }
+
+        await CheckinCheckoutLog.create(
+          {
+            reservationId: reservation.id,
+            roomId: reservation.roomId,
+            action: 'CHECK_OUT',
+            performedByUserId: generationUserId,
+            occurredAt,
+            notes: 'Checkout generado automaticamente durante facturacion fiscal',
+          },
+          { client: trx }
+        )
+      }
+
+      createdDocument = await FiscalDocument.create(
+        {
+          reservationId: reservation.id,
+          customerId: customer.id,
+          documentType,
+          documentNumber,
+          status: 'ISSUED',
+          currencyCode: (payload.currencyCode ?? 'USD').toUpperCase(),
+          customerNameSnapshot: customer.fullName,
+          customerDocumentSnapshot: customer.documentNumber,
+          taxNameSnapshot: customer.taxName,
+          taxNitSnapshot: customer.taxNit,
+          taxNrcSnapshot: customer.taxNrc,
+          taxAddressSnapshot: customer.taxAddress,
+          subtotal: fiscalSubtotal,
+          ivaTotal: fiscalIva,
+          tourismTaxTotal: fiscalTourism,
+          totalAmount: fiscalTotal,
+          issuedAt,
+          generatedByUserId: generationUserId,
+          metadata: {
+            generatedFrom: 'reservation_checkout',
+            reservationNumber: reservation.reservationNumber,
+            lodgingSourceTotal: lodgingTotal,
+            additionalChargesTotal: additionalTotal,
+          },
+        },
+        { client: trx }
+      )
+
+      await FiscalDocumentItem.create(
+        {
+          fiscalDocumentId: createdDocument.id,
+          reservationChargeId: null,
+          itemType: 'LODGING',
+          description: `Hospedaje (${nights} noche(s))`,
+          quantity: nights,
+          unitPrice: nights > 0 ? toTwoDecimals(lodgingSubtotal / nights) : lodgingSubtotal,
+          subtotal: lodgingSubtotal,
+          ivaTotal: lodgingIva,
+          tourismTaxTotal: lodgingTourism,
+          totalAmount: lodgingTotal,
+        },
+        { client: trx }
+      )
+
+      for (const charge of activeCharges) {
+        await FiscalDocumentItem.create(
+          {
+            fiscalDocumentId: createdDocument.id,
+            reservationChargeId: charge.id,
+            itemType: 'ADDITIONAL_CHARGE',
+            description: charge.concept,
+            quantity: Number(charge.quantity),
+            unitPrice: Number(charge.unitPrice),
+            subtotal: Number(charge.subtotal),
+            ivaTotal: Number(charge.ivaTotal),
+            tourismTaxTotal: Number(charge.tourismTaxTotal),
+            totalAmount: Number(charge.totalAmount),
+          },
+          { client: trx }
+        )
+
+        if (charge.chargeStatus !== 'BILLED') {
+          charge.chargeStatus = 'BILLED'
+          await charge.useTransaction(trx).save()
+        }
+      }
+
+      let remaining = fiscalTotal
+      for (const payment of approvedPayments) {
+        if (remaining <= 0) break
+
+        const allocation = toTwoDecimals(Math.min(remaining, Number(payment.amount)))
+        if (allocation <= 0) continue
+
+        await FiscalDocumentPayment.create(
+          {
+            fiscalDocumentId: createdDocument.id,
+            paymentId: payment.id,
+            amount: allocation,
+          },
+          { client: trx }
+        )
+
+        remaining = toTwoDecimals(remaining - allocation)
+      }
+
+      if (remaining > 0) {
+        throw new Error('No se pudo vincular pago suficiente para cubrir el documento fiscal')
+      }
+    })
+
+    const row = createdDocument!
+
+    await AuditLogger.log(
+      {
+        action: 'CREATE',
+        entity: 'fiscal_document',
+        entityId: row.id,
+        oldValues: null,
+        newValues: row.serialize(),
+        metadata: { source: 'admin.hotels.fiscalDocuments.generateFromReservation' },
+      },
+      ctx
+    )
+
+    if (shouldAutoCheckout) {
+      const autoCheckoutLog = await CheckinCheckoutLog.query()
+        .where('reservation_id', reservation.id)
+        .where('action', 'CHECK_OUT')
+        .orderBy('id', 'desc')
+        .first()
+
+      if (!autoCheckoutLog) {
+        return respondConflictOrRedirect(
+          ctx,
+          'Se genero el documento fiscal, pero no se encontro el log de checkout automatico',
+          '/admin/hotels/fiscal-documents',
+          400
+        )
+      }
+
+      await AuditLogger.log(
+        {
+          action: 'CREATE',
+          entity: 'checkin_checkout_log',
+          entityId: autoCheckoutLog.id,
+          oldValues: null,
+          newValues: {
+            reservationId: autoCheckoutLog.reservationId,
+            roomId: autoCheckoutLog.roomId,
+            action: autoCheckoutLog.action,
+            occurredAt: autoCheckoutLog.occurredAt.toISO(),
+          },
+          metadata: { source: 'admin.hotels.fiscalDocuments.generateFromReservation.autoCheckout' },
+        },
+        ctx
+      )
+    }
+
+    return respondSuccessOrJson(ctx, 'Documento fiscal generado desde checkout', '/admin/hotels/fiscal-documents', row, true)
   }
 }

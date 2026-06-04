@@ -38,6 +38,40 @@
 
     <div class="surface-card">
       <div class="surface-card-body app-form-panel app-modal-solid users-form-shell users-form-panel">
+        @if(fiscalActionHint)
+          <div class="alert alert-info mb-4">
+            <span>{{ fiscalActionHint }}</span>
+          </div>
+        @endif
+
+        @if(extraActions && extraActions.length)
+          <div class="mb-4 flex flex-wrap items-center gap-2">
+            @each(extraAction in extraActions)
+              @if((extraAction.method || 'GET').toUpperCase() === 'POST')
+                <form method="POST" action="{{ extraAction.href }}" class="inline-flex">
+                  {{ csrfField() }}
+                  @if(extraAction.inputs && extraAction.inputs.length)
+                    @each(input in extraAction.inputs)
+                      <input type="hidden" name="{{ input.name }}" value="{{ input.value }}" />
+                    @end
+                  @endif
+                  <button
+                    type="submit"
+                    class="btn btn-outline users-action-btn {{ extraAction.buttonClass || '' }}"
+                    {{ extraAction.confirmMessage ? `onclick="return confirm('${extraAction.confirmMessage}')"` : '' }}
+                  >
+                    {{ extraAction.label }}
+                  </button>
+                </form>
+              @else
+                <a class="btn btn-outline users-action-btn {{ extraAction.buttonClass || '' }}" href="{{ extraAction.href }}">
+                  {{ extraAction.label }}
+                </a>
+              @endif
+            @end
+          </div>
+        @endif
+
         <form class="app-form-grid grid gap-4 md:grid-cols-2 xl:grid-cols-3" method="POST" action="{{ formAction }}">
           @if(typeof csrfField === 'function')
             {{ csrfField() }}
@@ -71,6 +105,12 @@
                       {{ option.extraGuestPrice !== undefined ? `data-extra-guest-price="${option.extraGuestPrice}"` : '' }}
                       {{ option.priceBasis ? `data-price-basis="${option.priceBasis}"` : '' }}
                       {{ option.pricingScope ? `data-pricing-scope="${option.pricingScope}"` : '' }}
+                      {{ option.roomTypeId !== undefined ? `data-room-type-id="${option.roomTypeId}"` : '' }}
+                      {{ option.roomId !== undefined && option.roomId !== null ? `data-room-id="${option.roomId}"` : '' }}
+                      {{ option.validFrom ? `data-valid-from="${option.validFrom}"` : '' }}
+                      {{ option.validTo ? `data-valid-to="${option.validTo}"` : '' }}
+                      {{ option.daysOfWeekMask ? `data-days-of-week-mask="${option.daysOfWeekMask}"` : '' }}
+                      {{ option.isActive !== undefined ? `data-is-active="${option.isActive}"` : '' }}
                     >
                       {{ option.label }}
                     </option>

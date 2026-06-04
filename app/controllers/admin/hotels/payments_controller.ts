@@ -10,7 +10,6 @@ import {
   paymentCategoryLabel,
   paymentCategoryOptions,
   paymentStatusLabel,
-  paymentStatusOptions,
 } from '#controllers/admin/hotels/ui_enum_labels'
 import {
   prefersHtml,
@@ -46,11 +45,9 @@ function canTransitionStatus(from: PaymentStatus, to: PaymentStatus) {
 
 export default class PaymentsController {
   private async fields(): Promise<CatalogField[]> {
-    const [reservations, methods, shifts, payments] = await Promise.all([
+    const [reservations, methods] = await Promise.all([
       Reservation.query().orderBy('id', 'desc').limit(300),
       PaymentMethod.query().where('is_active', true).orderBy('name', 'asc'),
-      CashierShift.query().orderBy('id', 'desc').limit(100),
-      Payment.query().orderBy('id', 'desc').limit(300),
     ])
 
     return [
@@ -60,7 +57,10 @@ export default class PaymentsController {
         type: 'select',
         required: true,
         colSpanMd: 2,
-        options: reservations.map((item) => ({ value: item.id, label: `${item.id} - ${item.reservationNumber}` })),
+        options: reservations.map((item) => ({
+          value: item.id,
+          label: `${item.id} - ${item.reservationNumber} (Saldo ${Number(item.balanceDue).toFixed(2)})`,
+        })),
       },
       {
         name: 'paymentMethodId',
@@ -69,33 +69,10 @@ export default class PaymentsController {
         required: true,
         options: methods.map((item) => ({ value: item.id, label: `${item.code} - ${item.name}` })),
       },
-      {
-        name: 'cashierShiftId',
-        label: 'Turno caja (si aplica)',
-        type: 'select',
-        options: shifts.map((item) => ({
-          value: item.id,
-          label: `${item.shiftNumber} (${item.status})`,
-        })),
-      },
-      {
-        name: 'parentPaymentId',
-        label: 'Pago padre (reversa/reembolso)',
-        type: 'select',
-        options: payments.map((item) => ({ value: item.id, label: `${item.id} - ${item.paymentNumber}` })),
-      },
-      { name: 'paymentNumber', label: 'Numero de pago', colSpanMd: 2 },
+      { name: 'amount', label: 'Monto a pagar (auto por saldo)', type: 'number', min: 0.01, step: '0.01', readOnly: true },
       { name: 'paymentCategory', label: 'Categoria', type: 'select', options: paymentCategoryOptions },
-      { name: 'status', label: 'Estado', type: 'select', options: paymentStatusOptions },
       { name: 'currencyCode', label: 'Moneda' },
-      { name: 'amount', label: 'Monto', type: 'number', min: 0.01, step: '0.01', required: true },
       { name: 'referenceNumber', label: 'Referencia', colSpanMd: 2 },
-      { name: 'receiptNumber', label: 'Recibo', colSpanMd: 2 },
-      { name: 'reportedAt', label: 'Reportado en', type: 'date' },
-      { name: 'paidAt', label: 'Pagado en', type: 'date' },
-      { name: 'approvedAt', label: 'Aprobado en', type: 'date' },
-      { name: 'rejectedAt', label: 'Rechazado en', type: 'date' },
-      { name: 'voidedAt', label: 'Anulado en', type: 'date' },
       { name: 'remarks', label: 'Observaciones', type: 'textarea', fullWidth: true },
     ]
   }
@@ -143,16 +120,15 @@ export default class PaymentsController {
       formMode: 'create',
       formKicker: 'Pagos',
       formTitle: 'Nuevo pago manual',
-      formSubtitle: 'Registra pago reportado por cliente sin pasarela integrada.',
+      formSubtitle: 'Selecciona la reservacion y el sistema completa numero, estado, monto por saldo y fechas automaticamente.',
       formAction: '/admin/hotels/payments',
       submitLabel: 'Crear pago',
       backHref: '/admin/hotels/payments',
       fields: await this.fields(),
       values: {
         paymentCategory: 'LODGING',
-        status: 'PENDING',
         currencyCode: 'USD',
-        amount: 0.01,
+        amount: 0,
       },
     })
   }
@@ -170,25 +146,19 @@ export default class PaymentsController {
       backHref: '/admin/hotels/payments',
       fields: await this.fields(),
       values: {
-        paymentNumber: row.paymentNumber,
         reservationId: row.reservationId,
         paymentMethodId: row.paymentMethodId,
-        cashierShiftId: row.cashierShiftId,
-        parentPaymentId: row.parentPaymentId,
-        paymentCategory: row.paymentCategory,
-        status: row.status,
-        currencyCode: row.currencyCode,
         amount: row.amount,
+        paymentCategory: row.paymentCategory,
+        currencyCode: row.currencyCode,
         referenceNumber: row.referenceNumber,
-        receiptNumber: row.receiptNumber,
-        reportedAt: row.reportedAt?.toISODate(),
-        paidAt: row.paidAt?.toISODate(),
-        approvedAt: row.approvedAt?.toISODate(),
-        rejectedAt: row.rejectedAt?.toISODate(),
-        voidedAt: row.voidedAt?.toISODate(),
         remarks: row.remarks,
       },
     })
+  }
+
+  private isSameMoney(left: number, right: number) {
+    return Math.abs(left - right) < 0.005
   }
 
   private async applyReservationAmountImpact(
@@ -230,12 +200,15 @@ export default class PaymentsController {
       return { error: 'El metodo seleccionado requiere referencia de pago' }
     }
 
-    if (method.isCash && !payload.cashierShiftId) {
-      return { error: 'Los pagos en efectivo requieren turno de caja' }
+    let resolvedCashierShiftId = payload.cashierShiftId ?? null
+
+    if (method.isCash && !resolvedCashierShiftId) {
+      const openShift = await CashierShift.query().where('status', 'OPEN').orderBy('id', 'desc').first()
+      resolvedCashierShiftId = openShift?.id ?? null
     }
 
-    if (payload.cashierShiftId) {
-      const shift = await CashierShift.find(payload.cashierShiftId)
+    if (resolvedCashierShiftId) {
+      const shift = await CashierShift.find(resolvedCashierShiftId)
       if (!shift) return { error: 'cashierShiftId no existe' }
       if (shift.status !== 'OPEN') {
         return { error: 'El turno de caja seleccionado no esta abierto' }
@@ -258,7 +231,7 @@ export default class PaymentsController {
       }
     }
 
-    return { reservation, method, error: null as string | null }
+    return { reservation, method, resolvedCashierShiftId, error: null as string | null }
   }
 
   async store(ctx: HttpContext) {
@@ -270,33 +243,48 @@ export default class PaymentsController {
     }
 
     const now = DateTime.now()
-    const status = (payload.status as PaymentStatus | undefined) ?? 'PENDING'
+    const status: PaymentStatus = 'APPROVED'
+    const balanceDue = Number(validation.reservation!.balanceDue)
+
+    if (balanceDue <= 0) {
+      return respondConflictOrRedirect(
+        ctx,
+        'La reservacion no tiene saldo pendiente para registrar pago',
+        '/admin/hotels/payments/new',
+        400
+      )
+    }
+
+    if (typeof payload.amount === 'number' && !this.isSameMoney(payload.amount, balanceDue)) {
+      return respondConflictOrRedirect(
+        ctx,
+        'El monto del pago debe ser exactamente igual al saldo actual de la reservacion',
+        '/admin/hotels/payments/new',
+        400
+      )
+    }
+
     const row = await Payment.create({
-      paymentNumber: payload.paymentNumber?.trim() || buildPaymentNumber(),
+      paymentNumber: buildPaymentNumber(),
       reservationId: payload.reservationId,
       paymentMethodId: payload.paymentMethodId,
-      cashierShiftId: payload.cashierShiftId ?? null,
-      parentPaymentId: payload.parentPaymentId ?? null,
+      cashierShiftId: validation.resolvedCashierShiftId ?? null,
+      parentPaymentId: null,
       paymentCategory: (payload.paymentCategory as Payment['paymentCategory'] | undefined) ?? 'LODGING',
       status,
       currencyCode: (payload.currencyCode ?? 'USD').toUpperCase(),
-      amount: payload.amount,
+      amount: balanceDue,
       referenceNumber: payload.referenceNumber ?? null,
-      receiptNumber: payload.receiptNumber ?? null,
-      reportedAt: payload.reportedAt ? DateTime.fromJSDate(payload.reportedAt) : null,
-      paidAt: payload.paidAt ? DateTime.fromJSDate(payload.paidAt) : null,
-      approvedAt:
-        status === 'APPROVED'
-          ? payload.approvedAt
-            ? DateTime.fromJSDate(payload.approvedAt)
-            : now
-          : null,
-      rejectedAt: status === 'REJECTED' ? (payload.rejectedAt ? DateTime.fromJSDate(payload.rejectedAt) : now) : null,
-      voidedAt: status === 'VOIDED' ? (payload.voidedAt ? DateTime.fromJSDate(payload.voidedAt) : now) : null,
+      receiptNumber: null,
+      reportedAt: now,
+      paidAt: now,
+      approvedAt: now,
+      rejectedAt: null,
+      voidedAt: null,
       remarks: payload.remarks ?? null,
       recordedByUserId: payload.recordedByUserId ?? ctx.auth.user?.id ?? null,
-      approvedByUserId: status === 'APPROVED' ? payload.approvedByUserId ?? ctx.auth.user?.id ?? null : null,
-      voidedByUserId: status === 'VOIDED' ? payload.voidedByUserId ?? ctx.auth.user?.id ?? null : null,
+      approvedByUserId: payload.approvedByUserId ?? ctx.auth.user?.id ?? null,
+      voidedByUserId: null,
     })
 
     await this.applyReservationAmountImpact(row.reservationId, 'PENDING', row.status, 0, Number(row.amount))
@@ -329,34 +317,31 @@ export default class PaymentsController {
     const previousStatus = row.status as PaymentStatus
     const previousAmount = Number(row.amount)
 
-    const nextStatus = (payload.status as PaymentStatus | undefined) ?? previousStatus
-    row.paymentNumber = payload.paymentNumber?.trim() || row.paymentNumber
+    const nextStatus = previousStatus === 'VOIDED' ? 'VOIDED' : previousStatus
+    row.paymentNumber = row.paymentNumber
     row.reservationId = payload.reservationId
     row.paymentMethodId = payload.paymentMethodId
-    row.cashierShiftId = payload.cashierShiftId ?? null
-    row.parentPaymentId = payload.parentPaymentId ?? null
+    row.cashierShiftId = validation.resolvedCashierShiftId ?? null
+    row.parentPaymentId = null
     row.paymentCategory = (payload.paymentCategory as Payment['paymentCategory'] | undefined) ?? row.paymentCategory
     row.status = nextStatus
     row.currencyCode = (payload.currencyCode ?? row.currencyCode).toUpperCase()
-    row.amount = payload.amount
+    if (typeof payload.amount === 'number' && !this.isSameMoney(payload.amount, Number(row.amount))) {
+      return respondConflictOrRedirect(
+        ctx,
+        'El monto del pago no puede modificarse manualmente en esta vista',
+        `/admin/hotels/payments/${row.id}/edit`,
+        400
+      )
+    }
+
+    row.amount = row.amount
     row.referenceNumber = payload.referenceNumber ?? row.referenceNumber
-    row.receiptNumber = payload.receiptNumber ?? row.receiptNumber
-    row.reportedAt = payload.reportedAt ? DateTime.fromJSDate(payload.reportedAt) : row.reportedAt
-    row.paidAt = payload.paidAt ? DateTime.fromJSDate(payload.paidAt) : row.paidAt
-
-    if (nextStatus === 'APPROVED' && !row.approvedAt) {
-      row.approvedAt = payload.approvedAt ? DateTime.fromJSDate(payload.approvedAt) : DateTime.now()
-      row.approvedByUserId = payload.approvedByUserId ?? ctx.auth.user?.id ?? row.approvedByUserId
-    }
-
-    if (nextStatus === 'REJECTED' && !row.rejectedAt) {
-      row.rejectedAt = payload.rejectedAt ? DateTime.fromJSDate(payload.rejectedAt) : DateTime.now()
-    }
-
-    if (nextStatus === 'VOIDED' && !row.voidedAt) {
-      row.voidedAt = payload.voidedAt ? DateTime.fromJSDate(payload.voidedAt) : DateTime.now()
-      row.voidedByUserId = payload.voidedByUserId ?? ctx.auth.user?.id ?? row.voidedByUserId
-    }
+    row.receiptNumber = null
+    row.reportedAt = row.reportedAt ?? DateTime.now()
+    row.paidAt = row.paidAt ?? DateTime.now()
+    row.approvedAt = row.approvedAt ?? DateTime.now()
+    row.approvedByUserId = row.approvedByUserId ?? payload.approvedByUserId ?? ctx.auth.user?.id ?? null
 
     row.remarks = payload.remarks ?? row.remarks
     row.recordedByUserId = payload.recordedByUserId ?? row.recordedByUserId

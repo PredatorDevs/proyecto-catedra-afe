@@ -96,6 +96,35 @@ export default class CheckinCheckoutLogsController {
           room: row.room?.roomNumber ?? '-',
           action: checkinCheckoutActionLabel(row.action),
           occurredAt: row.occurredAt.toFormat('yyyy-LL-dd'),
+          extraActions:
+            row.action === 'CHECK_OUT'
+              ? [
+                  {
+                    label: 'Facturar CF',
+                    href: '/admin/hotels/fiscal-documents/generate-from-reservation',
+                    method: 'POST',
+                    buttonClass: 'btn-info',
+                    confirmMessage: 'Se emitira Documento Consumidor Final para esta reservacion. Deseas continuar?',
+                    inputs: [
+                      { name: 'reservationId', value: row.reservationId },
+                      { name: 'documentType', value: 'CONSUMER_FINAL' },
+                      { name: 'currencyCode', value: 'USD' },
+                    ],
+                  },
+                  {
+                    label: 'Facturar CCF',
+                    href: '/admin/hotels/fiscal-documents/generate-from-reservation',
+                    method: 'POST',
+                    buttonClass: 'btn-warning',
+                    confirmMessage: 'Se emitira Documento Credito Fiscal para esta reservacion. Deseas continuar?',
+                    inputs: [
+                      { name: 'reservationId', value: row.reservationId },
+                      { name: 'documentType', value: 'CREDITO_FISCAL' },
+                      { name: 'currencyCode', value: 'USD' },
+                    ],
+                  },
+                ]
+              : [],
         })),
       })
     }

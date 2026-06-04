@@ -71,7 +71,7 @@
                 @each(column in columns)
                   <td>
                     @if(column.badge)
-                      <span class="badge badge-outline">{{ row[column.key] ?? '-' }}</span>
+                      <span class="badge {{ row[`${column.key}BadgeClass`] || 'badge-outline' }}">{{ row[column.key] ?? '-' }}</span>
                     @else
                       {{ row[column.key] ?? '-' }}
                     @endif
@@ -90,13 +90,93 @@
                     @if(cancellationModal && row.canCancel)
                       <button
                         type="button"
-                        class="btn btn-error btn-outline users-action-btn"
+                        class="btn users-action-btn reservation-action-btn reservation-action-cancel"
                         data-cancel-trigger
                         data-cancel-id="{{ row.id }}"
                         data-cancel-label="{{ row.reservationNumber ?? row.id }}"
                       >
+                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                          <path d="M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                          <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                        </svg>
                         Cancelar
                       </button>
+                    @endif
+
+                    @if(row.extraActions && row.extraActions.length)
+                      @each(extraAction in row.extraActions)
+                        @if((extraAction.method || 'GET').toUpperCase() === 'POST')
+                          <form method="POST" action="{{ extraAction.href }}" class="inline-flex">
+                            {{ csrfField() }}
+                            @if(extraAction.inputs && extraAction.inputs.length)
+                              @each(input in extraAction.inputs)
+                                <input type="hidden" name="{{ input.name }}" value="{{ input.value }}" />
+                              @end
+                            @endif
+                            <button
+                              type="submit"
+                              class="btn users-action-btn {{ extraAction.buttonClass || 'btn-outline' }}"
+                              {{ extraAction.confirmMessage ? `onclick="return confirm('${extraAction.confirmMessage}')"` : '' }}
+                            >
+                              @if(extraAction.icon === 'confirm')
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                  <path d="M4 10.5l4 4 8-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                              @elseif(extraAction.icon === 'checkin')
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                  <path d="M10 3v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                  <path d="M5 8l5-5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                              @elseif(extraAction.icon === 'checkout')
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                  <path d="M10 17V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                  <path d="M5 12l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                              @elseif(extraAction.icon === 'noshow')
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                  <path d="M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                  <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                </svg>
+                              @elseif(extraAction.icon === 'invoice')
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                  <path d="M6 3h8l2 2v12l-2-1-2 1-2-1-2 1-2-1-2 1V3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                  <path d="M8 8h4M8 11h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                                </svg>
+                              @endif
+                              {{ extraAction.label }}
+                            </button>
+                          </form>
+                        @else
+                          <a class="btn users-action-btn {{ extraAction.buttonClass || 'btn-outline' }}" href="{{ extraAction.href }}">
+                            @if(extraAction.icon === 'confirm')
+                              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M4 10.5l4 4 8-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                              </svg>
+                            @elseif(extraAction.icon === 'checkin')
+                              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M10 3v14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                <path d="M5 8l5-5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                              </svg>
+                            @elseif(extraAction.icon === 'checkout')
+                              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M10 17V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                <path d="M5 12l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                              </svg>
+                            @elseif(extraAction.icon === 'noshow')
+                              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M5 5l10 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                <path d="M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                              </svg>
+                            @elseif(extraAction.icon === 'invoice')
+                              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M6 3h8l2 2v12l-2-1-2 1-2-1-2 1-2-1-2 1V3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                                <path d="M8 8h4M8 11h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                              </svg>
+                            @endif
+                            {{ extraAction.label }}
+                          </a>
+                        @endif
+                      @end
                     @endif
                   </div>
                 </td>
@@ -117,7 +197,7 @@
           </p>
 
           <form id="reservationCancelForm" method="POST" class="mt-4 space-y-3">
-            {{{ csrfField() }}}
+            {{ csrfField() }}
             <label class="form-control w-full">
               <span class="label-text">Motivo de cancelación</span>
               <textarea

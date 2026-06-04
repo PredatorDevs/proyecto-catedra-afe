@@ -1,10 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
+import db from '@adonisjs/lucid/services/db'
 import Reservation from '#models/reservation'
 import Customer from '#models/customer'
 import RoomType from '#models/room_type'
 import Room from '#models/room'
 import RoomPrice from '#models/room_price'
+import CheckinCheckoutLog from '#models/checkin_checkout_log'
 import AuditLogger from '#services/audit_logger'
 import { createReservationValidator } from '#validators/admin/hotels/create_reservation_validator'
 import {
@@ -37,6 +39,8 @@ type ReservationStatus =
   | 'NO_SHOW'
   | 'REFUND_PENDING'
   | 'REFUNDED'
+
+type ReservationQuickAction = 'CONFIRM' | 'CHECK_IN' | 'CHECK_OUT' | 'NO_SHOW'
 
 const blockedRoomStatuses = new Set([
   'BLOCKED',
@@ -113,6 +117,33 @@ function roundMoney(value: number) {
 function appendNote(existing: string | null, note: string) {
   const cleanExisting = (existing || '').trim()
   return cleanExisting ? `${cleanExisting}\n${note}` : note
+}
+
+function reservationStatusBadgeClass(status: ReservationStatus) {
+  switch (status) {
+    case 'DRAFT':
+      return 'reservation-status-badge reservation-status-draft'
+    case 'PENDING_ADMIN_CONFIRMATION':
+    case 'PENDING_PAYMENT':
+    case 'PAYMENT_UNDER_REVIEW':
+      return 'reservation-status-badge reservation-status-pending'
+    case 'CONFIRMED':
+      return 'reservation-status-badge reservation-status-confirmed'
+    case 'CHECKED_IN':
+      return 'reservation-status-badge reservation-status-checked-in'
+    case 'CHECKED_OUT':
+      return 'reservation-status-badge reservation-status-checked-out'
+    case 'CANCELLED':
+    case 'REFUNDED':
+      return 'reservation-status-badge reservation-status-cancelled'
+    case 'EXPIRED':
+    case 'NO_SHOW':
+      return 'reservation-status-badge reservation-status-inactive'
+    case 'REFUND_PENDING':
+      return 'reservation-status-badge reservation-status-refund-pending'
+    default:
+      return 'reservation-status-badge'
+  }
 }
 
 export default class ReservationsController {
@@ -240,6 +271,127 @@ export default class ReservationsController {
     return null
   }
 
+  private isConfirmableStatus(status: ReservationStatus) {
+    return ['DRAFT', 'PENDING_ADMIN_CONFIRMATION', 'PENDING_PAYMENT', 'PAYMENT_UNDER_REVIEW'].includes(status)
+  }
+
+  private buildIndexActions(row: Reservation) {
+    const status = row.status as ReservationStatus
+    const actions: Array<Record<string, unknown>> = []
+
+    if (this.isConfirmableStatus(status)) {
+      actions.push({
+        label: 'Confirmar',
+        href: `/admin/hotels/reservations/${row.id}/transition`,
+        method: 'POST',
+        buttonClass: 'reservation-action-btn reservation-action-confirm',
+        icon: 'confirm',
+        confirmMessage: 'Se cambiara el estado de la reservacion a CONFIRMED. Deseas continuar?',
+        inputs: [{ name: 'action', value: 'CONFIRM' }],
+      })
+    }
+
+    if (status === 'CONFIRMED') {
+      actions.push(
+        {
+          label: 'Marcar check-in',
+          href: `/admin/hotels/reservations/${row.id}/transition`,
+          method: 'POST',
+          buttonClass: 'reservation-action-btn reservation-action-checkin',
+          icon: 'checkin',
+          confirmMessage: 'Se registrara CHECK_IN operativo para esta reservacion. Deseas continuar?',
+          inputs: [{ name: 'action', value: 'CHECK_IN' }],
+        },
+        {
+          label: 'Marcar no-show',
+          href: `/admin/hotels/reservations/${row.id}/transition`,
+          method: 'POST',
+          buttonClass: 'reservation-action-btn reservation-action-noshow',
+          icon: 'noshow',
+          confirmMessage: 'Se registrara NO_SHOW para esta reservacion. Deseas continuar?',
+          inputs: [{ name: 'action', value: 'NO_SHOW' }],
+        }
+      )
+    }
+
+    if (status === 'CHECKED_IN') {
+      actions.push(
+        {
+          label: 'Marcar check-out',
+          href: `/admin/hotels/reservations/${row.id}/transition`,
+          method: 'POST',
+          buttonClass: 'reservation-action-btn reservation-action-checkout',
+          icon: 'checkout',
+          confirmMessage: 'Se registrara CHECK_OUT operativo para esta reservacion. Deseas continuar?',
+          inputs: [{ name: 'action', value: 'CHECK_OUT' }],
+        },
+        {
+          label: 'Checkout + Facturar CF',
+          href: '/admin/hotels/fiscal-documents/generate-from-reservation',
+          method: 'POST',
+          buttonClass: 'reservation-action-btn reservation-action-invoice-cf',
+          icon: 'invoice',
+          confirmMessage: 'Se realizara checkout automatico y se emitira Consumidor Final. Deseas continuar?',
+          inputs: [
+            { name: 'reservationId', value: row.id },
+            { name: 'documentType', value: 'CONSUMER_FINAL' },
+            { name: 'currencyCode', value: 'USD' },
+            { name: 'autoCheckout', value: 'true' },
+          ],
+        },
+        {
+          label: 'Checkout + Facturar CCF',
+          href: '/admin/hotels/fiscal-documents/generate-from-reservation',
+          method: 'POST',
+          buttonClass: 'reservation-action-btn reservation-action-invoice-ccf',
+          icon: 'invoice',
+          confirmMessage: 'Se realizara checkout automatico y se emitira Credito Fiscal. Deseas continuar?',
+          inputs: [
+            { name: 'reservationId', value: row.id },
+            { name: 'documentType', value: 'CREDITO_FISCAL' },
+            { name: 'currencyCode', value: 'USD' },
+            { name: 'autoCheckout', value: 'true' },
+          ],
+        }
+      )
+    }
+
+    if (status === 'CHECKED_OUT') {
+      actions.push(
+        {
+          label: 'Facturar CF',
+          href: '/admin/hotels/fiscal-documents/generate-from-reservation',
+          method: 'POST',
+          buttonClass: 'reservation-action-btn reservation-action-invoice-cf',
+          icon: 'invoice',
+          confirmMessage: 'Se emitira Consumidor Final para esta reservacion. Deseas continuar?',
+          inputs: [
+            { name: 'reservationId', value: row.id },
+            { name: 'documentType', value: 'CONSUMER_FINAL' },
+            { name: 'currencyCode', value: 'USD' },
+            { name: 'autoCheckout', value: 'false' },
+          ],
+        },
+        {
+          label: 'Facturar CCF',
+          href: '/admin/hotels/fiscal-documents/generate-from-reservation',
+          method: 'POST',
+          buttonClass: 'reservation-action-btn reservation-action-invoice-ccf',
+          icon: 'invoice',
+          confirmMessage: 'Se emitira Credito Fiscal para esta reservacion. Deseas continuar?',
+          inputs: [
+            { name: 'reservationId', value: row.id },
+            { name: 'documentType', value: 'CREDITO_FISCAL' },
+            { name: 'currencyCode', value: 'USD' },
+            { name: 'autoCheckout', value: 'false' },
+          ],
+        }
+      )
+    }
+
+    return actions
+  }
+
   async index(ctx: HttpContext) {
     const rows = await Reservation.query()
       .preload('customer')
@@ -277,6 +429,7 @@ export default class ReservationsController {
             : `Precio base ${row.roomType.code}`,
           source: reservationSourceLabel(row.source),
           status: reservationStatusLabel(row.status),
+          statusBadgeClass: reservationStatusBadgeClass(row.status as ReservationStatus),
           roomNotice:
             row.status === 'CANCELLED' && row.roomId
               ? 'Habitación en mantenimiento'
@@ -286,6 +439,7 @@ export default class ReservationsController {
           range: `${row.checkInPlannedAt.toFormat('yyyy-LL-dd')} -> ${row.checkOutPlannedAt.toFormat('yyyy-LL-dd')}`,
           totalAmount: Number(row.totalAmount).toFixed(2),
           canCancel: cancellableStatuses.has(row.status as ReservationStatus),
+          extraActions: this.buildIndexActions(row),
         })),
         cancellationModal: {
           title: 'Cancelar reservación',
@@ -302,7 +456,7 @@ export default class ReservationsController {
       Customer.query().orderBy('full_name', 'asc'),
       RoomType.query().orderBy('code', 'asc'),
       Room.query().preload('roomType').orderBy('room_number', 'asc'),
-      RoomPrice.query().preload('roomType').orderBy('id', 'desc').limit(200),
+      RoomPrice.query().preload('roomType').orderBy('priority', 'asc').orderBy('id', 'desc').limit(300),
     ])
 
     return [
@@ -352,19 +506,23 @@ export default class ReservationsController {
         name: 'appliedRoomPriceId',
         label: 'Tarifa aplicada (opcional)',
         helpText:
-          'Si no eliges una tarifa, el sistema buscará automáticamente la tarifa vigente para la reserva; si no existe, usará el precio base del tipo de habitación.',
+          'Sugerimos una tarifa automáticamente según tipo, habitación y fechas. Si no seleccionas una, el servidor aplicará la mejor tarifa vigente.',
         type: 'select',
         colSpanMd: 2,
         colSpanXl: 2,
         options: roomPrices.map((item) => ({
           value: item.id,
-          label: `#${item.id} ${item.name} (${item.roomType.code})`,
+          label: `#${item.id} ${item.name} (${item.roomType.code}) - ${Number(item.basePrice).toFixed(2)} + ${Number(item.extraGuestPrice).toFixed(2)} extra - ${item.priceBasis === 'STAY' ? 'por estadia' : 'por noche'} - ${item.pricingScope === 'ROOM' ? `hab ${item.roomId}` : 'tipo'}`,
           basePrice: item.basePrice,
           extraGuestPrice: item.extraGuestPrice,
           priceBasis: item.priceBasis,
           pricingScope: item.pricingScope,
           roomId: item.roomId,
           roomTypeId: item.roomTypeId,
+          validFrom: item.validFrom.toFormat('yyyy-LL-dd'),
+          validTo: item.validTo.toFormat('yyyy-LL-dd'),
+          daysOfWeekMask: item.daysOfWeekMask,
+          isActive: item.isActive,
         })),
       },
       { name: 'source', label: 'Origen', type: 'select', options: reservationSourceOptions },
@@ -421,6 +579,11 @@ export default class ReservationsController {
 
   async edit(ctx: HttpContext) {
     const row = await Reservation.findOrFail(ctx.params.id)
+    const canGenerateFiscal = row.status === 'CHECKED_IN' || row.status === 'CHECKED_OUT'
+    const requiresAutoCheckout = row.status === 'CHECKED_IN'
+    const fiscalActionHint = canGenerateFiscal
+      ? null
+      : 'La facturacion solo se habilita cuando la reservacion esta CHECKED_IN o CHECKED_OUT. Si esta CONFIRMED, registra CHECK_IN desde logs operativos para habilitar Checkout + Facturar.'
 
     return renderCatalogForm(ctx, {
       formMode: 'edit',
@@ -431,6 +594,41 @@ export default class ReservationsController {
       submitLabel: 'Guardar cambios',
       backHref: '/admin/hotels/reservations',
       fields: await this.fields(),
+      fiscalActionHint,
+      extraActions: canGenerateFiscal
+        ? [
+            {
+              label: requiresAutoCheckout ? 'Checkout + Facturar CF' : 'Facturar CF',
+              href: '/admin/hotels/fiscal-documents/generate-from-reservation',
+              method: 'POST',
+              buttonClass: 'btn-info',
+              confirmMessage: requiresAutoCheckout
+                ? 'Se realizara checkout automatico y se emitira Consumidor Final. Deseas continuar?'
+                : 'Se emitira Consumidor Final para esta reservacion. Deseas continuar?',
+              inputs: [
+                { name: 'reservationId', value: row.id },
+                { name: 'documentType', value: 'CONSUMER_FINAL' },
+                { name: 'currencyCode', value: 'USD' },
+                { name: 'autoCheckout', value: requiresAutoCheckout ? 'true' : 'false' },
+              ],
+            },
+            {
+              label: requiresAutoCheckout ? 'Checkout + Facturar CCF' : 'Facturar CCF',
+              href: '/admin/hotels/fiscal-documents/generate-from-reservation',
+              method: 'POST',
+              buttonClass: 'btn-warning',
+              confirmMessage: requiresAutoCheckout
+                ? 'Se realizara checkout automatico y se emitira Credito Fiscal. Deseas continuar?'
+                : 'Se emitira Credito Fiscal para esta reservacion. Deseas continuar?',
+              inputs: [
+                { name: 'reservationId', value: row.id },
+                { name: 'documentType', value: 'CREDITO_FISCAL' },
+                { name: 'currencyCode', value: 'USD' },
+                { name: 'autoCheckout', value: requiresAutoCheckout ? 'true' : 'false' },
+              ],
+            },
+          ]
+        : [],
       values: {
         reservationNumber: row.reservationNumber,
         customerId: row.customerId,
@@ -826,6 +1024,193 @@ export default class ReservationsController {
     )
 
     return respondSuccessOrJson(ctx, 'Reservación actualizada', '/admin/hotels/reservations', reservation)
+  }
+
+  async transition(ctx: HttpContext) {
+    const reservation = await Reservation.findOrFail(ctx.params.id)
+    const action = String(ctx.request.input('action', '')).trim().toUpperCase() as ReservationQuickAction
+
+    if (!['CONFIRM', 'CHECK_IN', 'CHECK_OUT', 'NO_SHOW'].includes(action)) {
+      return respondConflictOrRedirect(
+        ctx,
+        'Accion de transicion no soportada',
+        '/admin/hotels/reservations',
+        400
+      )
+    }
+
+    const userId = ctx.auth.user?.id ?? null
+    const previous = {
+      status: reservation.status,
+      roomId: reservation.roomId,
+      confirmedAt: reservation.confirmedAt?.toISO() ?? null,
+      checkedInAt: reservation.checkedInAt?.toISO() ?? null,
+      checkedOutAt: reservation.checkedOutAt?.toISO() ?? null,
+    }
+
+    const transitionError = await db.transaction(async (trx) => {
+      if (action === 'CONFIRM') {
+        if (!this.isConfirmableStatus(reservation.status as ReservationStatus)) {
+          return `La reservacion en estado ${reservation.status} no puede confirmarse desde listado`
+        }
+
+        reservation.status = 'CONFIRMED'
+        reservation.confirmedAt = reservation.confirmedAt ?? DateTime.now()
+        reservation.updatedByUserId = userId
+        await reservation.useTransaction(trx).save()
+        return null
+      }
+
+      if (action === 'CHECK_IN') {
+        if (reservation.status !== 'CONFIRMED') {
+          return 'Solo una reservacion CONFIRMED puede hacer check-in'
+        }
+
+        const roomId = reservation.roomId
+        if (!roomId) {
+          return 'La reservacion no tiene habitacion asignada para registrar check-in'
+        }
+
+        const room = await Room.find(roomId, { client: trx })
+        if (!room) {
+          return 'No se encontro la habitacion asignada para registrar check-in'
+        }
+
+        if (blockedRoomStatuses.has(room.currentStatus)) {
+          return 'La habitacion asignada no esta disponible operativamente para check-in'
+        }
+
+        const occurredAt = DateTime.now()
+        await CheckinCheckoutLog.create(
+          {
+            reservationId: reservation.id,
+            roomId,
+            action: 'CHECK_IN',
+            performedByUserId: userId,
+            occurredAt,
+            notes: 'Check-in generado desde acciones rapidas de reservaciones',
+          },
+          { client: trx }
+        )
+
+        reservation.status = 'CHECKED_IN'
+        reservation.checkedInAt = occurredAt
+        reservation.updatedByUserId = userId
+        await reservation.useTransaction(trx).save()
+
+        room.currentStatus = 'OCCUPIED'
+        room.updatedByUserId = userId
+        await room.useTransaction(trx).save()
+        return null
+      }
+
+      if (action === 'CHECK_OUT') {
+        if (reservation.status !== 'CHECKED_IN') {
+          return 'Solo una reservacion CHECKED_IN puede hacer check-out'
+        }
+
+        const roomId = reservation.roomId
+        const occurredAt = DateTime.now()
+
+        await CheckinCheckoutLog.create(
+          {
+            reservationId: reservation.id,
+            roomId,
+            action: 'CHECK_OUT',
+            performedByUserId: userId,
+            occurredAt,
+            notes: 'Check-out generado desde acciones rapidas de reservaciones',
+          },
+          { client: trx }
+        )
+
+        reservation.status = 'CHECKED_OUT'
+        reservation.checkedOutAt = occurredAt
+        reservation.updatedByUserId = userId
+        await reservation.useTransaction(trx).save()
+
+        if (roomId) {
+          const room = await Room.find(roomId, { client: trx })
+          if (room) {
+            room.currentStatus = 'DIRTY'
+            room.updatedByUserId = userId
+            await room.useTransaction(trx).save()
+          }
+        }
+
+        return null
+      }
+
+      if (action === 'NO_SHOW') {
+        if (reservation.status !== 'CONFIRMED') {
+          return 'Solo una reservacion CONFIRMED puede marcarse como no-show'
+        }
+
+        const occurredAt = DateTime.now()
+        await CheckinCheckoutLog.create(
+          {
+            reservationId: reservation.id,
+            roomId: reservation.roomId,
+            action: 'NO_SHOW',
+            performedByUserId: userId,
+            occurredAt,
+            notes: 'No-show generado desde acciones rapidas de reservaciones',
+          },
+          { client: trx }
+        )
+
+        reservation.status = 'NO_SHOW'
+        reservation.updatedByUserId = userId
+        await reservation.useTransaction(trx).save()
+
+        if (reservation.roomId) {
+          const room = await Room.find(reservation.roomId, { client: trx })
+          if (room && room.currentStatus === 'RESERVED') {
+            room.currentStatus = 'AVAILABLE_CLEAN'
+            room.updatedByUserId = userId
+            await room.useTransaction(trx).save()
+          }
+        }
+
+        return null
+      }
+
+      return 'Accion no implementada'
+    })
+
+    if (transitionError) {
+      return respondConflictOrRedirect(ctx, transitionError, '/admin/hotels/reservations', 400)
+    }
+
+    await reservation.refresh()
+
+    await AuditLogger.log(
+      {
+        action: 'UPDATE',
+        entity: 'reservation',
+        entityId: reservation.id,
+        oldValues: previous,
+        newValues: {
+          status: reservation.status,
+          roomId: reservation.roomId,
+          confirmedAt: reservation.confirmedAt?.toISO() ?? null,
+          checkedInAt: reservation.checkedInAt?.toISO() ?? null,
+          checkedOutAt: reservation.checkedOutAt?.toISO() ?? null,
+        },
+        metadata: {
+          source: 'admin.hotels.reservations.transition',
+          transitionAction: action,
+        },
+      },
+      ctx
+    )
+
+    return respondSuccessOrJson(
+      ctx,
+      `Accion ${action} aplicada correctamente a la reservacion`,
+      '/admin/hotels/reservations',
+      reservation
+    )
   }
 
   async cancel(ctx: HttpContext) {
