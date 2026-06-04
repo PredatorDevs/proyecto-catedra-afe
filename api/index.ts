@@ -8,7 +8,7 @@ type AdonisHttpServer = {
   setNodeServer: (server: NodeHttpServer) => void
 }
 
-const APP_ROOT = new URL('../', import.meta.url)
+const APP_ROOT = new URL('../build/', import.meta.url)
 
 const IMPORTER = (filePath: string) => {
   if (filePath.startsWith('./') || filePath.startsWith('../')) {
@@ -26,7 +26,7 @@ async function bootServer(): Promise<AdonisHttpServer> {
   serverBootPromise = (async () => {
     const ignitor = new Ignitor(APP_ROOT, { importer: IMPORTER }).tap((app) => {
       app.booting(async () => {
-        await import('#start/env')
+        await import(new URL('./start/env.js', APP_ROOT).href)
       })
     })
 
