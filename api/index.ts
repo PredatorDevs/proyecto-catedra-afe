@@ -70,7 +70,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (!res.headersSent) {
       res.statusCode = 500
       res.setHeader('Content-Type', 'application/json; charset=utf-8')
-      res.end(JSON.stringify({ message: 'Error al inicializar Adonis en Vercel' }))
+      res.end(JSON.stringify({ message: 'Error al inicializar Adonis en Vercel', error: String(error) }))
       return
     }
 
