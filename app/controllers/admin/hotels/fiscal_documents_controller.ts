@@ -11,6 +11,9 @@ import Payment from '#models/payment'
 import ReservationCharge from '#models/reservation_charge'
 import Room from '#models/room'
 import AuditLogger from '#services/audit_logger'
+import FiscalDocumentPdfService from '#services/fiscal_document_pdf_service'
+import ResendMailerService from '#services/resend_mailer_service'
+import env from '#start/env'
 import { createFiscalDocumentValidator } from '#validators/admin/hotels/create_fiscal_document_validator'
 import { generateFiscalDocumentValidator } from '#validators/admin/hotels/generate_fiscal_document_validator'
 import {
@@ -52,7 +55,166 @@ function isTruthyFlag(value: unknown) {
   return normalized === 'true' || normalized === '1' || normalized === 'on' || normalized === 'yes'
 }
 
+function escapeHtml(value: string | null | undefined) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+}
+
 export default class FiscalDocumentsController {
+  private pdfService = new FiscalDocumentPdfService()
+
+  private mailerService = new ResendMailerService()
+
+  private async loadDocumentWithDetails(id: number) {
+    return FiscalDocument.query()
+      .where('id', id)
+      .preload('reservation')
+      .preload('customer')
+      .preload('items', (query) => query.orderBy('id', 'asc'))
+      .preload('payments', (query) => query.orderBy('id', 'asc'))
+      .first()
+  }
+
+  private buildMailHtml(document: FiscalDocument, reservationNumber: string) {
+    const total = Number(document.totalAmount).toFixed(2)
+    const subtotal = Number(document.subtotal).toFixed(2)
+    const iva = Number(document.ivaTotal).toFixed(2)
+    const tourismTax = Number(document.tourismTaxTotal).toFixed(2)
+    const issuedAt = document.issuedAt?.toFormat('yyyy-LL-dd HH:mm') || '-'
+    const customerName = escapeHtml(document.customerNameSnapshot)
+    const customerDoc = escapeHtml(document.customerDocumentSnapshot || '-')
+    const docNumber = escapeHtml(document.documentNumber)
+    const reservation = escapeHtml(reservationNumber)
+    const docType = escapeHtml(fiscalDocumentTypeLabel(document.documentType))
+    const status = escapeHtml(fiscalDocumentStatusLabel(document.status))
+    const currency = escapeHtml(document.currencyCode)
+
+    return `
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documento Fiscal ${docNumber}</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f2f5f9;font-family:Segoe UI,Arial,sans-serif;color:#0f172a;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f2f5f9;padding:24px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #d9e2ef;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(15,23,42,0.08);">
+            <tr>
+              <td style="background:linear-gradient(120deg,#0f4c81,#0a7ca8);padding:24px 26px;color:#ffffff;">
+                <div style="font-size:12px;letter-spacing:1.2px;text-transform:uppercase;opacity:0.9;">Hotel AFE</div>
+                <div style="font-size:24px;font-weight:700;margin-top:6px;">Documento Fiscal Emitido</div>
+                <div style="font-size:13px;margin-top:10px;opacity:0.9;">Adjuntamos el comprobante en PDF para control administrativo y contable.</div>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:24px 26px 8px 26px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:0 10px;">
+                  <tr>
+                    <td style="background:#f8fbff;border:1px solid #dce8f8;border-radius:10px;padding:12px 14px;width:50%;vertical-align:top;">
+                      <div style="font-size:11px;color:#4b5f77;text-transform:uppercase;letter-spacing:.8px;">Documento</div>
+                      <div style="font-size:16px;font-weight:700;color:#0f2f4a;margin-top:4px;">${docNumber}</div>
+                      <div style="font-size:12px;color:#334155;margin-top:4px;">${docType} · ${status}</div>
+                    </td>
+                    <td style="width:12px;"></td>
+                    <td style="background:#f8fbff;border:1px solid #dce8f8;border-radius:10px;padding:12px 14px;width:50%;vertical-align:top;">
+                      <div style="font-size:11px;color:#4b5f77;text-transform:uppercase;letter-spacing:.8px;">Reservación</div>
+                      <div style="font-size:16px;font-weight:700;color:#0f2f4a;margin-top:4px;">${reservation}</div>
+                      <div style="font-size:12px;color:#334155;margin-top:4px;">Emitido: ${escapeHtml(issuedAt)}</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:8px 26px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+                  <tr>
+                    <td style="background:#f8fafc;padding:10px 12px;font-size:12px;color:#334155;font-weight:600;width:40%;">Cliente</td>
+                    <td style="padding:10px 12px;font-size:13px;color:#0f172a;">${customerName}</td>
+                  </tr>
+                  <tr>
+                    <td style="background:#f8fafc;padding:10px 12px;font-size:12px;color:#334155;font-weight:600;">Documento cliente</td>
+                    <td style="padding:10px 12px;font-size:13px;color:#0f172a;">${customerDoc}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:14px 26px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border:1px solid #d9e2ef;border-radius:10px;overflow:hidden;">
+                  <tr>
+                    <td style="padding:11px 12px;font-size:12px;color:#334155;background:#f8fafc;">Subtotal</td>
+                    <td align="right" style="padding:11px 12px;font-size:13px;color:#0f172a;">${subtotal} ${currency}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:11px 12px;font-size:12px;color:#334155;background:#f8fafc;">IVA</td>
+                    <td align="right" style="padding:11px 12px;font-size:13px;color:#0f172a;">${iva} ${currency}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:11px 12px;font-size:12px;color:#334155;background:#f8fafc;">Impuesto turismo</td>
+                    <td align="right" style="padding:11px 12px;font-size:13px;color:#0f172a;">${tourismTax} ${currency}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:12px;font-size:13px;color:#0b2239;font-weight:700;background:#eef5ff;">TOTAL</td>
+                    <td align="right" style="padding:12px;font-size:16px;color:#0b2239;font-weight:800;background:#eef5ff;">${total} ${currency}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:6px 26px 26px 26px;font-size:12px;color:#475569;line-height:1.5;">
+                Este mensaje fue generado automáticamente por el módulo fiscal del Hotel AFE. Si necesitas soporte, responde a este correo con el número de documento.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+    `.trim()
+  }
+
+  private validateCustomerEligibilityForDocument(
+    customer: Customer,
+    documentType: FiscalDocument['documentType'],
+    ctx: HttpContext,
+    redirect: string
+  ) {
+    if (documentType === 'CREDITO_FISCAL' && customer.customerType !== 'COMPANY') {
+      return respondConflictOrRedirect(
+        ctx,
+        'CREDITO_FISCAL solo puede emitirse para clientes de tipo empresa',
+        redirect,
+        400
+      )
+    }
+
+    if (documentType === 'CREDITO_FISCAL') {
+      if (!customer.taxName?.trim() || !customer.taxNit?.trim() || !customer.taxNrc?.trim() || !customer.taxAddress?.trim()) {
+        return respondConflictOrRedirect(
+          ctx,
+          'Para CREDITO_FISCAL el cliente debe tener nombre fiscal, NIT, NRC y direccion fiscal',
+          redirect,
+          400
+        )
+      }
+    }
+
+    return null
+  }
+
   private async buildUniqueDocumentNumber(documentType: 'CONSUMER_FINAL' | 'CREDITO_FISCAL') {
     for (let i = 0; i < 8; i++) {
       const candidate = buildFiscalDocumentNumber(documentType)
@@ -137,6 +299,23 @@ export default class FiscalDocumentsController {
           reservation: row.reservation.reservationNumber,
           customer: row.customer.fullName,
           totalAmount: Number(row.totalAmount).toFixed(2),
+          extraActions: [
+            {
+              label: 'Descargar PDF',
+              href: `/admin/hotels/fiscal-documents/${row.id}/pdf`,
+              method: 'GET',
+              buttonClass: 'btn-info',
+              icon: 'invoice',
+            },
+            {
+              label: 'Enviar correo',
+              href: `/admin/hotels/fiscal-documents/${row.id}/send-email`,
+              method: 'POST',
+              buttonClass: 'btn-warning',
+              icon: 'invoice',
+              confirmMessage: 'Se enviara el documento fiscal por correo al cliente. Deseas continuar?',
+            },
+          ],
         })),
       })
     }
@@ -235,6 +414,19 @@ export default class FiscalDocumentsController {
     )
     if (refError) return refError
 
+    const customer = await Customer.find(payload.customerId)
+    if (!customer) {
+      return respondConflictOrRedirect(ctx, 'customerId no existe', '/admin/hotels/fiscal-documents/new', 400)
+    }
+
+    const customerEligibilityError = this.validateCustomerEligibilityForDocument(
+      customer,
+      payload.documentType as FiscalDocument['documentType'],
+      ctx,
+      '/admin/hotels/fiscal-documents/new'
+    )
+    if (customerEligibilityError) return customerEligibilityError
+
     const status = (payload.status as FiscalDocument['status'] | undefined) ?? 'PENDING'
     if (status === 'VOIDED' && !payload.voidReason?.trim()) {
       return respondConflictOrRedirect(
@@ -301,6 +493,19 @@ export default class FiscalDocumentsController {
       ctx
     )
     if (refError) return refError
+
+    const customer = await Customer.find(payload.customerId)
+    if (!customer) {
+      return respondConflictOrRedirect(ctx, 'customerId no existe', `/admin/hotels/fiscal-documents/${row.id}/edit`, 400)
+    }
+
+    const customerEligibilityError = this.validateCustomerEligibilityForDocument(
+      customer,
+      payload.documentType as FiscalDocument['documentType'],
+      ctx,
+      `/admin/hotels/fiscal-documents/${row.id}/edit`
+    )
+    if (customerEligibilityError) return customerEligibilityError
 
     const status = (payload.status as FiscalDocument['status'] | undefined) ?? row.status
     if (status === 'VOIDED' && !(payload.voidReason ?? row.voidReason)?.trim()) {
@@ -391,16 +596,13 @@ export default class FiscalDocumentsController {
     const documentType = payload.documentType as 'CONSUMER_FINAL' | 'CREDITO_FISCAL'
     const customer = reservation.customer
 
-    if (documentType === 'CREDITO_FISCAL') {
-      if (!customer.taxName?.trim() || !customer.taxNit?.trim() || !customer.taxNrc?.trim() || !customer.taxAddress?.trim()) {
-        return respondConflictOrRedirect(
-          ctx,
-          'Para CREDITO_FISCAL el cliente debe tener nombre fiscal, NIT, NRC y direccion fiscal',
-          '/admin/hotels/fiscal-documents/new',
-          400
-        )
-      }
-    }
+    const customerEligibilityError = this.validateCustomerEligibilityForDocument(
+      customer,
+      documentType,
+      ctx,
+      '/admin/hotels/fiscal-documents/new'
+    )
+    if (customerEligibilityError) return customerEligibilityError
 
     const existing = await FiscalDocument.query()
       .where('reservation_id', reservation.id)
@@ -650,5 +852,85 @@ export default class FiscalDocumentsController {
     }
 
     return respondSuccessOrJson(ctx, 'Documento fiscal generado desde checkout', '/admin/hotels/fiscal-documents', row, true)
+  }
+
+  async downloadPdf(ctx: HttpContext) {
+    const row = await this.loadDocumentWithDetails(Number(ctx.params.id))
+    if (!row) {
+      return respondConflictOrRedirect(ctx, 'Documento fiscal no existe', '/admin/hotels/fiscal-documents', 400)
+    }
+
+    const pdfBuffer = await this.pdfService.buildPdfBuffer({
+      document: row,
+      items: row.items,
+      payments: row.payments,
+      reservationNumber: row.reservation.reservationNumber,
+    })
+
+    const filename = `fiscal-${row.documentNumber}.pdf`
+    ctx.response.header('Content-Type', 'application/pdf')
+    ctx.response.header('Content-Disposition', `attachment; filename="${filename}"`)
+    ctx.response.header('Content-Length', String(pdfBuffer.length))
+
+    return ctx.response.send(pdfBuffer)
+  }
+
+  async sendEmail(ctx: HttpContext) {
+    const row = await this.loadDocumentWithDetails(Number(ctx.params.id))
+    if (!row) {
+      return respondConflictOrRedirect(ctx, 'Documento fiscal no existe', '/admin/hotels/fiscal-documents', 400)
+    }
+
+    const recipientEmail = row.customer.email || env.get('RESEND_TEST_RECIPIENT') || null
+    if (!recipientEmail) {
+      return respondConflictOrRedirect(
+        ctx,
+        'El cliente no tiene correo y no hay RESEND_TEST_RECIPIENT configurado',
+        '/admin/hotels/fiscal-documents',
+        400
+      )
+    }
+
+    const pdfBuffer = await this.pdfService.buildPdfBuffer({
+      document: row,
+      items: row.items,
+      payments: row.payments,
+      reservationNumber: row.reservation.reservationNumber,
+    })
+
+    try {
+      await this.mailerService.sendFiscalDocument({
+        toEmail: recipientEmail,
+        subject: `Documento fiscal ${row.documentNumber}`,
+        html: this.buildMailHtml(row, row.reservation.reservationNumber),
+        pdfBuffer,
+        filename: `fiscal-${row.documentNumber}.pdf`,
+      })
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : 'No se pudo enviar correo mediante Resend'
+      return respondConflictOrRedirect(ctx, reason, '/admin/hotels/fiscal-documents', 400)
+    }
+
+    await AuditLogger.log(
+      {
+        action: 'SEND',
+        entity: 'fiscal_document',
+        entityId: row.id,
+        oldValues: null,
+        newValues: {
+          sentTo: recipientEmail,
+          documentNumber: row.documentNumber,
+        },
+        metadata: { source: 'admin.hotels.fiscalDocuments.sendEmail' },
+      },
+      ctx
+    )
+
+    return respondSuccessOrJson(
+      ctx,
+      `Correo enviado a ${recipientEmail}`,
+      '/admin/hotels/fiscal-documents',
+      { fiscalDocumentId: row.id, sentTo: recipientEmail }
+    )
   }
 }

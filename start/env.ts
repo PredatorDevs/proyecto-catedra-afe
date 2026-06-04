@@ -34,5 +34,16 @@ export default await Env.create(new URL('../', import.meta.url), {
   DB_PORT: Env.schema.number(),
   DB_USER: Env.schema.string(),
   DB_PASSWORD: Env.schema.string.optional(),
-  DB_DATABASE: Env.schema.string()
+  DB_DATABASE: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for Resend email integration
+  |----------------------------------------------------------
+  */
+  RESEND_ENABLED: Env.schema.boolean.optional(),
+  RESEND_API_KEY: Env.schema.string.optional(),
+  RESEND_FROM_EMAIL: Env.schema.string.optional(),
+  RESEND_FROM_NAME: Env.schema.string.optional(),
+  RESEND_TEST_RECIPIENT: Env.schema.string.optional()
 })

@@ -31,11 +31,21 @@ async function grantPermissionToUser(user: User, permissionSlug: string) {
   await user.related('roles').sync([role.id])
 }
 
-async function seedReservationBase(admin: User) {
+async function seedReservationBase(
+  admin: User,
+  options?: { customerType?: 'INDIVIDUAL' | 'COMPANY'; withFiscalProfile?: boolean }
+) {
+  const customerType = options?.customerType ?? 'INDIVIDUAL'
+  const withFiscalProfile = options?.withFiscalProfile ?? false
+
   const customer = await Customer.create({
-    customerType: 'INDIVIDUAL',
+    customerType,
     fullName: `Cliente F3 ${Date.now()}`,
     email: `phase3.customer.${Date.now()}@afe.local`,
+    taxName: withFiscalProfile ? `Razon Social ${Date.now()}` : null,
+    taxNit: withFiscalProfile ? `0614${Date.now()}`.slice(0, 14) : null,
+    taxNrc: withFiscalProfile ? `NRC-${Date.now()}`.slice(0, 20) : null,
+    taxAddress: withFiscalProfile ? 'San Salvador, El Salvador' : null,
     isActive: true,
   })
 
@@ -540,7 +550,10 @@ test.group('Hotels Phase 3 payment endpoints', (group) => {
     })
 
     await grantPermissionToUser(admin, 'admin.access')
-    const { reservation } = await seedReservationBase(admin)
+    const { reservation } = await seedReservationBase(admin, {
+      customerType: 'COMPANY',
+      withFiscalProfile: false,
+    })
 
     reservation.status = 'CHECKED_OUT'
     await reservation.save()
@@ -576,6 +589,105 @@ test.group('Hotels Phase 3 payment endpoints', (group) => {
     response.assertBodyContains({
       message: 'Para CREDITO_FISCAL el cliente debe tener nombre fiscal, NIT, NRC y direccion fiscal',
     })
+  })
+
+  test('rejects CREDITO_FISCAL for individual customer', async ({ client }) => {
+    const admin = await User.create({
+      fullName: 'Phase4 Individual CCF Admin',
+      email: `phase4.individual.ccf.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(admin, 'admin.access')
+    const { reservation } = await seedReservationBase(admin, {
+      customerType: 'INDIVIDUAL',
+      withFiscalProfile: false,
+    })
+
+    reservation.status = 'CHECKED_OUT'
+    await reservation.save()
+
+    const method = await PaymentMethod.create({
+      code: `I-CCF-${Date.now()}`,
+      name: 'Individual CCF',
+      requiresReference: false,
+      requiresProof: false,
+      isCash: false,
+      isOnline: true,
+      isActive: true,
+    })
+
+    await Payment.create({
+      paymentNumber: `PAY-F4-I-CCF-${Date.now()}`,
+      reservationId: reservation.id,
+      paymentMethodId: method.id,
+      paymentCategory: 'LODGING',
+      status: 'APPROVED',
+      currencyCode: 'USD',
+      amount: 200,
+      recordedByUserId: admin.id,
+    })
+
+    const response = await client
+      .post('/admin/hotels/fiscal-documents/generate-from-reservation')
+      .withGuard('web')
+      .loginAs(admin)
+      .form({ reservationId: String(reservation.id), documentType: 'CREDITO_FISCAL' })
+
+    response.assertStatus(400)
+    response.assertBodyContains({
+      message: 'CREDITO_FISCAL solo puede emitirse para clientes de tipo empresa',
+    })
+  })
+
+  test('allows CREDITO_FISCAL for company customer with fiscal profile', async ({ client, assert }) => {
+    const admin = await User.create({
+      fullName: 'Phase4 Company CCF Admin',
+      email: `phase4.company.ccf.${Date.now()}@afe.local`,
+      password: 'Secret12345',
+    })
+
+    await grantPermissionToUser(admin, 'admin.access')
+    const { reservation } = await seedReservationBase(admin, {
+      customerType: 'COMPANY',
+      withFiscalProfile: true,
+    })
+
+    reservation.status = 'CHECKED_OUT'
+    await reservation.save()
+
+    const method = await PaymentMethod.create({
+      code: `C-CCF-${Date.now()}`,
+      name: 'Company CCF',
+      requiresReference: false,
+      requiresProof: false,
+      isCash: false,
+      isOnline: true,
+      isActive: true,
+    })
+
+    await Payment.create({
+      paymentNumber: `PAY-F4-C-CCF-${Date.now()}`,
+      reservationId: reservation.id,
+      paymentMethodId: method.id,
+      paymentCategory: 'LODGING',
+      status: 'APPROVED',
+      currencyCode: 'USD',
+      amount: 200,
+      recordedByUserId: admin.id,
+    })
+
+    const response = await client
+      .post('/admin/hotels/fiscal-documents/generate-from-reservation')
+      .withGuard('web')
+      .loginAs(admin)
+      .form({ reservationId: String(reservation.id), documentType: 'CREDITO_FISCAL' })
+
+    response.assertStatus(201)
+
+    const document = await FiscalDocument.query().where('reservation_id', reservation.id).firstOrFail()
+    assert.equal(document.documentType, 'CREDITO_FISCAL')
+    assert.equal(document.status, 'ISSUED')
   })
 
   test('auto checkout and fiscal generation from checked-in reservation', async ({ client, assert }) => {

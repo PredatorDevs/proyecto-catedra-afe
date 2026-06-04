@@ -743,6 +743,20 @@ router
       .use(middleware.shareAuth())
 
     router
+      .get('/admin/hotels/fiscal-documents/:id/pdf', [FiscalDocumentsController, 'downloadPdf'])
+      .as('admin.hotels.fiscalDocuments.downloadPdf')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
+      .post('/admin/hotels/fiscal-documents/:id/send-email', [FiscalDocumentsController, 'sendEmail'])
+      .as('admin.hotels.fiscalDocuments.sendEmail')
+      .use(middleware.auth())
+      .use(middleware.permission({ permissions: ['admin.access'] }))
+      .use(middleware.shareAuth())
+
+    router
       .post('/admin/hotels/fiscal-documents/generate-from-reservation', [FiscalDocumentsController, 'generateFromReservation'])
       .as('admin.hotels.fiscalDocuments.generateFromReservation')
       .use(middleware.auth())
