@@ -73,6 +73,9 @@
     "reflect-metadata": "^0.2.2",
     "resend": "^6.12.4"
   },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.57.1"
+  },
   "hotHook": {
     "boundaries": [
       "./app/controllers/**/*.ts",
