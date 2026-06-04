@@ -56,7 +56,7 @@
               <div class="label"><span class="label-text">{{ field.label }}</span></div>
 
               @if(field.type === 'select')
-                <select name="{{ field.name }}" class="select select-bordered app-strong-input w-full @if(errors?.has(field.name)) select-error @endif" {{ field.required ? 'required' : '' }}>
+                <select name="{{ field.name }}" class="select select-bordered app-strong-input w-full @if(errors?.has(field.name)) select-error @endif" {{ field.required ? 'required' : '' }} {{ field.readOnly ? 'disabled' : '' }}>
                   @if(!field.required)
                     <option value="" disabled {{ !old(field.name) && !values[field.name] ? 'selected' : '' }}>Selecciona...</option>
                   @endif
@@ -71,8 +71,6 @@
                       {{ option.extraGuestPrice !== undefined ? `data-extra-guest-price="${option.extraGuestPrice}"` : '' }}
                       {{ option.priceBasis ? `data-price-basis="${option.priceBasis}"` : '' }}
                       {{ option.pricingScope ? `data-pricing-scope="${option.pricingScope}"` : '' }}
-                      {{ option.roomId !== undefined ? `data-room-id="${option.roomId ?? ''}"` : '' }}
-                      {{ option.roomTypeId !== undefined ? `data-room-type-id="${option.roomTypeId}"` : '' }}
                     >
                       {{ option.label }}
                     </option>

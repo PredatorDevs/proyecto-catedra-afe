@@ -106,6 +106,8 @@ export default class RoomPricesController {
       {
         name: 'roomId',
         label: 'Habitación específica (opcional)',
+        helpText:
+          'Si seleccionas una habitación concreta, el alcance se ajusta automáticamente a por habitación específica.',
         type: 'select',
         colSpanMd: 2,
         colSpanXl: 1,
@@ -120,7 +122,15 @@ export default class RoomPricesController {
         options: seasons.map((item) => ({ value: item.id, label: `${item.code} - ${item.name}` })),
       },
       { name: 'name', label: 'Nombre tarifa', required: true, fullWidth: true },
-      { name: 'pricingScope', label: 'Alcance tarifario', type: 'select', options: pricingScopeOptions },
+      {
+        name: 'pricingScope',
+        label: 'Alcance tarifario',
+        type: 'select',
+        readOnly: true,
+        helpText:
+          'Se define automáticamente: por tipo de habitación cuando no hay habitación específica, o por habitación específica cuando sí la hay.',
+        options: pricingScopeOptions,
+      },
       { name: 'priceBasis', label: 'Base de cobro', type: 'select', options: priceBasisOptions },
       { name: 'priority', label: 'Prioridad', type: 'number', min: 0 },
       { name: 'validFrom', label: 'Válido desde', type: 'date', required: true },
@@ -186,7 +196,6 @@ export default class RoomPricesController {
     payload: RoomPricePayload,
     currentId?: number
   ) {
-    const pricingScope = (payload.pricingScope as PricingScope | undefined) ?? 'ROOM_TYPE'
     const priceBasis = (payload.priceBasis as PriceBasis | undefined) ?? 'NIGHT'
     const startsAt = DateTime.fromJSDate(payload.validFrom)
     const endsAt = DateTime.fromJSDate(payload.validTo)
@@ -206,6 +215,8 @@ export default class RoomPricesController {
     }
 
     let roomId: number | null = payload.roomId ?? null
+    const pricingScope: PricingScope = roomId ? 'ROOM' : 'ROOM_TYPE'
+
     if (pricingScope === 'ROOM_TYPE') {
       roomId = null
     }

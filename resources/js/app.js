@@ -309,6 +309,7 @@
     if (
       !roomTypeSelect ||
       !roomPriceSelect ||
+      !document.querySelector('[name="pricingScope"]') ||
       !adultsInput ||
       !childrenInput ||
       !guestsInput ||
@@ -352,7 +353,16 @@
       return option
     }
 
+    const pricingScopeSelect = document.querySelector('[name="pricingScope"]')
+
+    const syncPricingScope = () => {
+      if (!pricingScopeSelect) return
+      const hasRoom = String(document.querySelector('[name="roomId"]')?.value || '').trim().length > 0
+      pricingScopeSelect.value = hasRoom ? 'ROOM' : 'ROOM_TYPE'
+    }
+
     const compute = () => {
+      syncPricingScope()
       const checkIn = parseDate(checkInInput.value)
       const checkOut = parseDate(checkOutInput.value)
 
@@ -415,6 +425,7 @@
     }
 
     const watch = [
+      document.querySelector('[name="roomId"]'),
       roomTypeSelect,
       roomPriceSelect,
       adultsInput,
