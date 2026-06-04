@@ -69,12 +69,10 @@
     "edge.js": "^6.2.1",
     "luxon": "^3.7.2",
     "mysql2": "^3.17.2",
+    "@rollup/rollup-linux-x64-gnu": "4.57.1",
     "pdfkit": "^0.18.0",
     "reflect-metadata": "^0.2.2",
     "resend": "^6.12.4"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.57.1"
   },
   "hotHook": {
     "boundaries": [
